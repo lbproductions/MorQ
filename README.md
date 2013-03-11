@@ -8,7 +8,7 @@ It is currently WIP and not meant for release.
 Setup
 =====
 
-MorQ uses several levels of gut submodules. You will need to initialize these modules by running the following command:
+MorQ uses several levels of git submodules. You will need to initialize these modules by running the following command:
 ````
 git submodule update --init --recursive
 ````
