@@ -30,7 +30,7 @@ DownloadsItemModel::DownloadsItemModel(QObject *parent) :
     connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectRemoved,
             this, &DownloadsItemModel::removePackage);
 
-    foreach(QObject *object, Controller::downloadPackagesDao()->readAllObjects()) {
+    foreach(QObject *object, QPersistence::readAll<DownloadPackage>()) {
         insertPackage(object);
     }
 }
@@ -257,7 +257,7 @@ QVariant DownloadsItemModel::headerData(int section, Qt::Orientation orientation
 int DownloadsItemModel::rowCount(const QModelIndex &parent) const
 {
     if(!parent.isValid())
-        return Controller::downloadPackagesDao()->count();
+        return QPersistence::count<DownloadPackage>();
 
     DownloadPackage *package = packageByIndex(parent);
     if(!package)
@@ -294,7 +294,7 @@ QModelIndex DownloadsItemModel::index(int row, int column, const QModelIndex &pa
         return createIndex(row, column, package->downloads().at(row));
     }
 
-    DownloadPackage *package = Controller::downloadPackagesDao()->readAll().at(row);
+    DownloadPackage *package = QPersistence::readAll<DownloadPackage>().at(row);
     return createIndex(row, column, package);
 }
 
@@ -338,7 +338,7 @@ DownloadPackage *DownloadsItemModel::packageByIndex(const QModelIndex &index) co
 
 void DownloadsItemModel::insertPackage(QObject *object)
 {
-    int count = Controller::downloadPackagesDao()->count();
+    int count = QPersistence::count<DownloadPackage>();
     beginInsertRows(QModelIndex(), count, count);
 
     DownloadPackage *package = static_cast<DownloadPackage *>(object);
@@ -349,7 +349,7 @@ void DownloadsItemModel::insertPackage(QObject *object)
 
 void DownloadsItemModel::_insertPackage(DownloadPackage *package)
 {
-    m_packageRows.insert(package, Controller::downloadPackagesDao()->count());
+    m_packageRows.insert(package, QPersistence::count<DownloadPackage>());
 
     foreach(Download *dl, package->downloads()) {
         _insertDownload(dl);
@@ -383,7 +383,7 @@ void DownloadsItemModel::removePackage(QObject *object)
     beginRemoveRows(QModelIndex(), index, index);
 
     int i = 0;
-    foreach(DownloadPackage *p, Controller::downloadPackagesDao()->readAll()) {
+    foreach(DownloadPackage *p, QPersistence::readAll<DownloadPackage>()) {
         m_packageRows.remove(p);
         m_packageRows.insert(p, i);
         ++i;

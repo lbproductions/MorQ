@@ -29,7 +29,6 @@ SeasonsDAO *Controller::s_seasonDao = nullptr;
 EpisodesDAO *Controller::s_episodesDao = nullptr;
 VideoDownloadLinksDAO *Controller::s_videoDownloadLinksDao = nullptr;
 
-static QObject GUARD;
 
 bool Controller::initialize()
 {
@@ -40,33 +39,35 @@ bool Controller::initialize()
         return false;
     }
 
+    static QObject guard;
+
     // Download
-    s_downloadsDao = new DownloadsDAO(new QPersistencePersistentDataAccessObject<Download>(), &GUARD);
+    s_downloadsDao = new DownloadsDAO(new QPersistencePersistentDataAccessObject<Download>(), &guard);
     QPersistence::registerDataAccessObject<Download>(s_downloadsDao);
 
 
     // DownloadPackage
-    s_downloadPackagesDao = new DownloadPackagesDAO(new QPersistencePersistentDataAccessObject<DownloadPackage>(), &GUARD);
+    s_downloadPackagesDao = new DownloadPackagesDAO(new QPersistencePersistentDataAccessObject<DownloadPackage>(), &guard);
     QPersistence::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao);
 
 
     // Series
-    s_seriesDao = new SeriesDAO(new QPersistencePersistentDataAccessObject<Series>(), &GUARD);
+    s_seriesDao = new SeriesDAO(new QPersistencePersistentDataAccessObject<Series>(), &guard);
     QPersistence::registerDataAccessObject<Series>(s_seriesDao);
 
 
     // Season
-    s_seasonDao = new SeasonsDAO(new QPersistencePersistentDataAccessObject<Season>(), &GUARD);
+    s_seasonDao = new SeasonsDAO(new QPersistencePersistentDataAccessObject<Season>(), &guard);
     QPersistence::registerDataAccessObject<Season>(s_seasonDao);
 
 
     // Episode
-    s_episodesDao = new EpisodesDAO(new QPersistencePersistentDataAccessObject<Episode>(), &GUARD);
+    s_episodesDao = new EpisodesDAO(new QPersistencePersistentDataAccessObject<Episode>(), &guard);
     QPersistence::registerDataAccessObject<Episode>(s_episodesDao);
 
 
     // VideoDownloadLink
-    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QPersistencePersistentDataAccessObject<VideoDownloadLink>(), &GUARD);
+    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QPersistencePersistentDataAccessObject<VideoDownloadLink>(), &guard);
     QPersistence::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao);
 
 
@@ -89,6 +90,7 @@ bool Controller::initialize()
 DownloadController *Controller::downloads()
 {
     static DownloadController *controller = nullptr;
+    static QObject GUARD;
 
     if(!controller)
         controller = new DownloadController(&GUARD);
@@ -128,6 +130,7 @@ VideoDownloadLinksDAO *Controller::videoDownloadLinksDao()
 
 PluginController *Controller::plugins()
 {
+    static QObject GUARD;
     static PluginController *controller = nullptr;
 
     if(!controller)
@@ -138,6 +141,7 @@ PluginController *Controller::plugins()
 
 LinksController *Controller::links()
 {
+    static QObject GUARD;
     static LinksController *controller = nullptr;
 
     if(!controller)
@@ -148,6 +152,7 @@ LinksController *Controller::links()
 
 ExtractionController *Controller::extractor()
 {
+    static QObject GUARD;
     static ExtractionController *controller = nullptr;
 
     if(!controller)
@@ -158,6 +163,7 @@ ExtractionController *Controller::extractor()
 
 SeriesController *Controller::series()
 {
+    static QObject GUARD;
     static SeriesController *controller = nullptr;
 
     if(!controller)

@@ -28,20 +28,22 @@ class Controller
 public:
     static bool initialize();
 
+    static DownloadsDAO *downloadsDao();
+    static DownloadPackagesDAO *downloadPackagesDao();
+    static SeriesDAO *seriesDao();
+
     static DownloadController *downloads();
     static PluginController *plugins();
     static LinksController *links();
     static ExtractionController *extractor();
     static SeriesController *series();
 
-    static DownloadsDAO *downloadsDao();
-    static DownloadPackagesDAO *downloadPackagesDao();
-    static SeriesDAO *seriesDao();
+    static QNetworkAccessManager *networkAccessManager();
+
+private:
     static SeasonsDAO *seasonsDao();
     static EpisodesDAO *episodesDao();
     static VideoDownloadLinksDAO *videoDownloadLinksDao();
-
-    static QNetworkAccessManager *networkAccessManager();
 
 private:
     static DownloadsDAO *s_downloadsDao;

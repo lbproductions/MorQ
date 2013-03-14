@@ -55,7 +55,7 @@ void SerienJunkiesDecryptHandler::getInformation()
 
     connect(reply, &QSerienJunkiesReply::error, [=]() {
         m_package->setMessage(reply->errorString());
-        Controller::downloadPackagesDao()->update(m_package);
+        QPersistence::update(m_package);
     });
 
     connect(reply, &QSerienJunkiesReply::requiresCaptcha,
@@ -83,7 +83,7 @@ void SerienJunkiesDecryptHandler::requestCaptchaSolution()
             reply->solveCaptcha(solution);
     });
 
-    Controller::downloadPackagesDao()->update(m_package);
+    QPersistence::update(m_package);
 }
 
 void SerienJunkiesDecryptHandler::replyFinished()
@@ -95,8 +95,8 @@ void SerienJunkiesDecryptHandler::replyFinished()
         Download *download = Controller::links()->createDownload(url);
         m_package->addDownload(download);
         m_package->setMessage(QString());
-        Controller::downloadsDao()->update(download);
-        Controller::downloadPackagesDao()->update(m_package);
+        QPersistence::update(download);
+        QPersistence::update(m_package);
     }
 
     emit finished();

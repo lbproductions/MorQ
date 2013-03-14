@@ -98,15 +98,15 @@ void SerienjunkiesSearchHandler::searchSeasonsFinished()
         Season *season = m_series->season(number);
 
         if(!season) {
-            season = Controller::seasonsDao()->create();
+            season = QPersistence::create<Season>();
             season->setNumber(number);
             m_series->addSeason(season);
-            Controller::seasonsDao()->insert(season);
+            QPersistence::insert(season);
         }
 
         season->setSerienJunkiesTitle(se.title);
         season->setSerienJunkiesUrl(se.url);
-        Controller::seasonsDao()->update(season);
+        QPersistence::update(season);
 
         QSerienJunkiesReply *episodeReply = QSerienJunkies::searchDownloads(se.url);
         connect(episodeReply, &QSerienJunkiesReply::finished,
@@ -143,11 +143,11 @@ void SerienjunkiesSearchHandler::searchEpisodesFinished()
             Episode *episode = season->episode(enumber);
 
             if(!episode) {
-                episode = Controller::episodesDao()->create();
+                episode = QPersistence::create<Episode>();
                 episode->setNumber(enumber);
                 episode->setSerienJunkiesTitle(link.name);
                 season->addEpisode(episode);
-                Controller::episodesDao()->insert(episode);
+                QPersistence::insert(episode);
             }
         }
     }

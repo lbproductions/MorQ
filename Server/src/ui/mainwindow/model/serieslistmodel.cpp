@@ -31,5 +31,5 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
 
 QList<Series *> SeriesListModel::objects() const
 {
-    return Controller::seriesDao()->readAll();
+    return QPersistence::readAll<Series>();
 }

@@ -131,11 +131,11 @@ void NewSeriesWizard::timeout()
 
 void NewSeriesWizard::finish()
 {
-    Series *series = Controller::seriesDao()->create();
+    Series *series = QPersistence::create<Series>();
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
 
-    Controller::seriesDao()->insert(series);
+    QPersistence::insert(series);
     Controller::series()->findMissingEpisodes(series);
 }
 

@@ -56,7 +56,7 @@ PremiumizeMeDownloadHandler::PremiumizeMeDownloadHandler(Download *download, Pre
         m_download->setFileName(m_downloader->fileName());
         m_download->setMessage(m_downloader->errorString());
         m_download->setEnabled(false);
-        Controller::downloadsDao()->update(m_download);
+        QPersistence::update(m_download);
 
         this->deleteLater();
     });
@@ -83,7 +83,7 @@ QNetworkReply *PremiumizeMeDownloadHandler::getDownloadInformationReply()
     getLinkUrl.setQuery(query);
 
     m_download->setMessage("Generating url...");
-    Controller::downloadsDao()->update(m_download);
+    QPersistence::update(m_download);
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(getLinkUrl));
 
@@ -117,7 +117,7 @@ void PremiumizeMeDownloadHandler::download()
 
     connect(this, &PremiumizeMeDownloadHandler::downloadInformationReady, [=]() {
         m_download->setDestinationFolder(Preferences::downloadFolder());
-        Controller::downloadsDao()->update(m_download);
+        QPersistence::update(m_download);
 
         m_downloader->setDestinationFolder(m_download->destinationFolder());
         m_downloader->startDownload();
@@ -125,7 +125,7 @@ void PremiumizeMeDownloadHandler::download()
 
     auto connection = QObject::connect(&s_timer, &QTimer::timeout, [=]() {
         m_download->setBytesDownloaded(m_downloader->bytesWritten());
-        Controller::downloadsDao()->update(m_download);
+        QPersistence::update(m_download);
     });
 
     QObject::connect(m_download, &QObject::destroyed, [=]() {
@@ -142,7 +142,7 @@ void PremiumizeMeDownloadHandler::download()
 
     QObject::connect(m_downloader, &Downloader::finished, [=]() {
         m_download->setBytesDownloaded(m_downloader->bytesWritten());
-        Controller::downloadsDao()->update(m_download);
+        QPersistence::update(m_download);
         this->deleteLater();
     });
 }
@@ -171,7 +171,7 @@ void PremiumizeMeDownloadHandler::generateLinkReplyFinished()
 
     m_download->setRedirectedUrl(QUrl(downloadUrl));
     m_download->setMessage("Getting file information...");
-    Controller::downloadsDao()->update(m_download);
+    QPersistence::update(m_download);
 
     m_downloader->setUrl(m_download->redirectedUrl());
     m_downloader->getMetaData();
@@ -181,7 +181,7 @@ void PremiumizeMeDownloadHandler::generateLinkReplyFinished()
         m_download->setFileName(m_downloader->fileName());
         m_download->setFileSize(m_downloader->fileSize());
         m_download->setMessage("");
-        Controller::downloadsDao()->update(m_download);
+        QPersistence::update(m_download);
 
         emit downloadInformationReady();
     });
