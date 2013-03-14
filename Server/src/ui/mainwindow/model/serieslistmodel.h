@@ -1,25 +1,18 @@
 #ifndef SERIESLISTMODEL_H
 #define SERIESLISTMODEL_H
 
-#include <QAbstractListModel>
+#include "objectlistmodel.h"
 
-class Series;
+#include "model/series.h"
 
-class SeriesListModel : public QAbstractListModel
+class SeriesListModel : public ObjectListModel<Series>
 {
     Q_OBJECT
 public:
     explicit SeriesListModel(QObject *parent = 0);
 
-    QVariant data(const QModelIndex &index, int role) const;
-    int rowCount(const QModelIndex &parent) const;
-
-    Series *seriesByIndex(const QModelIndex &index) const;
-
-signals:
-    
-public slots:
-    
+    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    QList<Series *> objects() const Q_DECL_OVERRIDE;
 };
 
 #endif // SERIESLISTMODEL_H

@@ -5,6 +5,7 @@
 
 class Download;
 class DownloadPackage;
+class Episode;
 
 class LinksController : public QObject
 {
@@ -14,6 +15,8 @@ public:
 
     Download *createDownload(const QUrl &url);
     DownloadPackage *createPackage(const QUrl &url);
+
+    void downloadEpisode(Episode *episode);
 
 private slots:
     void clipboardChanged();

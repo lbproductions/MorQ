@@ -13,8 +13,8 @@
 #include "model/episode.h"
 #include "model/videodownloadlink.h"
 
-#include <QPersistence/databaseschema.h>
-#include <QPersistence/persistentdataaccessobject.h>
+#include <QPersistenceDatabaseSchema.h>
+#include <QPersistencePersistentDataAccessObject.h>
 
 #include <QObject>
 #include <QSqlDatabase>
@@ -22,12 +22,12 @@
 #include <QSqlError>
 #include <QNetworkAccessManager>
 
-QDataSuite::CachedDataAccessObject<Download> *Controller::s_downloadsDao = nullptr;
-QDataSuite::CachedDataAccessObject<DownloadPackage> *Controller::s_downloadPackagesDao = nullptr;
-QDataSuite::CachedDataAccessObject<Series> *Controller::s_seriesDao = nullptr;
-QDataSuite::CachedDataAccessObject<Season> *Controller::s_seasonDao = nullptr;
-QDataSuite::CachedDataAccessObject<Episode> *Controller::s_episodesDao = nullptr;
-QDataSuite::CachedDataAccessObject<VideoDownloadLink> *Controller::s_videoDownloadLinksDao = nullptr;
+DownloadsDAO *Controller::s_downloadsDao = nullptr;
+DownloadPackagesDAO *Controller::s_downloadPackagesDao = nullptr;
+SeriesDAO *Controller::s_seriesDao = nullptr;
+SeasonsDAO *Controller::s_seasonDao = nullptr;
+EpisodesDAO *Controller::s_episodesDao = nullptr;
+VideoDownloadLinksDAO *Controller::s_videoDownloadLinksDao = nullptr;
 
 static QObject GUARD;
 
@@ -41,61 +41,37 @@ bool Controller::initialize()
     }
 
     // Download
-    QDataSuite::registerMetaObject<Download>();
-    QPersistence::PersistentDataAccessObject<Download> *downloadsDao =
-            new QPersistence::PersistentDataAccessObject<Download>(QSqlDatabase::database(), &GUARD);
-
-    s_downloadsDao = new QDataSuite::CachedDataAccessObject<Download>(downloadsDao, &GUARD);
-    QDataSuite::registerDataAccessObject<Download>(s_downloadsDao, db.connectionName());
+    s_downloadsDao = new DownloadsDAO(new QPersistencePersistentDataAccessObject<Download>(), &GUARD);
+    QPersistence::registerDataAccessObject<Download>(s_downloadsDao);
 
 
     // DownloadPackage
-    QDataSuite::registerMetaObject<DownloadPackage>();
-    QPersistence::PersistentDataAccessObject<DownloadPackage> *downloadPackagesDao =
-            new QPersistence::PersistentDataAccessObject<DownloadPackage>(QSqlDatabase::database(), &GUARD);
-
-    s_downloadPackagesDao = new QDataSuite::CachedDataAccessObject<DownloadPackage>(downloadPackagesDao, &GUARD);
-    QDataSuite::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao, db.connectionName());
+    s_downloadPackagesDao = new DownloadPackagesDAO(new QPersistencePersistentDataAccessObject<DownloadPackage>(), &GUARD);
+    QPersistence::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao);
 
 
     // Series
-    QDataSuite::registerMetaObject<Series>();
-    QPersistence::PersistentDataAccessObject<Series> *seriesDao =
-            new QPersistence::PersistentDataAccessObject<Series>(QSqlDatabase::database(), &GUARD);
-
-    s_seriesDao = new QDataSuite::CachedDataAccessObject<Series>(seriesDao, &GUARD);
-    QDataSuite::registerDataAccessObject<Series>(s_seriesDao, db.connectionName());
+    s_seriesDao = new SeriesDAO(new QPersistencePersistentDataAccessObject<Series>(), &GUARD);
+    QPersistence::registerDataAccessObject<Series>(s_seriesDao);
 
 
     // Season
-    QDataSuite::registerMetaObject<Season>();
-    QPersistence::PersistentDataAccessObject<Season> *seasonDao =
-            new QPersistence::PersistentDataAccessObject<Season>(QSqlDatabase::database(), &GUARD);
-
-    s_seasonDao = new QDataSuite::CachedDataAccessObject<Season>(seasonDao, &GUARD);
-    QDataSuite::registerDataAccessObject<Season>(s_seasonDao, db.connectionName());
+    s_seasonDao = new SeasonsDAO(new QPersistencePersistentDataAccessObject<Season>(), &GUARD);
+    QPersistence::registerDataAccessObject<Season>(s_seasonDao);
 
 
     // Episode
-    QDataSuite::registerMetaObject<Episode>();
-    QPersistence::PersistentDataAccessObject<Episode> *episodesDao =
-            new QPersistence::PersistentDataAccessObject<Episode>(QSqlDatabase::database(), &GUARD);
-
-    s_episodesDao = new QDataSuite::CachedDataAccessObject<Episode>(episodesDao, &GUARD);
-    QDataSuite::registerDataAccessObject<Episode>(s_episodesDao, db.connectionName());
+    s_episodesDao = new EpisodesDAO(new QPersistencePersistentDataAccessObject<Episode>(), &GUARD);
+    QPersistence::registerDataAccessObject<Episode>(s_episodesDao);
 
 
     // VideoDownloadLink
-    QDataSuite::registerMetaObject<VideoDownloadLink>();
-    QPersistence::PersistentDataAccessObject<VideoDownloadLink> *downloadLinksDao =
-            new QPersistence::PersistentDataAccessObject<VideoDownloadLink>(QSqlDatabase::database(), &GUARD);
-
-    s_videoDownloadLinksDao = new QDataSuite::CachedDataAccessObject<VideoDownloadLink>(downloadLinksDao, &GUARD);
-    QDataSuite::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao, db.connectionName());
+    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QPersistencePersistentDataAccessObject<VideoDownloadLink>(), &GUARD);
+    QPersistence::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao);
 
 
     // Adjust database
-    QPersistence::DatabaseSchema databaseSchema;
+    QPersistenceDatabaseSchema databaseSchema;
     //    databaseSchema.createCleanSchema();
     databaseSchema.adjustSchema();
 
@@ -120,32 +96,32 @@ DownloadController *Controller::downloads()
     return controller;
 }
 
-QDataSuite::CachedDataAccessObject<Download> *Controller::downloadsDao()
+DownloadsDAO *Controller::downloadsDao()
 {
     return s_downloadsDao;
 }
 
-QDataSuite::CachedDataAccessObject<DownloadPackage> *Controller::downloadPackagesDao()
+DownloadPackagesDAO *Controller::downloadPackagesDao()
 {
     return s_downloadPackagesDao;
 }
 
-QDataSuite::CachedDataAccessObject<Series> *Controller::seriesDao()
+SeriesDAO *Controller::seriesDao()
 {
     return s_seriesDao;
 }
 
-QDataSuite::CachedDataAccessObject<Season> *Controller::seasonsDao()
+SeasonsDAO *Controller::seasonsDao()
 {
     return s_seasonDao;
 }
 
-QDataSuite::CachedDataAccessObject<Episode> *Controller::episodesDao()
+EpisodesDAO *Controller::episodesDao()
 {
     return s_episodesDao;
 }
 
-QDataSuite::CachedDataAccessObject<VideoDownloadLink> *Controller::videoDownloadLinksDao()
+VideoDownloadLinksDAO *Controller::videoDownloadLinksDao()
 {
     return s_videoDownloadLinksDao;
 }

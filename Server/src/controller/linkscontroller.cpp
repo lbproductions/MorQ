@@ -9,6 +9,7 @@
 
 #include "model/download.h"
 #include "model/downloadpackage.h"
+#include "model/episode.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -95,4 +96,17 @@ DownloadPackage *LinksController::createPackage(const QUrl &url)
     packageDao->insert(package);
 
     return package;
+}
+
+void LinksController::downloadEpisode(Episode *episode)
+{
+//    QUrl url = episode->downloadLinks();
+
+//    foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+//        if(decrypter->canHandleUrl(url)) {
+//            DownloadPackage *package = createPackage(url);
+//            decrypter->handlePackage(package);
+//            return;
+//        }
+//    }
 }

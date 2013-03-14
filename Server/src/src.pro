@@ -1,13 +1,9 @@
 LIBPATH = ../../lib/
 
-QDATASUITE_BASEPATH = $$LIBPATH/QDataSuite
-QDATASUITE_PATH = $$QDATASUITE_BASEPATH/QDataSuite
-include($$QDATASUITE_PATH/QDataSuite.pri)
-
-QPERSISTENCE_PATH = $$QDATASUITE_BASEPATH/QPersistence
+QPERSISTENCE_PATH = $$LIBPATH/QPersistence
 include($$QPERSISTENCE_PATH/QPersistence.pri)
 
-#QRESTSERVER_PATH = $$QDATASUITE_BASEPATH/QRestServer
+#QRESTSERVER_PATH = $$QPERSISTENCE_BASEPATH/QRestServer
 #include($$QRESTSERVER_PATH/QRestServer.pri)
 
 #QHAL_PATH = $$QRESTSERVER_PATH/lib/QHal
@@ -26,15 +22,9 @@ VERSION         = 0.0.0
 TEMPLATE        = app
 QT              += sql widgets network xml
 CONFIG          += c++11
-QMAKE_CXXFLAGS  += $$QDATASUITE_COMMON_QMAKE_CXXFLAGS
+QMAKE_CXXFLAGS  += $$QPERSISTENCE_COMMON_QMAKE_CXXFLAGS
 DEFINES         += "VERSION=\"$$VERSION\""
 LIBS            += -framework AppKit
-
-### QDataSuite ###
-
-INCLUDEPATH     += $$QDATASUITE_INCLUDEPATH
-LIBS            += $$QDATASUITE_LIBS
-
 
 ### QPersistence ###
 
@@ -97,7 +87,9 @@ HEADERS += \
     model/episode.h \
     model/season.h \
     model/series.h \
-    ui/mainwindow/model/episodeslistmodel.h
+    ui/mainwindow/model/episodeslistmodel.h \
+    ui/dialogs/choosedownloadlinksdialog.h \
+    ui/mainwindow/model/objectlistmodel.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -128,12 +120,15 @@ SOURCES += main.cpp \
     model/series.cpp \
     model/episode.cpp \
     model/season.cpp \
-    ui/mainwindow/model/episodeslistmodel.cpp
+    ui/mainwindow/model/episodeslistmodel.cpp \
+    ui/dialogs/choosedownloadlinksdialog.cpp \
+    ui/mainwindow/model/objectlistmodel.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \
     ui/preferences/preferenceswindow.ui \
-    ui/dialogs/newserieswizard.ui
+    ui/dialogs/newserieswizard.ui \
+    ui/dialogs/choosedownloadlinksdialog.ui
 
 RESOURCES += \
     ui/resources/uiresources.qrc

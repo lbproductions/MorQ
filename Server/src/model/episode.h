@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <QDataSuite/metaobject.h>
+#include <QPersistence.h>
 
 class VideoDownloadLink;
 class Season;
@@ -17,16 +17,15 @@ class Episode : public QObject
     Q_PROPERTY(Season* season READ season WRITE setSeason)
     Q_PROPERTY(QList<VideoDownloadLink*> downloadLinks READ downloadLinks WRITE setDownloadLinks)
 
-    Q_CLASSINFO(QDATASUITE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:id",
+    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
 
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:season",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:season",
                 "reverserelation=episodes;")
 
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:downloadLinks",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloadLinks",
                 "reverserelation=episode;")
-
 
 public:
     explicit Episode(QObject *parent = 0);

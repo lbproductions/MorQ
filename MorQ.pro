@@ -1,19 +1,19 @@
 TEMPLATE = subdirs
 
 CONFIG      +=  ordered
-SUBDIRS     =   QDataSuite \
+SUBDIRS     =   QPersistence \
                 QSerienJunkies \
                 QuunRar \
                 Server
 
 
-QDataSuite.subdir           =   lib/QDataSuite
+QPersistence.subdir           =   lib/QPersistence
 
 QSerienJunkies.subdir       =   lib/QSerienJunkies
 
 QuunRar.subdir              =   lib/QuunRar
 
 Server.subdir               =   Server
-Server.depends              =   QDataSuite \
+Server.depends              =   QPersistence \
                                 QSerienJunkies \
                                 QuunRar

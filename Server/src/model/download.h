@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <QDataSuite/metaobject.h>
+#include <QPersistence.h>
 
 #include <QElapsedTimer>
 #include <QUrl>
@@ -25,10 +25,10 @@ class Download : public QObject
     Q_PROPERTY(int bytesDownloaded READ bytesDownloaded WRITE setBytesDownloaded)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
-    Q_CLASSINFO(QDATASUITE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:id",
+    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:package",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:package",
                 "reverserelation=downloads;")
 
 public:

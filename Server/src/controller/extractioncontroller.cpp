@@ -20,7 +20,7 @@ ExtractionController::ExtractionController(QObject *parent) :
                 this, &ExtractionController::extractFinishedPackage);
     }
 
-    connect(Controller::downloadPackagesDao(), &QDataSuite::AbstractDataAccessObject::objectInserted, [=](QObject *obj) {
+    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectInserted, [=](QObject *obj) {
         DownloadPackage *package = qobject_cast<DownloadPackage *>(obj);
         if(!package)
             return;

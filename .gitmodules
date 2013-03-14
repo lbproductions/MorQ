@@ -1,9 +1,9 @@
-[submodule "lib/QDataSuite"]
-	path = lib/QDataSuite
-	url = git@github.com:Kampfgnom/QDataSuite.git
 [submodule "lib/QSerienJunkies"]
 	path = lib/QSerienJunkies
 	url = git@github.com:Kampfgnom/QSerienJunkies.git
 [submodule "lib/QuunRar"]
 	path = lib/QuunRar
 	url = git@github.com:Kampfgnom/QuunRar.git
+[submodule "lib/QPersistence"]
+	path = lib/QPersistence
+	url = git@github.com:Kampfgnom/QPersistence.git

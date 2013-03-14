@@ -45,6 +45,9 @@ private slots:
 
     void showSeasonsForSelectedSeries();
     void showEpisodesForSelectedSeason();
+    void enableActionsAccordingToSeriesSelection();
+
+    void on_actionAddDownload_triggered();
 
 private:
     static MainWindow *s_instance;

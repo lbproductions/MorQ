@@ -73,13 +73,7 @@ QList<VideoDownloadLink *> Episode::downloadLinks() const
 
 void Episode::addDownloadLink(VideoDownloadLink *link)
 {
-    if(m_downloadLinks.contains(link))
-        return;
-
-    connect(link, &QObject::destroyed, [=]() {
-        m_downloadLinks.removeAll(link);
-        disconnect(link, 0, this, 0);
-    });
+    Q_ASSERT(!m_downloadLinks.contains(link));
 
     link->setEpisode(this);
     m_downloadLinks.append(link);
@@ -87,8 +81,7 @@ void Episode::addDownloadLink(VideoDownloadLink *link)
 
 void Episode::removeDownloadLink(VideoDownloadLink *link)
 {
-    if(!m_downloadLinks.contains(link))
-        return;
+    Q_ASSERT(!m_downloadLinks.contains(link));
 
     link->setEpisode(nullptr);
     m_downloadLinks.removeAll(link);
@@ -96,9 +89,9 @@ void Episode::removeDownloadLink(VideoDownloadLink *link)
 
 void Episode::setDownloadLinks(const QList<VideoDownloadLink *> &links)
 {
-    foreach(VideoDownloadLink *link, links){
-        link->setEpisode(this);
-    }
+    m_downloadLinks.clear();
 
-    m_downloadLinks = links;
+    foreach(VideoDownloadLink *link, links){
+        addDownloadLink(link);
+    }
 }

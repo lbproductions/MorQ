@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <QDataSuite/metaobject.h>
+#include <QPersistence.h>
 
 #include <QElapsedTimer>
 #include <QTime>
@@ -20,10 +20,10 @@ class DownloadPackage : public QObject
     Q_PROPERTY(QList<Download*> downloads READ downloads WRITE setDownloads)
     Q_PROPERTY(QUrl sourceUrl READ sourceUrl WRITE setSourceUrl)
 
-    Q_CLASSINFO(QDATASUITE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:id",
+    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:downloads",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloads",
                 "reverserelation=package;")
 
 public:

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <QDataSuite/metaobject.h>
+#include <QPersistence.h>
 
 #include <QUrl>
 
@@ -19,11 +19,11 @@ class VideoDownloadLink : public QObject
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
     Q_PROPERTY(Episode* episode READ episode WRITE setEpisode)
 
-    Q_CLASSINFO(QDATASUITE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:id",
+    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
 
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:episode",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episode",
                 "reverserelation=downloadLinks;")
 
 public:

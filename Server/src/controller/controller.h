@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <QDataSuite/cacheddataaccessobject.h>
+#include <QPersistenceCachedDataAccessObject.h>
 
 class DownloadController;
 class PluginController;
@@ -16,6 +16,13 @@ class Season;
 class Episode;
 class VideoDownloadLink;
 
+typedef QPersistenceCachedDataAccessObject<Download> DownloadsDAO;
+typedef QPersistenceCachedDataAccessObject<DownloadPackage> DownloadPackagesDAO;
+typedef QPersistenceCachedDataAccessObject<Series> SeriesDAO;
+typedef QPersistenceCachedDataAccessObject<Season> SeasonsDAO;
+typedef QPersistenceCachedDataAccessObject<Episode> EpisodesDAO;
+typedef QPersistenceCachedDataAccessObject<VideoDownloadLink> VideoDownloadLinksDAO;
+
 class Controller
 {
 public:
@@ -27,22 +34,22 @@ public:
     static ExtractionController *extractor();
     static SeriesController *series();
 
-    static QDataSuite::CachedDataAccessObject<Download> *downloadsDao();
-    static QDataSuite::CachedDataAccessObject<DownloadPackage> *downloadPackagesDao();
-    static QDataSuite::CachedDataAccessObject<Series> *seriesDao();
-    static QDataSuite::CachedDataAccessObject<Season> *seasonsDao();
-    static QDataSuite::CachedDataAccessObject<Episode> *episodesDao();
-    static QDataSuite::CachedDataAccessObject<VideoDownloadLink> *videoDownloadLinksDao();
+    static DownloadsDAO *downloadsDao();
+    static DownloadPackagesDAO *downloadPackagesDao();
+    static SeriesDAO *seriesDao();
+    static SeasonsDAO *seasonsDao();
+    static EpisodesDAO *episodesDao();
+    static VideoDownloadLinksDAO *videoDownloadLinksDao();
 
     static QNetworkAccessManager *networkAccessManager();
 
 private:
-    static QDataSuite::CachedDataAccessObject<Download> *s_downloadsDao;
-    static QDataSuite::CachedDataAccessObject<DownloadPackage> *s_downloadPackagesDao;
-    static QDataSuite::CachedDataAccessObject<Series> *s_seriesDao;
-    static QDataSuite::CachedDataAccessObject<Season> *s_seasonDao;
-    static QDataSuite::CachedDataAccessObject<Episode> *s_episodesDao;
-    static QDataSuite::CachedDataAccessObject<VideoDownloadLink> *s_videoDownloadLinksDao;
+    static DownloadsDAO *s_downloadsDao;
+    static DownloadPackagesDAO *s_downloadPackagesDao;
+    static SeriesDAO *s_seriesDao;
+    static SeasonsDAO *s_seasonDao;
+    static EpisodesDAO *s_episodesDao;
+    static VideoDownloadLinksDAO *s_videoDownloadLinksDao;
 };
 
 #endif // CONTROLLER_H

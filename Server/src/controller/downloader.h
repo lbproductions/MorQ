@@ -10,7 +10,6 @@ class QUrl;
 class QFile;
 
 class DownloaderData;
-
 class Downloader : public QObject
 {
     Q_OBJECT
