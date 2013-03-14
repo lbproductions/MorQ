@@ -1,12 +1,13 @@
 #ifndef SEASONSLISTMODEL_H
 #define SEASONSLISTMODEL_H
 
-#include <QAbstractListModel>
+#include "objectlistmodel.h"
+
+#include "model/season.h"
 
 class Series;
-class Season;
 
-class SeasonsListModel : public QAbstractListModel
+class SeasonsListModel : public ObjectListModel<Season>
 {
     Q_OBJECT
 public:
@@ -14,10 +15,8 @@ public:
 
     void setSeries(Series *series);
 
-    QVariant data(const QModelIndex &index, int role) const;
-    int rowCount(const QModelIndex &parent) const;
-
-    Season *seasonByIndex(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    QList<Season *> objects() const Q_DECL_OVERRIDE;
 
 private:
     Series *m_series;

@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <QDataSuite/metaobject.h>
+#include <QPersistence.h>
 
 #include <QUrl>
 
@@ -20,12 +20,12 @@ class Season : public QObject
     Q_PROPERTY(Series* series READ series WRITE setSeries)
     Q_PROPERTY(QList<Episode*> episodes READ episodes WRITE setEpisodes)
 
-    Q_CLASSINFO(QDATASUITE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:id",
+    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:series",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:series",
                 "reverserelation=seasons;")
-    Q_CLASSINFO("QDATASUITE_PROPERTYMETADATA:episodes",
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episodes",
                 "reverserelation=season;")
 
 public:

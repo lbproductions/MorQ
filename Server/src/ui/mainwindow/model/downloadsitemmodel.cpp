@@ -5,9 +5,8 @@
 #include "model/download.h"
 #include "model/downloadpackage.h"
 
-#include <QDataSuite/abstractdataaccessobject.h>
-#include <QDataSuite/metaobject.h>
-#include <QDataSuite/metaproperty.h>
+#include <QPersistenceAbstractDataAccessObject.h>
+#include <QPersistence.h>
 
 #include <QFileIconProvider>
 #include <QDebug>
@@ -17,18 +16,18 @@
 DownloadsItemModel::DownloadsItemModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
-    connect(Controller::downloadsDao(), &QDataSuite::AbstractDataAccessObject::objectInserted,
+    connect(Controller::downloadsDao(), &QPersistenceAbstractDataAccessObject::objectInserted,
             this, &DownloadsItemModel::insertDownload);
-    connect(Controller::downloadsDao(), &QDataSuite::AbstractDataAccessObject::objectUpdated,
+    connect(Controller::downloadsDao(), &QPersistenceAbstractDataAccessObject::objectUpdated,
             this, &DownloadsItemModel::updateDownload);
-    connect(Controller::downloadsDao(), &QDataSuite::AbstractDataAccessObject::objectRemoved,
+    connect(Controller::downloadsDao(), &QPersistenceAbstractDataAccessObject::objectRemoved,
             this, &DownloadsItemModel::removeDownload);
 
-    connect(Controller::downloadPackagesDao(), &QDataSuite::AbstractDataAccessObject::objectInserted,
+    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectInserted,
             this, &DownloadsItemModel::insertPackage);
-    connect(Controller::downloadPackagesDao(), &QDataSuite::AbstractDataAccessObject::objectUpdated,
+    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectUpdated,
             this, &DownloadsItemModel::updatePackage);
-    connect(Controller::downloadPackagesDao(), &QDataSuite::AbstractDataAccessObject::objectRemoved,
+    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectRemoved,
             this, &DownloadsItemModel::removePackage);
 
     foreach(QObject *object, Controller::downloadPackagesDao()->readAllObjects()) {

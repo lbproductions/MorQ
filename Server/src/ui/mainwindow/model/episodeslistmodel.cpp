@@ -1,10 +1,9 @@
 #include "episodeslistmodel.h"
 
 #include "model/season.h"
-#include "model/episode.h"
 
 EpisodesListModel::EpisodesListModel(QObject *parent) :
-    QAbstractListModel(parent),
+    ObjectListModel<Episode>(parent),
     m_season(nullptr)
 {
 }
@@ -21,7 +20,7 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
 
-    Episode *episode = m_season->episodes().at(index.row());
+    Episode *episode = objectByIndex(index);
 
     switch(role) {
     case Qt::DisplayRole:
@@ -33,13 +32,10 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int EpisodesListModel::rowCount(const QModelIndex &parent) const
+QList<Episode *> EpisodesListModel::objects() const
 {
     if(!m_season)
-        return 0;
+        return QList<Episode *>();
 
-    if(parent.isValid())
-        return 0;
-
-    return m_season->episodes().size();
+    return m_season->episodes();
 }

@@ -348,6 +348,7 @@ background-color: rgb(227,227,227);
      <string>TV Shows</string>
     </property>
     <addaction name="actionAdd_show"/>
+    <addaction name="actionAddDownload"/>
    </widget>
    <addaction name="menuDownloads"/>
    <addaction name="menuTV_Shows"/>
@@ -448,6 +449,14 @@ background-color: rgb(227,227,227);
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionAddDownload">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Download</string>
    </property>
   </action>
  </widget>

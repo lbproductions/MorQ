@@ -9,6 +9,7 @@
 #include "model/episodeslistmodel.h"
 
 #include "ui/dialogs/newserieswizard.h"
+#include "ui/dialogs/choosedownloadlinksdialog.h"
 #include "ui/preferences/preferenceswindow.h"
 #include "controller/controller.h"
 #include "controller/downloadcontroller.h"
@@ -16,12 +17,16 @@
 
 #include "model/download.h"
 #include "model/downloadpackage.h"
+#include "model/episode.h"
+#include "model/season.h"
+#include "model/series.h"
 
 #include <QLabel>
 #include <QSettings>
 #include <QDebug>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QApplication>
 
 static const QString WINDOWGEOMETRY("ui/mainwindow/geometry");
 static const QString WINDOWSTATE("ui/mainwindow/state");
@@ -78,6 +83,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->treeViewSeasons->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::showEpisodesForSelectedSeason);
+
+    connect(ui->treeViewSeries->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &MainWindow::enableActionsAccordingToSeriesSelection);
+    connect(ui->treeViewSeasons->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &MainWindow::enableActionsAccordingToSeriesSelection);
+    connect(ui->treeViewEpisodes->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &MainWindow::enableActionsAccordingToSeriesSelection);
+    connect(static_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged,
+            this, &MainWindow::enableActionsAccordingToSeriesSelection);
 
     // Restore settings
     QSettings settings;
@@ -295,7 +309,7 @@ void MainWindow::showSeasonsForSelectedSeries()
         return;
     }
 
-    Series *series = m_seriesModel->seriesByIndex(list.first());
+    Series *series = m_seriesModel->objectByIndex(list.first());
     if(!series) {
         m_seasonsModel->setSeries(nullptr);
         return;
@@ -307,16 +321,106 @@ void MainWindow::showSeasonsForSelectedSeries()
 void MainWindow::showEpisodesForSelectedSeason()
 {
     QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
+
     if(list.isEmpty()) {
         m_episodesModel->setSeason(nullptr);
         return;
     }
 
-    Season *season = m_seasonsModel->seasonByIndex(list.first());
+    Season *season = m_seasonsModel->objectByIndex(list.first());
     if(!season) {
         m_episodesModel->setSeason(nullptr);
         return;
     }
 
     m_episodesModel->setSeason(season);
+}
+
+void MainWindow::enableActionsAccordingToSeriesSelection()
+{
+    QWidget *focusWidget = QApplication::focusWidget();
+
+    // TODO implement and enable downloading multiple episodes/seasons/series in one step
+
+    if(focusWidget == ui->treeViewEpisodes) {
+        QModelIndexList list = ui->treeViewEpisodes->selectionModel()->selectedRows();
+        if(!list.isEmpty()) {
+            ui->actionAddDownload->setEnabled(true);
+            ui->actionAddDownload->setText(tr("Download episode..."));
+        }
+        return;
+    }
+
+    if(focusWidget == ui->treeViewSeasons) {
+        QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
+        if(!list.isEmpty()) {
+            ui->actionAddDownload->setEnabled(false); // TODO implement and enable downloading of seasons
+            ui->actionAddDownload->setText(tr("Download season..."));
+        }
+        return;
+    }
+
+    if(focusWidget == ui->treeViewSeries) {
+        QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
+        if(!list.isEmpty()) {
+            ui->actionAddDownload->setEnabled(false); // TODO implement and enable downloading of complete series
+            ui->actionAddDownload->setText(tr("Download complete series..."));
+        }
+    }
+    else {
+        ui->actionAddDownload->setEnabled(false);
+    }
+}
+
+
+void MainWindow::on_actionAddDownload_triggered()
+{
+    QWidget *focusWidget = QApplication::focusWidget();
+
+    QList<Episode *> episodes;
+
+    if(focusWidget == ui->treeViewEpisodes) {
+        QModelIndexList list = ui->treeViewEpisodes->selectionModel()->selectedRows();
+        if(list.isEmpty())
+            return;
+
+        Episode *episode = m_episodesModel->objectByIndex(list.first());
+        if(!episode)
+            return;
+
+        episodes.append(episode);
+    }
+
+    if(focusWidget == ui->treeViewSeasons) {
+        QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
+        if(list.isEmpty())
+            return;
+
+        Season *season = m_seasonsModel->objectByIndex(list.first());
+        if(!season)
+            return;
+
+        episodes = season->episodes();
+    }
+
+    if(focusWidget == ui->treeViewSeries) {
+        QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
+        if(list.isEmpty())
+            return;
+
+        Series *series = m_seriesModel->objectByIndex(list.first());
+        if(!series)
+            return;
+
+        foreach(Season *season, series->seasons()) {
+            episodes.append(season->episodes());
+        }
+    }
+    else {
+        ui->actionAddDownload->setEnabled(false);
+    }
+
+    ChooseDownloadLinksDialog dialog;
+    dialog.setEpisodes(episodes);
+    dialog.exec();
 }

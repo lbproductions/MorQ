@@ -2,11 +2,17 @@
 
 #include "controller/controller.h"
 
-#include "model/series.h"
-
 SeriesListModel::SeriesListModel(QObject *parent) :
-    QAbstractListModel(parent)
+    ObjectListModel<Series>(parent)
 {
+    connect(Controller::seriesDao(), &SeriesDAO::objectInserted,
+            this, &SeriesListModel::objectInserted);
+
+    connect(Controller::seriesDao(), &SeriesDAO::objectUpdated,
+            this, &SeriesListModel::objectUpdated);
+
+    connect(Controller::seriesDao(), &SeriesDAO::objectRemoved,
+            this, &SeriesListModel::objectRemoved);
 }
 
 QVariant SeriesListModel::data(const QModelIndex &index, int role) const
@@ -14,23 +20,16 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
 
+    Series *series = objectByIndex(index);
     switch(role) {
     case Qt::DisplayRole:
-        return seriesByIndex(index)->title();
+        return series->title();
     }
 
     return QVariant();
 }
 
-int SeriesListModel::rowCount(const QModelIndex &parent) const
+QList<Series *> SeriesListModel::objects() const
 {
-    if(parent.isValid())
-        return 0;
-
-    return Controller::seriesDao()->count();
-}
-
-Series *SeriesListModel::seriesByIndex(const QModelIndex &index) const
-{
-    return Controller::seriesDao()->readAll().at(index.row());
+    return Controller::seriesDao()->readAll();
 }
