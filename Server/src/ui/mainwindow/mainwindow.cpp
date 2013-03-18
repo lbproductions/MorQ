@@ -3,6 +3,7 @@
 
 #include "downloadsitemdelegate.h"
 #include "serieslistitemdelegate.h"
+#include "seasonslistitemdelegate.h"
 #include "model/downloadsitemmodel.h"
 #include "model/serieslistmodel.h"
 #include "model/seasonslistmodel.h"
@@ -68,11 +69,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_seriesModel = new SeriesListModel(this);
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeries->setModel(m_seriesModel);
-    ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(this));
+    ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
 
     m_seasonsModel = new SeasonsListModel(this);
     ui->treeViewSeasons->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeasons->setModel(m_seasonsModel);
+    ui->treeViewSeasons->setItemDelegate(new SeasonsListItemDelegate(ui->treeViewSeasons, this));
 
     m_episodesModel = new EpisodesListModel(this);
     ui->treeViewEpisodes->setAttribute(Qt::WA_MacShowFocusRect, false);

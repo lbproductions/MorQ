@@ -210,7 +210,7 @@ background-color: rgb(227,227,227);
 }</string>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="pageDownloads">
            <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -264,7 +264,7 @@ background-color: rgb(227,227,227);
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="opaqueResize">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="handleWidth">
                <number>1</number>

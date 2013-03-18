@@ -1,16 +1,16 @@
-#ifndef SERIESLISTITEMDELEGATE_H
-#define SERIESLISTITEMDELEGATE_H
+#ifndef SEASONSLISTITEMDELEGATE_H
+#define SEASONSLISTITEMDELEGATE_H
 
 #include "noisygradientitemdelegate.h"
 
-class SeriesListItemDelegate : public NoisyGradientItemDelegate
+class SeasonsListItemDelegate : public NoisyGradientItemDelegate
 {
     Q_OBJECT
 public:
-    explicit SeriesListItemDelegate(QAbstractItemView *view, QObject *parent = 0);
+    explicit SeasonsListItemDelegate(QAbstractItemView *view, QObject *parent = 0);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
-#endif // SERIESLISTITEMDELEGATE_H
+#endif // SEASONSLISTITEMDELEGATE_H
