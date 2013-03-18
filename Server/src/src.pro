@@ -92,7 +92,8 @@ HEADERS += \
     ui/mainwindow/model/objectlistmodel.h \
     plugins/informationProviders/informationproviderplugin.h \
     ui/mainwindow/noisygradientitemdelegate.h \
-    ui/mainwindow/seasonslistitemdelegate.h
+    ui/mainwindow/seasonslistitemdelegate.h \
+    ui/mainwindow/episodeslistitemdelegate.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -128,7 +129,8 @@ SOURCES += main.cpp \
     ui/mainwindow/model/objectlistmodel.cpp \
     plugins/informationProviders/informationproviderplugin.cpp \
     ui/mainwindow/noisygradientitemdelegate.cpp \
-    ui/mainwindow/seasonslistitemdelegate.cpp
+    ui/mainwindow/seasonslistitemdelegate.cpp \
+    ui/mainwindow/episodeslistitemdelegate.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \

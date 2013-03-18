@@ -16,7 +16,7 @@ const bool NoisyGradientItemDelegate::TITLE_BOLD = true;
 // Background
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP1_NORMAL(255,255,255,0);
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP2_NORMAL(255,255,255,0);
-const QColor NoisyGradientItemDelegate::COLOR_LINE_BOTTOM_NORMAL(231,231,231);
+const QColor NoisyGradientItemDelegate::COLOR_LINE_BOTTOM_NORMAL(210,210,210);
 const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_TOP_NORMAL(255,255,255,0);
 const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_BOTTOM_NORMAL(255,255,255,0);
 
@@ -93,7 +93,9 @@ void NoisyGradientItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 
     painter->restore();
 
-    painter->drawTiledPixmap(option.rect, NOISY_TEXTURE);
+    if(option.state & QStyle::State_Selected) {
+        painter->drawTiledPixmap(option.rect, NOISY_TEXTURE);
+    }
 }
 
 
@@ -121,15 +123,15 @@ void NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
     painter->setPen(COLOR_TITLE_SHADOW);
     painter->drawText(option.rect.adjusted(offset.x() + TITLE_OFFSET_SHADOW.x(),
                                            offset.y() + TITLE_OFFSET_SHADOW.y(),
-                                           offset.x() + TITLE_OFFSET_SHADOW.x(),
-                                           offset.y() + TITLE_OFFSET_SHADOW.y()),
+                                           -offset.x() + TITLE_OFFSET_SHADOW.x(),
+                                           -offset.y() + TITLE_OFFSET_SHADOW.y()),
                       text);
 
     // Foreground title
     QRect titleBoundingRect;
     painter->setPen(COLOR_TITLE);
     painter->drawText(option.rect.adjusted(offset.x(), offset.y(),
-                                           offset.x(), offset.y()),
+                                           -offset.x(), -offset.y()),
                       Qt::AlignLeft,
                       text,
                       &titleBoundingRect);
@@ -161,6 +163,20 @@ void NoisyGradientItemDelegate::drawText(QPainter *painter,
     painter->restore();
 }
 
+QSize NoisyGradientItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QSize size = QStyledItemDelegate::sizeHint(option, index);
+    if(m_view->selectionModel()->selectedIndexes().contains(index)) {
+        size.setHeight(size.height() + 1);
+    }
+
+    if(m_view->selectionModel()->selectedIndexes().contains(m_view->model()->index(index.row() - 1, 0))) {
+        size.setHeight(size.height() - 1);
+    }
+
+    return size;
+}
+
 void NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges(const QItemSelection &selected, const QItemSelection &deselected)
 {
     Q_UNUSED(selected);
@@ -171,4 +187,10 @@ void NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges(const QItemSele
 
         m_view->update(m_view->model()->index(index.row() - 1, 0));
     }
+
+    QSize size = m_view->size();
+    size.setHeight(size.height() + 1);
+    m_view->resize(size);
+    size.setHeight(size.height() - 1);
+    m_view->resize(size);
 }

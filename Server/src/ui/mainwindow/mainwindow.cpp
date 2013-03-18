@@ -4,6 +4,7 @@
 #include "downloadsitemdelegate.h"
 #include "serieslistitemdelegate.h"
 #include "seasonslistitemdelegate.h"
+#include "episodeslistitemdelegate.h"
 #include "model/downloadsitemmodel.h"
 #include "model/serieslistmodel.h"
 #include "model/seasonslistmodel.h"
@@ -79,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_episodesModel = new EpisodesListModel(this);
     ui->treeViewEpisodes->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewEpisodes->setModel(m_episodesModel);
+    ui->treeViewEpisodes->setItemDelegate(new EpisodesListItemDelegate(ui->treeViewEpisodes, this));
 
     connect(ui->treeViewSeries->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::showSeasonsForSelectedSeries);

@@ -39,6 +39,8 @@ public:
     void drawTitleText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset) const;
     void drawText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset, Qt::Alignment alignment = Qt::AlignLeft | Qt::AlignTop) const;
 
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
 private slots:
     void repaintItemsWhenSelectionChanges(const QItemSelection &selected, const QItemSelection &deselected);
 

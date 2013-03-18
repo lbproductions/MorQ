@@ -19,6 +19,6 @@ void SeasonsListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 QSize SeasonsListItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QSize size = NoisyGradientItemDelegate::sizeHint(option, index);
-    size.setHeight(32);
+    size.setHeight(size.height() + 14);
     return size;
 }
