@@ -89,7 +89,8 @@ HEADERS += \
     model/series.h \
     ui/mainwindow/model/episodeslistmodel.h \
     ui/dialogs/choosedownloadlinksdialog.h \
-    ui/mainwindow/model/objectlistmodel.h
+    ui/mainwindow/model/objectlistmodel.h \
+    plugins/informationProviders/informationproviderplugin.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -122,7 +123,8 @@ SOURCES += main.cpp \
     model/season.cpp \
     ui/mainwindow/model/episodeslistmodel.cpp \
     ui/dialogs/choosedownloadlinksdialog.cpp \
-    ui/mainwindow/model/objectlistmodel.cpp
+    ui/mainwindow/model/objectlistmodel.cpp \
+    plugins/informationProviders/informationproviderplugin.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \

@@ -8,6 +8,7 @@
 #include <QUrl>
 
 class Season;
+class Episode;
 
 class Series : public QObject
 {
@@ -39,6 +40,8 @@ public:
     Season *season(int number) const;
     void removeSeason(Season *season);
     void addSeason(Season *season);
+
+    QList<Episode *> episodes() const;
 
 private:
     void setId(int id);

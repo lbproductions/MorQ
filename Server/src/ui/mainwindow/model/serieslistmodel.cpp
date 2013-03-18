@@ -24,6 +24,10 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
     switch(role) {
     case Qt::DisplayRole:
         return series->title();
+    case EpisodeCountRole:
+        return series->episodes().size();
+    case SeasonCountRole:
+        return series->seasons().size();
     }
 
     return QVariant();

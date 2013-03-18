@@ -75,6 +75,15 @@ void Series::addSeason(Season *season)
     m_seasons.insert(season->number(), season);
 }
 
+QList<Episode *> Series::episodes() const
+{
+    QList<Episode *> result;
+    foreach(Season *season, seasons()) {
+        result.append(season->episodes());
+    }
+    return result;
+}
+
 void Series::setSeasons(const QList<Season *> &seasons)
 {
     m_seasons.clear();

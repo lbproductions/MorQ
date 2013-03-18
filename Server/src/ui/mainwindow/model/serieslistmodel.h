@@ -9,6 +9,11 @@ class SeriesListModel : public ObjectListModel<Series>
 {
     Q_OBJECT
 public:
+    enum Role {
+        EpisodeCountRole = Qt::UserRole + 1,
+        SeasonCountRole
+    };
+
     explicit SeriesListModel(QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
