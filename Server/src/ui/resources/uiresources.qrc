@@ -7,4 +7,7 @@
     <qresource prefix="/statusBar">
         <file alias="background">statusBar/background.png</file>
     </qresource>
+    <qresource prefix="/general">
+        <file alias="noisy-texture-200x200">general/noisy-texture-200x200.png</file>
+    </qresource>
 </RCC>

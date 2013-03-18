@@ -39,6 +39,7 @@ SeriesListItemDelegate::SeriesListItemDelegate(QObject *parent) :
 
 void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    static const QPixmap NOISY_TEXTURE(":/general/noisy-texture-200x200");
     QColor COLOR_LINE_TOP1 = COLOR_LINE_TOP1_NORMAL;
     QColor COLOR_LINE_TOP2 = COLOR_LINE_TOP2_NORMAL;
     QColor COLOR_LINE_BOTTOM = COLOR_LINE_BOTTOM_NORMAL;
@@ -92,6 +93,8 @@ void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     painter->drawRect(gradientRect);
 
     painter->restore();
+
+    painter->drawTiledPixmap(option.rect, NOISY_TEXTURE);
 
     // Text
     painter->save();
