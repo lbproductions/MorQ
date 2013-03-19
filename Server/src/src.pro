@@ -74,7 +74,6 @@ HEADERS += \
     plugins/decrypter/serienjunkiesdecrypterplugin.h \
     ui/mainwindow/downloadsitemdelegate.h \
     controller/extractioncontroller.h \
-    controller/seriescontroller.h \
     ui/dialogs/newserieswizard.h \
     plugins/downloadProviders/downloadproviderplugin.h \
     plugins/downloadProviders/serienjunkiesproviderplugin.h \
@@ -93,7 +92,10 @@ HEADERS += \
     plugins/informationProviders/informationproviderplugin.h \
     ui/mainwindow/noisygradientitemdelegate.h \
     ui/mainwindow/seasonslistitemdelegate.h \
-    ui/mainwindow/episodeslistitemdelegate.h
+    ui/mainwindow/episodeslistitemdelegate.h \
+    model/seriesdataaccessobject.h \
+    ui/dialogs/rescancollectiondialog.h \
+    controller/filescraper.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -111,7 +113,6 @@ SOURCES += main.cpp \
     plugins/decrypter/serienjunkiesdecrypterplugin.cpp \
     ui/mainwindow/downloadsitemdelegate.cpp \
     controller/extractioncontroller.cpp \
-    controller/seriescontroller.cpp \
     ui/dialogs/newserieswizard.cpp \
     plugins/downloadProviders/downloadproviderplugin.cpp \
     plugins/downloadProviders/serienjunkiesproviderplugin.cpp \
@@ -130,13 +131,17 @@ SOURCES += main.cpp \
     plugins/informationProviders/informationproviderplugin.cpp \
     ui/mainwindow/noisygradientitemdelegate.cpp \
     ui/mainwindow/seasonslistitemdelegate.cpp \
-    ui/mainwindow/episodeslistitemdelegate.cpp
+    ui/mainwindow/episodeslistitemdelegate.cpp \
+    model/seriesdataaccessobject.cpp \
+    ui/dialogs/rescancollectiondialog.cpp \
+    controller/filescraper.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \
     ui/preferences/preferenceswindow.ui \
     ui/dialogs/newserieswizard.ui \
-    ui/dialogs/choosedownloadlinksdialog.ui
+    ui/dialogs/choosedownloadlinksdialog.ui \
+    ui/dialogs/rescancollectiondialog.ui
 
 RESOURCES += \
     ui/resources/uiresources.qrc

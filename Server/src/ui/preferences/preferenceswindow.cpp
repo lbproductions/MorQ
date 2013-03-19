@@ -4,6 +4,9 @@
 #include "preferences.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
+
+#include <QItemSelection>
 
 PreferencesWindow::PreferencesWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,9 +26,14 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) :
 
     ui->spinBoxMaxDownloads->setValue(Preferences::maxDownloads());
 
+    ui->listWidgetLocations->addItems(Preferences::seriesLocations());
+    connect(ui->listWidgetLocations->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &PreferencesWindow::enableRemoveLocationButtonUponSelection);
+
     QActionGroup *viewActionGroup = new QActionGroup(this);
     viewActionGroup->addAction(ui->actionDownloads);
     viewActionGroup->addAction(ui->actionPremuimizeMe);
+    viewActionGroup->addAction(ui->actionSeries);
 
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
@@ -77,6 +85,12 @@ void PreferencesWindow::on_actionDownloads_triggered()
     ui->stackedWidget->setCurrentWidget(ui->pageDownloads);
 }
 
+void PreferencesWindow::on_actionSeries_triggered()
+{
+    ui->actionSeries->setChecked(true);
+    ui->stackedWidget->setCurrentWidget(ui->pageSeries);
+}
+
 void PreferencesWindow::on_lineEditDownloadFolder_editingFinished()
 {
     Preferences::setDownloadFolder(ui->lineEditDownloadFolder->text());
@@ -110,4 +124,70 @@ void PreferencesWindow::on_pushButtonChooseExtractFolder_clicked()
 void PreferencesWindow::on_spinBoxMaxDownloads_editingFinished()
 {
     Preferences::setMaxDownloads(ui->spinBoxMaxDownloads->value());
+}
+
+
+void PreferencesWindow::on_pushButtonAddLocation_clicked()
+{
+    QString folder = QFileDialog::getExistingDirectory(this);
+    if(folder.isEmpty())
+        return;
+
+    if(Preferences::seriesLocations().contains(folder)) {
+        QMessageBox msg(this);
+        msg.setWindowTitle(tr(""));
+        msg.setText(tr("Location exists"));
+        msg.setInformativeText(tr("You already added this location to MorQ."));
+        msg.setIcon(QMessageBox::Information);
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.setModal(true);
+        msg.setWindowModality(Qt::WindowModal);
+        msg.exec();
+        return;
+    }
+
+    ui->listWidgetLocations->addItem(folder);
+    saveSeriesLocations();
+}
+
+void PreferencesWindow::on_pushButtonRemoveLocation_clicked()
+{
+    QMessageBox msg(this);
+    msg.setWindowTitle(tr(""));
+    msg.setText(tr("Do you really want to remove the selected location?"));
+    msg.setInformativeText(tr("Do you want to remove all shows in that location from MorQ?"));
+    msg.setModal(true);
+    msg.setWindowModality(Qt::WindowModal);
+
+    msg.setIcon(QMessageBox::Warning);
+    msg.addButton(QMessageBox::Cancel);
+    QPushButton *buttonRemove = msg.addButton(tr("Remove shows"), QMessageBox::DestructiveRole);
+    buttonRemove->setEnabled(false); // TODO: support removing all series from a remove location
+    QPushButton *buttonKeep = msg.addButton(tr("Keep shows"), QMessageBox::YesRole);
+    msg.setDefaultButton(buttonKeep);
+
+    msg.exec();
+    QAbstractButton *clickedButton = msg.clickedButton();
+    if(clickedButton == buttonKeep) {
+        delete ui->listWidgetLocations->selectedItems().first();
+        saveSeriesLocations();
+    }
+}
+
+void PreferencesWindow::enableRemoveLocationButtonUponSelection(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    Q_UNUSED(deselected);
+
+    ui->pushButtonRemoveLocation->setEnabled(!selected.isEmpty());
+}
+
+void PreferencesWindow::saveSeriesLocations()
+{
+    QStringList locations;
+    int count = ui->listWidgetLocations->count();
+    for(int i = 0; i < count; ++i) {
+        locations << ui->listWidgetLocations->item(i)->text();
+    }
+
+    Preferences::setSeriesLocations(locations);
 }

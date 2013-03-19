@@ -241,7 +241,8 @@ background-color: rgb(227,227,227);
           <widget class="QWidget" name="pageSeries">
            <property name="styleSheet">
             <string notr="true">QTreeView {
-background: url(:/general/noisy-texture-200x200) repeat-xy;
+background-image: url(:/general/noisy-texture-200x200) repeat-xy;
+background-color: #fff;
 }</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -371,6 +372,7 @@ background: url(:/general/noisy-texture-200x200) repeat-xy;
     <property name="title">
      <string>TV Shows</string>
     </property>
+    <addaction name="actionRescan_collection"/>
     <addaction name="actionAdd_show"/>
     <addaction name="actionAddDownload"/>
    </widget>
@@ -481,6 +483,17 @@ background: url(:/general/noisy-texture-200x200) repeat-xy;
    </property>
    <property name="text">
     <string>Download</string>
+   </property>
+  </action>
+  <action name="actionRescan_collection">
+   <property name="text">
+    <string>Rescan collection...</string>
+   </property>
+   <property name="toolTip">
+    <string>Rescans all configured locations for new shows, seasons and episodes</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

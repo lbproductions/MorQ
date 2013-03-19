@@ -8,10 +8,8 @@ class InformationProviderPlugin : public QObject
     Q_OBJECT
 public:
     explicit InformationProviderPlugin(QObject *parent = 0);
-    
-signals:
-    
-public slots:
+
+
     
 };
 

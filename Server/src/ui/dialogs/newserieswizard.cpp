@@ -3,7 +3,6 @@
 
 #include "controller/controller.h"
 #include "controller/plugincontroller.h"
-#include "controller/seriescontroller.h"
 #include "plugins/downloadProviders/downloadproviderplugin.h"
 
 #include "model/series.h"
@@ -134,9 +133,7 @@ void NewSeriesWizard::finish()
     Series *series = QPersistence::create<Series>();
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
-
     QPersistence::insert(series);
-    Controller::series()->findMissingEpisodes(series);
 }
 
 void NewSeriesWizard::setSeries(DownloadProviderPlugin::SeriesData series)

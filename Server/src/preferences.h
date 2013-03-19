@@ -2,6 +2,7 @@
 #define PREFERENCES_H
 
 #include <QString>
+#include <QStringList>
 
 class Preferences
 {
@@ -21,6 +22,9 @@ public:
     static void setExtractDownloads(bool extract);
     static QString extractFolder();
     static void setExtractFolder(const QString &folder);
+
+    static QStringList seriesLocations();
+    static void setSeriesLocations(const QStringList &locations);
 };
 
 #endif // PREFERENCES_H

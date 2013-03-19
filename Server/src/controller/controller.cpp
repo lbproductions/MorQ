@@ -4,7 +4,6 @@
 #include "plugincontroller.h"
 #include "linkscontroller.h"
 #include "extractioncontroller.h"
-#include "seriescontroller.h"
 
 #include "model/download.h"
 #include "model/downloadpackage.h"
@@ -52,7 +51,7 @@ bool Controller::initialize()
 
 
     // Series
-    s_seriesDao = new SeriesDAO(new QPersistencePersistentDataAccessObject<Series>(), &guard);
+    s_seriesDao = new SeriesDAO(&guard);
     QPersistence::registerDataAccessObject<Series>(s_seriesDao);
 
 
@@ -82,7 +81,6 @@ bool Controller::initialize()
     links();
     downloads();
     extractor();
-    series();
 
     return true;
 }
@@ -157,17 +155,6 @@ ExtractionController *Controller::extractor()
 
     if(!controller)
         controller = new ExtractionController(&GUARD);
-
-    return controller;
-}
-
-SeriesController *Controller::series()
-{
-    static QObject GUARD;
-    static SeriesController *controller = nullptr;
-
-    if(!controller)
-        controller = new SeriesController(&GUARD);
 
     return controller;
 }

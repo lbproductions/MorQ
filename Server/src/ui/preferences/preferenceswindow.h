@@ -7,6 +7,8 @@ namespace Ui {
 class PreferencesWindow;
 }
 
+class QItemSelection;
+
 class PreferencesWindow : public QMainWindow
 {
     Q_OBJECT
@@ -43,8 +45,18 @@ private slots:
 
     void on_spinBoxMaxDownloads_editingFinished();
 
+    void on_actionSeries_triggered();
+
+    void on_pushButtonAddLocation_clicked();
+
+    void on_pushButtonRemoveLocation_clicked();
+
+    void enableRemoveLocationButtonUponSelection(const QItemSelection &selected, const QItemSelection &deselected);
+
 private:
     Ui::PreferencesWindow *ui;
+
+    void saveSeriesLocations();
 };
 
 #endif // PREFERENCESWINDOW_H

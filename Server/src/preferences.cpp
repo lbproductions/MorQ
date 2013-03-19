@@ -10,6 +10,8 @@ static const QString EXTRACTFOLDER("downloads/extractFolder");
 static const QString DOWNLOADFOLDER("downloads/folder");
 static const QString DOWNLOADSMAX("downloads/max");
 
+static const QString SERIESLOCATIONS("series/locations");
+
 QString Preferences::premiumizeMeUserName()
 {
     QSettings settings;
@@ -80,4 +82,16 @@ void Preferences::setExtractFolder(const QString &folder)
 {
     QSettings settings;
     settings.setValue(EXTRACTFOLDER, folder);
+}
+
+QStringList Preferences::seriesLocations()
+{
+    QSettings settings;
+    return settings.value(SERIESLOCATIONS).toStringList();
+}
+
+void Preferences::setSeriesLocations(const QStringList &locations)
+{
+    QSettings settings;
+    settings.setValue(SERIESLOCATIONS, locations);
 }

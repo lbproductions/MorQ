@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QStringList>
 
 class VideoDownloadLink;
 class Season;
@@ -16,6 +17,7 @@ class Episode : public QObject
     Q_PROPERTY(QString serienJunkiesTitle READ serienJunkiesTitle WRITE setSerienJunkiesTitle)
     Q_PROPERTY(Season* season READ season WRITE setSeason)
     Q_PROPERTY(QList<VideoDownloadLink*> downloadLinks READ downloadLinks WRITE setDownloadLinks)
+    Q_PROPERTY(QStringList videoFiles READ videoFiles WRITE setVideoFiles)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
@@ -45,17 +47,22 @@ public:
     void addDownloadLink(VideoDownloadLink *link);
     void removeDownloadLink(VideoDownloadLink *link);
 
+    QStringList videoFiles() const;
+    void addVideoFile(const QString &fileName);
+
 private:
     friend class Season;
     void setId(int id);
     void setSeason(Season *season);
     void setDownloadLinks(const QList<VideoDownloadLink *> &links);
+    void setVideoFiles(const QStringList &files);
 
     int m_id;
     int m_number;
     QString m_serienJunkiesTitle;
     Season *m_season;
     QList<VideoDownloadLink *> m_downloadLinks;
+    QStringList m_videoFiles;
 };
 
 #endif // EPISODE_H

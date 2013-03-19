@@ -12,6 +12,7 @@
 
 #include "ui/dialogs/newserieswizard.h"
 #include "ui/dialogs/choosedownloadlinksdialog.h"
+#include "ui/dialogs/rescancollectiondialog.h"
 #include "ui/preferences/preferenceswindow.h"
 #include "controller/controller.h"
 #include "controller/downloadcontroller.h"
@@ -426,5 +427,12 @@ void MainWindow::on_actionAddDownload_triggered()
 
     ChooseDownloadLinksDialog dialog;
     dialog.setEpisodes(episodes);
+    dialog.exec();
+}
+
+void MainWindow::on_actionRescan_collection_triggered()
+{
+    RescanCollectionDialog dialog(this);
+    dialog.scan();
     dialog.exec();
 }

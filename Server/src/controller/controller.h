@@ -3,6 +3,8 @@
 
 #include <QPersistenceCachedDataAccessObject.h>
 
+#include "model/seriesdataaccessobject.h"
+
 class DownloadController;
 class PluginController;
 class QNetworkAccessManager;
@@ -10,7 +12,6 @@ class Download;
 class DownloadPackage;
 class LinksController;
 class ExtractionController;
-class SeriesController;
 class Series;
 class Season;
 class Episode;
@@ -18,7 +19,7 @@ class VideoDownloadLink;
 
 typedef QPersistenceCachedDataAccessObject<Download> DownloadsDAO;
 typedef QPersistenceCachedDataAccessObject<DownloadPackage> DownloadPackagesDAO;
-typedef QPersistenceCachedDataAccessObject<Series> SeriesDAO;
+typedef SeriesDataAccessObject SeriesDAO;
 typedef QPersistenceCachedDataAccessObject<Season> SeasonsDAO;
 typedef QPersistenceCachedDataAccessObject<Episode> EpisodesDAO;
 typedef QPersistenceCachedDataAccessObject<VideoDownloadLink> VideoDownloadLinksDAO;
@@ -36,7 +37,6 @@ public:
     static PluginController *plugins();
     static LinksController *links();
     static ExtractionController *extractor();
-    static SeriesController *series();
 
     static QNetworkAccessManager *networkAccessManager();
 

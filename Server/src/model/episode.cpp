@@ -95,3 +95,21 @@ void Episode::setDownloadLinks(const QList<VideoDownloadLink *> &links)
         addDownloadLink(link);
     }
 }
+
+QStringList Episode::videoFiles() const
+{
+    return m_videoFiles;
+}
+
+void Episode::addVideoFile(const QString &fileName)
+{
+    if(m_videoFiles.contains(fileName))
+        return;
+
+    m_videoFiles.append(fileName);
+}
+
+void Episode::setVideoFiles(const QStringList &files)
+{
+    m_videoFiles = files;
+}

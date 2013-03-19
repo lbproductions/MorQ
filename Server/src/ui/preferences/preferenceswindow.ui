@@ -119,6 +119,47 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageSeries">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QListWidget" name="listWidgetLocations"/>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pushButtonAddLocation">
+            <property name="text">
+             <string>Add location...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonRemoveLocation">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Remove location...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="pagePremiumize">
        <layout class="QFormLayout" name="formLayout">
         <item row="0" column="0">
@@ -166,6 +207,7 @@
    </attribute>
    <addaction name="actionDownloads"/>
    <addaction name="actionPremuimizeMe"/>
+   <addaction name="actionSeries"/>
   </widget>
   <action name="actionPremuimizeMe">
    <property name="checkable">
@@ -190,6 +232,17 @@
    </property>
    <property name="text">
     <string>Downloads</string>
+   </property>
+  </action>
+  <action name="actionSeries">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>TV Shows</string>
+   </property>
+   <property name="toolTip">
+    <string>TV Shows</string>
    </property>
   </action>
  </widget>
