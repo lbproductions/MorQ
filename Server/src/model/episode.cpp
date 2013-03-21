@@ -113,3 +113,13 @@ void Episode::setVideoFiles(const QStringList &files)
 {
     m_videoFiles = files;
 }
+
+QString Episode::title() const
+{
+    return m_title;
+}
+
+void Episode::setTitle(const QString &title)
+{
+    m_title = title;
+}

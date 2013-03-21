@@ -5,6 +5,8 @@
 
 #include "controller/filescraper.h"
 #include "model/series.h"
+#include "model/episode.h"
+#include "model/season.h"
 #include "plugins/informationProviders/thetvdbinformationprovider.h"
 #include "ui/mainwindow/model/serieslistmodel.h"
 
@@ -20,7 +22,10 @@ RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
     m_provider(nullptr),
     m_seriesDao(nullptr),
     m_seriesListModel(nullptr),
-    m_totalNewSeries(0)
+    m_totalNewSeries(0),
+    m_currentEpisode(nullptr),
+    m_totalNewEpisodes(0),
+    m_currentScrapingEpisode(0)
 {
     ui->setupUi(this);
     setWindowModality(Qt::WindowModal);
@@ -40,6 +45,9 @@ RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
             this, &RescanCollectionDialog::ignoreCurrentFolder);
     connect(ui->pushButtonSkip, &QPushButton::clicked,
             this, &RescanCollectionDialog::skipCurrentSeries);
+
+    connect(ui->pushButtonClose, &QPushButton::clicked,
+            this, &QDialog::accept);
 }
 
 RescanCollectionDialog::~RescanCollectionDialog()
@@ -63,18 +71,13 @@ void RescanCollectionDialog::checkForNewSeries()
     ui->textEdit->append(message);
 
     if(m_scraper->newSeries().isEmpty()) {
+        finish();
+    }
+    else {
         ui->textEdit->append(tr("Found %1 new seasons and %2 new episodes.")
                              .arg(m_scraper->newSeasons().size())
                              .arg(m_scraper->newEpisodes().size()));
 
-        message = tr("Done");
-        ui->labelStatus->setText(message);
-        ui->textEdit->append(message);
-        ui->progressBar->setRange(0,1);
-        ui->progressBar->setValue(1);
-        ui->pushButtonClose->setEnabled(true);
-    }
-    else {
         m_newSeries = m_scraper->newSeries();
         m_totalNewSeries = m_newSeries.size();
         confirmNextNewSeries();
@@ -219,7 +222,61 @@ void RescanCollectionDialog::scrape()
     ui->pushButtonContinue->setEnabled(false);
     ui->pushButtonIgnoreFolder->setEnabled(false);
     ui->pushButtonSkip->setEnabled(false);
-    ui->textEdit->append(tr("Scraping new shows..."));
 
+    m_newEpisodes = m_scraper->newEpisodes();
+    m_totalNewEpisodes = m_newEpisodes.size();
 
+    if(!m_newEpisodes.isEmpty()) {
+        ui->textEdit->append(tr("Scraping new episodes..."));
+        scrapeNextEpisode();
+    }
+}
+
+void RescanCollectionDialog::scrapeNextEpisode()
+{
+    delete m_provider;
+
+    if(m_currentEpisode) {
+        QPersistence::update(m_currentEpisode);
+        m_currentEpisode = nullptr;
+    }
+
+    if(m_newEpisodes.isEmpty())
+        finish();
+
+    while(!m_newEpisodes.isEmpty()) {
+        m_currentEpisode = m_newEpisodes.takeFirst();
+        ++m_currentScrapingEpisode;
+
+        if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
+            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFiles().first()));
+        }
+        else {
+            break;
+        }
+    }
+
+    if(m_currentEpisode) {
+        m_provider = new TheTvdbInformationProvider(this);
+        connect(m_provider, &InformationProviderPlugin::finished,
+                this, &RescanCollectionDialog::scrapeNextEpisode);
+
+        QString message = tr("Scraping episode %1 of %2:")
+                .arg(m_currentScrapingEpisode)
+                .arg(m_totalNewEpisodes);
+        ui->textEdit->append(message);
+        ui->textEdit->append(m_currentEpisode->videoFiles().first());
+        ui->labelStatus->setText(message);
+        m_provider->scrapeEpisode(m_currentEpisode);
+    }
+}
+
+void RescanCollectionDialog::finish()
+{
+    QString message = tr("Finished rescan!");
+    ui->textEdit->append(message);
+    ui->labelStatus->setText(message);
+    ui->pushButtonClose->setEnabled(true);
+    ui->progressBar->setRange(0,1);
+    ui->progressBar->setValue(1);
 }

@@ -14,6 +14,7 @@ template<class T>
 class QPersistenceSimpleDataAccessObject;
 class SeriesListModel;
 class QItemSelection;
+class Episode;
 
 class RescanCollectionDialog : public QDialog
 {
@@ -40,6 +41,9 @@ private slots:
     void cleanupTvdbResultsPage();
 
     void scrape();
+    void scrapeNextEpisode();
+
+    void finish();
 
 private:
     FileScraper *m_scraper;
@@ -52,6 +56,11 @@ private:
     QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
     SeriesListModel *m_seriesListModel;
     int m_totalNewSeries;
+
+    QList<Episode *> m_newEpisodes;
+    Episode *m_currentEpisode;
+    int m_totalNewEpisodes;
+    int m_currentScrapingEpisode;
 };
 
 #endif // RESCANCOLLECTIONDIALOG_H

@@ -4,6 +4,7 @@
 #include <QObject>
 
 class Series;
+class Episode;
 
 class InformationProviderPlugin : public QObject
 {
@@ -17,6 +18,7 @@ public:
     virtual void copySeries(Series *source, Series *target) const = 0;
 
     virtual void scrapeSeries(Series *series) const = 0;
+    virtual void scrapeEpisode(Episode *episode) = 0;
 
 signals:
     void finished();

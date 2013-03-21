@@ -18,6 +18,7 @@ class Episode : public QObject
     Q_PROPERTY(Season* season READ season WRITE setSeason)
     Q_PROPERTY(QList<VideoDownloadLink*> downloadLinks READ downloadLinks WRITE setDownloadLinks)
     Q_PROPERTY(QStringList videoFiles READ videoFiles WRITE setVideoFiles)
+    Q_PROPERTY(QString title READ title WRITE setTitle)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
@@ -38,9 +39,6 @@ public:
     int number() const;
     void setNumber(int number);
 
-    QString serienJunkiesTitle() const;
-    void setSerienJunkiesTitle(const QString &title);
-
     Season *season() const;
 
     QList<VideoDownloadLink *> downloadLinks() const;
@@ -49,6 +47,14 @@ public:
 
     QStringList videoFiles() const;
     void addVideoFile(const QString &fileName);
+
+    // SerienJunkies
+    QString serienJunkiesTitle() const;
+    void setSerienJunkiesTitle(const QString &title);
+
+    // TheTVDB
+    QString title() const;
+    void setTitle(const QString &title);
 
 private:
     friend class Season;
@@ -63,6 +69,7 @@ private:
     Season *m_season;
     QList<VideoDownloadLink *> m_downloadLinks;
     QStringList m_videoFiles;
+    QString m_title;
 };
 
 #endif // EPISODE_H

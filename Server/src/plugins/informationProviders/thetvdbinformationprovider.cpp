@@ -1,10 +1,14 @@
 #include "thetvdbinformationprovider.h"
 
 #include "controller/controller.h"
+#include "model/series.h"
+#include "model/season.h"
+#include "model/episode.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QXmlStreamReader>
+#include <QDebug>
 
 static const QString TOKENNAME_SERIES("Series");
 static const QString TOKENNAME_SERIES_SERIESID("seriesid");
@@ -26,10 +30,38 @@ static const QString TOKENNAME_SERIES_RUNTIME("Runtime");
 static const QString TOKENNAME_SERIES_STATUS("Status");
 static const QString TOKENNAME_SERIES_LASTUPDATED("lastupdated");
 
+static const QString TOKENNAME_EPISODE("Episode");
+static const QString TOKENNAME_EPISODE_ID("id");
+static const QString TOKENNAME_EPISODE_DVD_CHAPTER("DVD_chapter");
+static const QString TOKENNAME_EPISODE_DVD_DISCID("DVD_discid");
+static const QString TOKENNAME_EPISODE_DVD_EPISODENUMBER("DVD_episodenumber");
+static const QString TOKENNAME_EPISODE_DVD_SEASON("DVD_season");
+static const QString TOKENNAME_EPISODE_DIRECTOR("Director");
+static const QString TOKENNAME_EPISODE_EPISODENAME("EpisodeName");
+static const QString TOKENNAME_EPISODE_EPISODENUMBER("EpisodeNumber");
+static const QString TOKENNAME_EPISODE_FIRSTAIRED("FirstAired");
+static const QString TOKENNAME_EPISODE_GUESTSTARS("GuestStars");
+static const QString TOKENNAME_EPISODE_IMDB_ID("IMDB_ID");
+static const QString TOKENNAME_EPISODE_LANGUAGE("Language");
+static const QString TOKENNAME_EPISODE_OVERVIEW("Overview");
+static const QString TOKENNAME_EPISODE_PRODUCTIONCODE("ProductionCode");
+static const QString TOKENNAME_EPISODE_RATING("Rating");
+static const QString TOKENNAME_EPISODE_SEASONNUMBER("SeasonNumber");
+static const QString TOKENNAME_EPISODE_WRITER("Writer");
+static const QString TOKENNAME_EPISODE_ABSOLUTE_NUMBER("absolute_number");
+static const QString TOKENNAME_EPISODE_AIRSAFTER_SEASON("airsafter_season");
+static const QString TOKENNAME_EPISODE_AIRSBEFORE_EPISODE("airsbefore_episode");
+static const QString TOKENNAME_EPISODE_AIRSBEFORE_SEASON("airsbefore_season");
+static const QString TOKENNAME_EPISODE_FILENAME("filename");
+static const QString TOKENNAME_EPISODE_LASTUPDATED("lastupdated");
+static const QString TOKENNAME_EPISODE_SEASONID("seasonid");
+static const QString TOKENNAME_EPISODE_SERIESID("seriesid");
+
 static const QString APIKEY("691EE4AC475E9ACB");
 
 TheTvdbInformationProvider::TheTvdbInformationProvider(QObject *parent) :
-    InformationProviderPlugin(parent)
+    InformationProviderPlugin(parent),
+    m_currentEpisode(nullptr)
 {
 }
 
@@ -42,14 +74,8 @@ void TheTvdbInformationProvider::copySeries(Series *source, Series *target) cons
     target->setFirstAired(source->firstAired());
     target->setGenres(source->genres());
     target->setImdbId(source->imdbId());
-    // TODO: Add language to series
-    // TODO: Add air day of week to series
-    // TODO: Add air time to series
-    // TODO: Add network to series
-    // TODO: Add rating to series
-    // TODO: Add runtime to series
-    // TODO: Add status to series
-    // TODO: Add last updated to series
+
+    // TODO: Add missing properties to series.
 }
 
 void TheTvdbInformationProvider::searchSeries(const QString &title) const
@@ -95,9 +121,6 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
             if(name == TOKENNAME_SERIES_SERIESID) {
                 series->setTvdbId(text.toInt());
             }
-            else if(name == TOKENNAME_SERIES_LANGUAGE) {
-                // TODO: Add language to series
-            }
             else if(name == TOKENNAME_SERIES_SERIESNAME) {
                 series->setTitle(text);
             }
@@ -110,39 +133,14 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
             else if(name == TOKENNAME_SERIES_FIRSTAIRED) {
                 series->setFirstAired(QDate::fromString(text, Qt::ISODate));
             }
-            else if(name == TOKENNAME_SERIES_ID) {
-                // TODO: Same as SERIESID??
-            }
             else if(name == TOKENNAME_SERIES_ACTORS) {
                 series->setActors(text.split("|"));
-            }
-            else if(name == TOKENNAME_SERIES_AIRS_DAYOFWEEK) {
-                // TODO: Add air day of week to series
-            }
-            else if(name == TOKENNAME_SERIES_AIRS_TIME) {
-                // TODO: Add air time to series
             }
             else if(name == TOKENNAME_SERIES_GENRE) {
                 series->setGenres(text.split("|"));
             }
-            else if(name == TOKENNAME_SERIES_IMDB_ID) {
-                series->setImdbId(text);
-            }
-            else if(name == TOKENNAME_SERIES_NETWORK) {
-                // TODO: Add network to series
-            }
-            else if(name == TOKENNAME_SERIES_RATING) {
-                // TODO: Add rating to series
-            }
-            else if(name == TOKENNAME_SERIES_RUNTIME) {
-                // TODO: Add runtime to series
-            }
-            else if(name == TOKENNAME_SERIES_STATUS) {
-                // TODO: Add status to series
-            }
-            else if(name == TOKENNAME_SERIES_LASTUPDATED) {
-                // TODO: Add last updated to series
-            }
+
+            // TODO: Add missing properties to series.
         }
         else if(token == QXmlStreamReader::EndElement) {
             break;
@@ -154,5 +152,68 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
 
 void TheTvdbInformationProvider::scrapeSeries(Series *series) const
 {
+    qFatal("Not implemented");
+}
 
+void TheTvdbInformationProvider::scrapeEpisode(Episode *episode)
+{
+    m_currentEpisode = episode;
+    Season *season = episode->season();
+    Series *series = season->series();
+
+    QUrl url(QString("http://thetvdb.com/api/%1/series/%2/default/%3/%4/%5.xml")
+             .arg(APIKEY)
+             .arg(series->tvdbId())
+             .arg(season->number())
+             .arg(episode->number())
+             .arg("en")); // TODO: use actual language, once its implemented
+
+    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
+
+    connect(reply, &QNetworkReply::finished,
+            this, &TheTvdbInformationProvider::parseEpisodeReply);
+}
+
+void TheTvdbInformationProvider::parseEpisodeReply()
+{
+    if(!m_currentEpisode)
+        return;
+
+    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+
+
+    QXmlStreamReader xml(reply);
+
+    while(!xml.atEnd()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+
+        if(token == QXmlStreamReader::StartElement) {
+            QStringRef name = xml.name();
+            if(name == TOKENNAME_EPISODE)
+                parseEpisode(xml);
+        }
+    }
+
+    emit finished();
+}
+
+void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml)
+{
+    while(!xml.atEnd()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+        QStringRef name = xml.name();
+
+        if(token == QXmlStreamReader::StartElement) {
+            QString text = xml.readElementText();
+
+            if(name == TOKENNAME_EPISODE_EPISODENAME) {
+                m_currentEpisode->setTitle(text);
+            }
+
+            // TODO: Add missing properties to episode.
+        }
+        else if(token == QXmlStreamReader::EndElement) {
+            break;
+        }
+    }
 }
