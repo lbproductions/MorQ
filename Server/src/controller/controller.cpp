@@ -72,8 +72,8 @@ bool Controller::initialize()
 
     // Adjust database
     QPersistenceDatabaseSchema databaseSchema;
-    //    databaseSchema.createCleanSchema();
-    databaseSchema.adjustSchema();
+        databaseSchema.createCleanSchema();
+//    databaseSchema.adjustSchema();
 
 
     // Call these methods, to once initialize each controller

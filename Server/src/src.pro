@@ -95,7 +95,10 @@ HEADERS += \
     ui/mainwindow/episodeslistitemdelegate.h \
     model/seriesdataaccessobject.h \
     ui/dialogs/rescancollectiondialog.h \
-    controller/filescraper.h
+    controller/filescraper.h \
+    plugins/informationProviders/thetvdbinformationprovider.h \
+    ui/widgets/serieswidget.h \
+    ui/dialogs/seriessearchresultitemdelegate.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -134,14 +137,18 @@ SOURCES += main.cpp \
     ui/mainwindow/episodeslistitemdelegate.cpp \
     model/seriesdataaccessobject.cpp \
     ui/dialogs/rescancollectiondialog.cpp \
-    controller/filescraper.cpp
+    controller/filescraper.cpp \
+    plugins/informationProviders/thetvdbinformationprovider.cpp \
+    ui/widgets/serieswidget.cpp \
+    ui/dialogs/seriessearchresultitemdelegate.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \
     ui/preferences/preferenceswindow.ui \
     ui/dialogs/newserieswizard.ui \
     ui/dialogs/choosedownloadlinksdialog.ui \
-    ui/dialogs/rescancollectiondialog.ui
+    ui/dialogs/rescancollectiondialog.ui \
+    ui/widgets/serieswidget.ui
 
 RESOURCES += \
     ui/resources/uiresources.qrc

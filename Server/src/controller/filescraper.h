@@ -12,6 +12,10 @@ struct Result {
 };
 }
 
+class Series;
+class Season;
+class Episode;
+
 class FileScraper : public QObject
 {
     Q_OBJECT
@@ -19,10 +23,9 @@ class FileScraper : public QObject
 public:
     explicit FileScraper(QObject *parent = 0);
 
-    int folderCount() const;
-    int currentFolder() const;
     int locationCount() const;
-    int currentLocation() const;
+    int currentLocationCount() const;
+    QString currentLocation() const;
 
     void scanAllLocationsForShowsSeasonsAndEpisodesAsync();
 
@@ -31,8 +34,12 @@ public:
 
     QString seriesTitleFromPath(const QString &path);
 
+    QList<Series *> newSeries();
+    QList<Season *> newSeasons();
+    QList<Episode *> newEpisodes();
+
 signals:
-    void enteredFolder(const QString &folder);
+    void scrapingFile(const QString &folder);
     void finished();
 
     void result(const FileScraperPrivate::Result &result);
@@ -41,10 +48,12 @@ private slots:
     void consumeResult(const FileScraperPrivate::Result &result);
 
 private:
-    int m_folderCount;
     int m_locationCount;
-    int m_currentFolder;
-    int m_currentLocation;
+    int m_currentLocationCount;
+    QString m_currentLocation;
+    QList<Series *> m_newSeries;
+    QList<Season *> m_newSeasons;
+    QList<Episode *> m_newEpisodes;
 };
 
 Q_DECLARE_METATYPE(FileScraperPrivate::Result)

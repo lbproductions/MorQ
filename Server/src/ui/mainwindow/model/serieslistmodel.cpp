@@ -2,16 +2,17 @@
 
 #include "controller/controller.h"
 
-SeriesListModel::SeriesListModel(QObject *parent) :
-    ObjectListModel<Series>(parent)
+SeriesListModel::SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent) :
+    ObjectListModel<Series>(parent),
+    m_dao(dao)
 {
-    connect(Controller::seriesDao(), &SeriesDAO::objectInserted,
+    connect(m_dao, &SeriesDAO::objectInserted,
             this, &SeriesListModel::objectInserted);
 
-    connect(Controller::seriesDao(), &SeriesDAO::objectUpdated,
+    connect(m_dao, &SeriesDAO::objectUpdated,
             this, &SeriesListModel::objectUpdated);
 
-    connect(Controller::seriesDao(), &SeriesDAO::objectRemoved,
+    connect(m_dao, &SeriesDAO::objectRemoved,
             this, &SeriesListModel::objectRemoved);
 }
 
@@ -35,5 +36,5 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
 
 QList<Series *> SeriesListModel::objects() const
 {
-    return QPersistence::readAll<Series>();
+    return QPersistence::castList<Series>(m_dao->readAllObjects());
 }

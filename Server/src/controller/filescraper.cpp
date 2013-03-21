@@ -24,9 +24,15 @@ static QList<QRegularExpression> SERIESTITLE_REGEXPS()
 static QStringList VIDEOEXTENSIONS()
 {
     static const QStringList extensions =
-            QStringList() << "m4v" << "3gp" << "nsv" << "ts" << "ty" << "strm" << "rm" << "rmvb" << "m3u" << "ifo" << "mov" << "qt" << "divx" << "xvid" << "bivx" << "vob" << "nrg" << "img"
-                          << "iso" << "pva" << "wmv" << "asf" << "asx" << "ogm" << "m2v" << "avi" << "bin" << "dat" << "dvr-ms" << "mpg" << "mpeg" << "mp4" << "mkv" << "avc" << "vp3"
-                          << "svq3" << "nuv" << "viv" << "dv" << "fli" << "flv" << "rar" << "001" << "wpl" << "zip";
+            QStringList() << "m4v" << "3gp" << "nsv" << "ts" << "ty"
+                          << "strm" << "rm" << "rmvb" << "m3u" << "ifo"
+                          << "mov" << "qt" << "divx" << "xvid" << "bivx"
+                          << "vob" << "nrg" << "img" << "iso" << "pva"
+                          << "wmv" << "asf" << "asx" << "ogm" << "m2v"
+                          << "avi" << "bin" << "dat" << "dvr-ms" << "mpg"
+                          << "mpeg" << "mp4" << "mkv" << "avc" << "vp3"
+                          << "svq3" << "nuv" << "viv" << "dv" << "fli"
+                          << "flv" << "rar" << "001" << "wpl" << "zip";
     return extensions;
 }
 
@@ -41,10 +47,8 @@ static QString fileExtension(const QString &name)
 
 FileScraper::FileScraper(QObject *parent) :
     QObject(parent),
-    m_folderCount(-1),
     m_locationCount(-1),
-    m_currentFolder(-1),
-    m_currentLocation(-1)
+    m_currentLocationCount(-1)
 {
     connect(this, &FileScraper::result,
             this, &FileScraper::consumeResult);
@@ -52,22 +56,17 @@ FileScraper::FileScraper(QObject *parent) :
     qRegisterMetaType<FileScraperPrivate::Result>();
 }
 
-int FileScraper::folderCount() const
-{
-    return m_folderCount;
-}
-
-int FileScraper::currentFolder() const
-{
-    return m_currentFolder;
-}
-
 int FileScraper::locationCount() const
 {
     return m_locationCount;
 }
 
-int FileScraper::currentLocation() const
+int FileScraper::currentLocationCount() const
+{
+    return m_currentLocationCount;
+}
+
+QString FileScraper::currentLocation() const
 {
     return m_currentLocation;
 }
@@ -81,9 +80,10 @@ void FileScraper::scanAllLocationsForShowsSeasonsAndEpisodes()
 {
     QStringList locations = Preferences::seriesLocations();
     m_locationCount = locations.size();
-    m_currentLocation = 0;
+    m_currentLocationCount = 0;
     foreach(QString location, locations) {
-        ++m_currentLocation;
+        ++m_currentLocationCount;
+        m_currentLocation = location;
         scanLocationForShowsSeasonsAndEpisodes(location);
     }
 
@@ -92,13 +92,13 @@ void FileScraper::scanAllLocationsForShowsSeasonsAndEpisodes()
 
 void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location)
 {
-    QDir dir(location);
-    m_folderCount = dir.count();
     QDirIterator it(location, QDirIterator::Subdirectories);
     while(it.hasNext())
     {
         QString path = it.next();
         path.remove(0, location.length());
+        emit scrapingFile(path);
+
         QString extension = fileExtension(path);
         if(!VIDEOEXTENSIONS().contains(extension))
             continue;
@@ -110,17 +110,6 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
         r.absolutePath = location + path;
         emit result(r);
     }
-
-
-//    QStringList entryList = dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
-//    m_folderCount = entryList.size();
-
-//    m_currentFolder = 0;
-//    foreach(QString folder, entryList) {
-//        ++m_currentFolder;
-//        emit enteredFolder(folder);
-//        emit foundSeriesFolder(folder);
-//    }
 }
 
 QString FileScraper::seriesTitleFromPath(const QString &path)
@@ -138,6 +127,21 @@ QString FileScraper::seriesTitleFromPath(const QString &path)
     return path;
 }
 
+QList<Series *> FileScraper::newSeries()
+{
+    return m_newSeries;
+}
+
+QList<Season *> FileScraper::newSeasons()
+{
+    return m_newSeasons;
+}
+
+QList<Episode *> FileScraper::newEpisodes()
+{
+    return m_newEpisodes;
+}
+
 void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 {
     Series *series = Controller::seriesDao()->byTitle(result.seriesTitle);
@@ -146,6 +150,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         series = QPersistence::create<Series>();
         series->setTitle(result.seriesTitle);
         QPersistence::insert(series);
+        m_newSeries.append(series);
     }
 
     Season *season = series->season(result.seasonNumber);
@@ -155,6 +160,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         season->setNumber(result.seasonNumber);
         series->addSeason(season);
         QPersistence::insert(season);
+        m_newSeasons.append(season);
     }
 
     Episode *episode = season->episode(result.episodeNumber);
@@ -165,8 +171,9 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         season->addEpisode(episode);
         episode->addVideoFile(result.absolutePath);
         QPersistence::insert(episode);
+        m_newEpisodes.append(episode);
     }
-    else {
+    else if(!episode->videoFiles().contains(result.absolutePath)) {
         episode->addVideoFile(result.absolutePath);
         QPersistence::update(episode);
     }

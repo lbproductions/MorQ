@@ -14,10 +14,15 @@ public:
         SeasonCountRole
     };
 
-    explicit SeriesListModel(QObject *parent = 0);
+    explicit SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
     QList<Series *> objects() const Q_DECL_OVERRIDE;
+
+    void setDao();
+
+private:
+    QPersistenceAbstractDataAccessObject *m_dao;
 };
 
 #endif // SERIESLISTMODEL_H

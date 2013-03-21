@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::enableActionsAccordingToDownloadSelection);
 
     // Init series page
-    m_seriesModel = new SeriesListModel(this);
+    m_seriesModel = new SeriesListModel(Controller::seriesDao(), this);
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeries->setModel(m_seriesModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
