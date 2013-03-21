@@ -34,8 +34,12 @@ private slots:
     void showSelectedSeries();
 
     void saveTvdbResult();
+    void ignoreCurrentFolder();
+    void continueToNextSeriesOrStartScraping();
+    void skipCurrentSeries();
+    void cleanupTvdbResultsPage();
 
-    void accept();
+    void scrape();
 
 private:
     FileScraper *m_scraper;
@@ -45,10 +49,9 @@ private:
     QList<Series *> m_newSeries;
     InformationProviderPlugin *m_provider;
 
-    QPushButton *m_pushButtonRemoveSeries;
-    QPushButton *m_pushButtonNextSeries;
     QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
     SeriesListModel *m_seriesListModel;
+    int m_totalNewSeries;
 };
 
 #endif // RESCANCOLLECTIONDIALOG_H

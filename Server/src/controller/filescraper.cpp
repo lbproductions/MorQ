@@ -16,7 +16,7 @@
 static QList<QRegularExpression> SERIESTITLE_REGEXPS()
 {
     static const QList<QRegularExpression> list =
-            QList<QRegularExpression>() << QRegularExpression("^(.*) \\(\\d+\\)/.*") // <location>/Title (Year)/[...]
+            QList<QRegularExpression>() << QRegularExpression("^\\/(.*) \\(\\d+\\)\\/.*") // <location>/Title (Year)/[...]
                                         << QRegularExpression("^\\/([^\\/]*).*$"); // <location>/Title/[...]
     return list;
 }

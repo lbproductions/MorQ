@@ -54,7 +54,7 @@ void TheTvdbInformationProvider::copySeries(Series *source, Series *target) cons
 
 void TheTvdbInformationProvider::searchSeries(const QString &title) const
 {
-    QUrl urlGetSeries(QString("http://thetvdb.com/api/GetSeries.php?seriesname=%1").arg(title));
+    QUrl urlGetSeries(QString("http://thetvdb.com/api/GetSeries.php?seriesname=%1&language=all").arg(title));
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(urlGetSeries));
 
@@ -150,4 +150,9 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
     }
 
     InformationProviderPlugin::addResult(series);
+}
+
+void TheTvdbInformationProvider::scrapeSeries(Series *series) const
+{
+
 }

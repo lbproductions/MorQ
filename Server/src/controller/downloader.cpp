@@ -324,7 +324,7 @@ void Downloader::_finishedDownload()
     if(data->reply->error() != QNetworkReply::OperationCanceledError)
         Q_ASSERT(bytesAvailable == write);
 
-    emit bytesWritten(bytesAvailable);
+    emit bytesWritten(write);
 
     data->reply->deleteLater();
     data->file->flush();

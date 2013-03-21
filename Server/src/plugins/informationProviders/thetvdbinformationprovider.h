@@ -15,6 +15,7 @@ public:
 
     void searchSeries(const QString &title) const Q_DECL_OVERRIDE;
     void copySeries(Series *source, Series *target) const Q_DECL_OVERRIDE;
+    void scrapeSeries(Series *series) const Q_DECL_OVERRIDE;
 
 private slots:
     void parseGetSeriesReply();

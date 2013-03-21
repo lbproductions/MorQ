@@ -16,6 +16,8 @@ public:
 
     virtual void copySeries(Series *source, Series *target) const = 0;
 
+    virtual void scrapeSeries(Series *series) const = 0;
+
 signals:
     void finished();
 

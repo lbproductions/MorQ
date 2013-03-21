@@ -18,10 +18,9 @@ RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
     ui(new Ui::RescanCollectionDialog),
     m_currentSeries(nullptr),
     m_provider(nullptr),
-    m_pushButtonRemoveSeries(nullptr),
-    m_pushButtonNextSeries(nullptr),
     m_seriesDao(nullptr),
-    m_seriesListModel(nullptr)
+    m_seriesListModel(nullptr),
+    m_totalNewSeries(0)
 {
     ui->setupUi(this);
     setWindowModality(Qt::WindowModal);
@@ -29,23 +28,18 @@ RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
 
     connect(m_scraper, &FileScraper::finished,
             this, &RescanCollectionDialog::checkForNewSeries);
-    connect(ui->pushButtonSearch, &QPushButton::clicked,
-            this, &RescanCollectionDialog::search);
+
     connect(ui->lineEditSearch, &QLineEdit::returnPressed,
             ui->pushButtonSearch, &QPushButton::click);
+    connect(ui->pushButtonSearch, &QPushButton::clicked,
+            this, &RescanCollectionDialog::search);
 
-    ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(false);
-
-    m_pushButtonRemoveSeries = ui->buttonBox->addButton(tr("Remove show"), QDialogButtonBox::ApplyRole);
-    m_pushButtonNextSeries = ui->buttonBox->addButton(tr("Next >"), QDialogButtonBox::YesRole);
-    m_pushButtonRemoveSeries->setEnabled(false); // TODO: Enable the user to remove newly found series
-    m_pushButtonRemoveSeries->setVisible(false);
-    m_pushButtonNextSeries->setVisible(false);
-
-    connect(m_pushButtonNextSeries, &QPushButton::clicked,
+    connect(ui->pushButtonContinue, &QPushButton::clicked,
             this, &RescanCollectionDialog::saveTvdbResult);
-    connect(ui->buttonBox->button(QDialogButtonBox::Close), &QPushButton::clicked,
-            this, &RescanCollectionDialog::saveTvdbResult);
+    connect(ui->pushButtonIgnoreFolder, &QPushButton::clicked,
+            this, &RescanCollectionDialog::ignoreCurrentFolder);
+    connect(ui->pushButtonSkip, &QPushButton::clicked,
+            this, &RescanCollectionDialog::skipCurrentSeries);
 }
 
 RescanCollectionDialog::~RescanCollectionDialog()
@@ -76,38 +70,30 @@ void RescanCollectionDialog::checkForNewSeries()
         message = tr("Done");
         ui->labelStatus->setText(message);
         ui->textEdit->append(message);
-        ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
         ui->progressBar->setRange(0,1);
         ui->progressBar->setValue(1);
-        return;
+        ui->pushButtonClose->setEnabled(true);
     }
-
-    m_newSeries = m_scraper->newSeries();
-    confirmNextNewSeries();
+    else {
+        m_newSeries = m_scraper->newSeries();
+        m_totalNewSeries = m_newSeries.size();
+        confirmNextNewSeries();
+    }
 }
 
 void RescanCollectionDialog::confirmNextNewSeries()
 {
-    if(m_newSeries.isEmpty())
-        return;
-
     m_currentSeries = m_newSeries.takeFirst();
-
-    if(m_newSeries.isEmpty()) {
-        ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(true);
-        ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(true);
-        m_pushButtonNextSeries->setVisible(false);
-    }
-    else {
-        ui->buttonBox->button(QDialogButtonBox::Close)->setVisible(false);
-        m_pushButtonNextSeries->setVisible(true);
-    }
+    ui->labelProgress->setText(tr("TV Show %1 of %2")
+                               .arg(m_totalNewSeries - m_newSeries.size())
+                               .arg(m_totalNewSeries));
 
     ui->stackedWidget->setCurrentWidget(ui->pageConfirmTvdb);
     ui->lineEditSearch->setText(m_currentSeries->title());
     ui->lineEditSearch->setFocus();
     ui->pushButtonSearch->setDefault(true);
     ui->labelSeriesTitle->setText(m_currentSeries->title());
+
     search();
 }
 
@@ -121,17 +107,19 @@ void RescanCollectionDialog::search()
 
     ui->pushButtonSearch->setEnabled(false);
     ui->lineEditSearch->setEnabled(false);
-    ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(false);
-    m_pushButtonNextSeries->setEnabled(false);
+    ui->pushButtonContinue->setEnabled(false);
+    ui->pushButtonIgnoreFolder->setEnabled(false);
+    ui->pushButtonSkip->setEnabled(false);
+
     m_provider->searchSeries(ui->lineEditSearch->text());
 }
 
 void RescanCollectionDialog::displaySearchResults()
 {
     ui->treeView->setModel(nullptr);
-
     delete m_seriesDao;
     delete m_seriesListModel;
+
     m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
     m_seriesListModel = new SeriesListModel(m_seriesDao, this);
 
@@ -150,10 +138,10 @@ void RescanCollectionDialog::displaySearchResults()
     ui->treeView->setItemDelegate(new SeriesSearchResultItemDelegate(ui->treeView, this));
 
     ui->seriesWidget->setVisible(false);
+
     if(m_seriesDao->count() > 0) {
         ui->treeView->selectionModel()->select(m_seriesListModel->index(0), QItemSelectionModel::Select);
-        ui->buttonBox->button(QDialogButtonBox::Close)->setEnabled(true);
-        m_pushButtonNextSeries->setEnabled(true);
+        ui->pushButtonContinue->setEnabled(true);
     }
     else {
         // TODO: TVDB search: Show "No results" page
@@ -161,42 +149,77 @@ void RescanCollectionDialog::displaySearchResults()
 
     ui->pushButtonSearch->setEnabled(true);
     ui->lineEditSearch->setEnabled(true);
+    ui->pushButtonIgnoreFolder->setEnabled(false); // TODO: Enable Ignore button, when it is implemented
+    ui->pushButtonSkip->setEnabled(true);
 }
 
 void RescanCollectionDialog::showSelectedSeries()
 {
-    ui->seriesWidget->setVisible(true);
     Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
     ui->seriesWidget->setSeries(series);
+    ui->seriesWidget->setVisible(true);
 }
 
 void RescanCollectionDialog::saveTvdbResult()
 {
     Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
     m_provider->copySeries(series, m_currentSeries);
-
-    delete m_provider;
-    m_provider = nullptr;
-
+    ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
+                         .arg(series->title())
+                         .arg(series->tvdbId()));
     QPersistence::update(m_currentSeries);
 
-    QList<Series *> seriesList = m_seriesDao->readAll();
+    continueToNextSeriesOrStartScraping();
+}
 
+void RescanCollectionDialog::ignoreCurrentFolder()
+{
+    // TODO: remove the current series and add it to the ignored folders
+    skipCurrentSeries();
+}
+
+void RescanCollectionDialog::continueToNextSeriesOrStartScraping()
+{
+    cleanupTvdbResultsPage();
+
+    if(!m_newSeries.isEmpty()) {
+        confirmNextNewSeries();
+    }
+    else {
+        scrape();
+    }
+}
+
+void RescanCollectionDialog::skipCurrentSeries()
+{
+    continueToNextSeriesOrStartScraping();
+}
+
+void RescanCollectionDialog::cleanupTvdbResultsPage()
+{
     ui->treeView->setModel(nullptr);
-    delete m_seriesDao;
-    delete m_seriesListModel;
-    m_seriesDao = nullptr;
-    m_seriesListModel = nullptr;
-
+    QList<Series *> seriesList = m_seriesDao->readAll();
     foreach(Series *series, seriesList) {
         delete series;
     }
 
-    confirmNextNewSeries();
+    delete m_provider;
+    delete m_seriesDao;
+    delete m_seriesListModel;
+
+    m_provider = nullptr;
+    m_seriesDao = nullptr;
+    m_seriesListModel = nullptr;
 }
 
-void RescanCollectionDialog::accept()
+void RescanCollectionDialog::scrape()
 {
-    if(m_newSeries.isEmpty())
-        QDialog::accept();
+    ui->stackedWidget->setCurrentWidget(ui->pageScanFiles);
+    ui->labelProgress->setVisible(false);
+    ui->pushButtonContinue->setEnabled(false);
+    ui->pushButtonIgnoreFolder->setEnabled(false);
+    ui->pushButtonSkip->setEnabled(false);
+    ui->textEdit->append(tr("Scraping new shows..."));
+
+
 }
