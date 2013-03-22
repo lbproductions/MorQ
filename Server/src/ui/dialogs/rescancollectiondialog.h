@@ -34,13 +34,14 @@ private slots:
     void displaySearchResults();
     void showSelectedSeries();
 
-    void saveTvdbResult();
-    void ignoreCurrentFolder();
+    void saveTvdbResultAndContinueToNextSeries();
+    void ignoreCurrentFolderAndContinueToNextSeries();
     void continueToNextSeriesOrStartScraping();
     void skipCurrentSeries();
     void cleanupTvdbResultsPage();
 
     void scrape();
+    void scrapeNextSeries();
     void scrapeNextEpisode();
 
     void finish();
@@ -52,6 +53,7 @@ private:
     Series *m_currentSeries;
     QList<Series *> m_newSeries;
     InformationProviderPlugin *m_provider;
+    QList<Series *> m_scrapedSeries;
 
     QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
     SeriesListModel *m_seriesListModel;

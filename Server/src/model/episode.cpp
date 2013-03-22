@@ -8,7 +8,8 @@
 Episode::Episode(QObject *parent) :
     QObject(parent),
     m_id(-1),
-    m_number(0),
+    m_number(-1),
+    m_seasonNumber(-1),
     m_season(nullptr)
 {
 }
@@ -46,6 +47,18 @@ void Episode::setNumber(int number)
     m_number = number;
 }
 
+int Episode::seasonNumber() const
+{
+    return m_seasonNumber;
+}
+
+void Episode::setSeasonNumber(int number)
+{
+    Q_ASSERT_X(!m_season, Q_FUNC_INFO, "You may not set the episode's season number, once it has a season");
+
+    m_seasonNumber = number;
+}
+
 QString Episode::serienJunkiesTitle() const
 {
     return m_serienJunkiesTitle;
@@ -63,6 +76,9 @@ Season *Episode::season() const
 
 void Episode::setSeason(Season *season)
 {
+    if(season)
+        m_seasonNumber = season->number();
+
     m_season = season;
 }
 

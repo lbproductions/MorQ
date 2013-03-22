@@ -57,12 +57,172 @@ static const QString TOKENNAME_EPISODE_LASTUPDATED("lastupdated");
 static const QString TOKENNAME_EPISODE_SEASONID("seasonid");
 static const QString TOKENNAME_EPISODE_SERIESID("seriesid");
 
+static const QByteArray QNETWORKREPLY_DYNAMICPROPERTY_SERIES("THETVDBINFORMATIONSCRAPER_SERIES");
+static const QByteArray QNETWORKREPLY_DYNAMICPROPERTY_EPISODE("THETVDBINFORMATIONSCRAPER_EPISODE");
+
 static const QString APIKEY("691EE4AC475E9ACB");
 
 TheTvdbInformationProvider::TheTvdbInformationProvider(QObject *parent) :
-    InformationProviderPlugin(parent),
-    m_currentEpisode(nullptr)
+    InformationProviderPlugin(parent)
 {
+}
+
+void TheTvdbInformationProvider::searchSeries(const QString &title) const
+{
+    QUrl url(QString("http://thetvdb.com/api/GetSeries.php?seriesname=%1&language=all")
+             .arg(title)); // TODO: use actual language, once its implemented
+
+    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
+
+    connect(reply, &QNetworkReply::finished,
+            this, &TheTvdbInformationProvider::parseSearchSeriesReply);
+}
+
+void TheTvdbInformationProvider::scrapeSeries(Series *series) const
+{
+    QUrl url(QString("http://thetvdb.com/api/%1/series/%2/%3.xml")
+                      .arg(APIKEY)
+                      .arg(series->tvdbId())
+                      .arg("en")); // TODO: use actual language, once its implemented
+
+    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+
+    connect(reply, &QNetworkReply::finished,
+            this, &TheTvdbInformationProvider::parseScrapeSeriesReply);
+}
+
+void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(Series *series) const
+{
+    QUrl url(QString("http://thetvdb.com/api/%1/series/%2/all/%3.xml")
+                      .arg(APIKEY)
+                      .arg(series->tvdbId())
+                      .arg("en")); // TODO: use actual language, once its implemented
+
+    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+
+    connect(reply, &QNetworkReply::finished,
+            this, &TheTvdbInformationProvider::parseScrapeSeriesReply);
+}
+
+void TheTvdbInformationProvider::scrapeEpisode(Episode *episode) const
+{
+    Season *season = episode->season();
+    Series *series = season->series();
+
+    QUrl url(QString("http://thetvdb.com/api/%1/series/%2/default/%3/%4/%5.xml")
+             .arg(APIKEY)
+             .arg(series->tvdbId())
+             .arg(season->number())
+             .arg(episode->number())
+             .arg("en")); // TODO: use actual language, once its implemented
+
+    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE, QVariant::fromValue<Episode *>(episode));
+
+    connect(reply, &QNetworkReply::finished,
+            this, &TheTvdbInformationProvider::parseScrapeEpisodeReply);
+}
+
+void TheTvdbInformationProvider::parseSearchSeriesReply()
+{
+    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+
+    QXmlStreamReader xml(reply);
+
+    while(!xml.atEnd()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+
+        if(token == QXmlStreamReader::StartElement) {
+            QStringRef name = xml.name();
+            if(name == TOKENNAME_SERIES) {
+                Series *series = QPersistence::create<Series>();
+                TheTvdbInformationProvider::parseSeries(xml, series);
+                InformationProviderPlugin::addResult(series);
+            }
+        }
+    }
+
+    emit finished();
+}
+
+void TheTvdbInformationProvider::parseScrapeSeriesReply()
+{
+    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+    Series *series = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_SERIES).value<Series *>();
+
+    if(!series) {
+        emit finished(); // TODO: emit error;
+        return;
+    }
+
+    QXmlStreamReader xml(reply);
+
+    while(!xml.atEnd()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+
+        if(token == QXmlStreamReader::StartElement) {
+            QStringRef name = xml.name();
+            if(name == TOKENNAME_SERIES) {
+                TheTvdbInformationProvider::parseSeries(xml, series);
+                QPersistence::update(series);
+            }
+            else if(name == TOKENNAME_EPISODE) {
+                Episode *episode = QPersistence::create<Episode>();
+                TheTvdbInformationProvider::parseEpisode(xml, episode);
+
+                Season *season = series->season(episode->seasonNumber());
+
+                if(!season) {
+                    season = QPersistence::create<Season>();
+                    season->setNumber(episode->seasonNumber());
+                    series->addSeason(season);
+                    QPersistence::insert(season);
+                }
+
+                Episode *originalEpisode = season->episode(episode->number());
+
+                if(originalEpisode) {
+                    copyEpisode(episode, originalEpisode);
+                    QPersistence::update(originalEpisode);
+                    delete episode;
+                }
+                else {
+                    season->addEpisode(episode);
+                    QPersistence::insert(episode);
+                    InformationProviderPlugin::addNewEpisode(episode);
+                }
+            }
+        }
+    }
+
+    emit finished();
+}
+
+void TheTvdbInformationProvider::parseScrapeEpisodeReply()
+{
+    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+    Episode *episode = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE).value<Episode *>();
+
+    if(!episode) {
+        emit finished(); // TODO: emit error;
+        return;
+    }
+
+    QXmlStreamReader xml(reply);
+
+    while(!xml.atEnd()) {
+        QXmlStreamReader::TokenType token = xml.readNext();
+
+        if(token == QXmlStreamReader::StartElement) {
+            QStringRef name = xml.name();
+            if(name == TOKENNAME_EPISODE)
+                TheTvdbInformationProvider::parseEpisode(xml, episode);
+        }
+    }
+
+    emit finished();
 }
 
 void TheTvdbInformationProvider::copySeries(Series *source, Series *target) const
@@ -78,39 +238,29 @@ void TheTvdbInformationProvider::copySeries(Series *source, Series *target) cons
     // TODO: Add missing properties to series.
 }
 
-void TheTvdbInformationProvider::searchSeries(const QString &title) const
+void TheTvdbInformationProvider::copyEpisode(Episode *source, Episode *target) const
 {
-    QUrl urlGetSeries(QString("http://thetvdb.com/api/GetSeries.php?seriesname=%1&language=all").arg(title));
+    target->setTitle(source->title());
 
-    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(urlGetSeries));
-
-    connect(reply, &QNetworkReply::finished,
-            this, &TheTvdbInformationProvider::parseGetSeriesReply);
-}
-
-void TheTvdbInformationProvider::parseGetSeriesReply()
-{
-    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
-
-    QXmlStreamReader xml(reply);
-
-    while(!xml.atEnd()) {
-        QXmlStreamReader::TokenType token = xml.readNext();
-
-        if(token == QXmlStreamReader::StartElement) {
-            QStringRef name = xml.name();
-            if(name == TOKENNAME_SERIES)
-                parseSeries(xml);
-        }
+    if(target->seasonNumber() < 0) {
+        target->setSeasonNumber(source->seasonNumber());
+    }
+    else if(source->seasonNumber() != target->seasonNumber()){
+        qWarning() << Q_FUNC_INFO << "source->seasonNumber() != target->seasonNumber()";
     }
 
-    emit finished();
+    if(target->number() < 0) {
+        target->setNumber(target->number());
+    }
+    else if(source->number() != target->number()){
+        qWarning() << Q_FUNC_INFO << "source->number() != target->number()";
+    }
+
+    // TODO: Add missing properties to episode.
 }
 
-void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
+void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, Series *series)
 {
-    Series *series = QPersistence::create<Series>();
-
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
         QStringRef name = xml.name();
@@ -146,58 +296,9 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml)
             break;
         }
     }
-
-    InformationProviderPlugin::addResult(series);
 }
 
-void TheTvdbInformationProvider::scrapeSeries(Series *series) const
-{
-    qFatal("Not implemented");
-}
-
-void TheTvdbInformationProvider::scrapeEpisode(Episode *episode)
-{
-    m_currentEpisode = episode;
-    Season *season = episode->season();
-    Series *series = season->series();
-
-    QUrl url(QString("http://thetvdb.com/api/%1/series/%2/default/%3/%4/%5.xml")
-             .arg(APIKEY)
-             .arg(series->tvdbId())
-             .arg(season->number())
-             .arg(episode->number())
-             .arg("en")); // TODO: use actual language, once its implemented
-
-    QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
-
-    connect(reply, &QNetworkReply::finished,
-            this, &TheTvdbInformationProvider::parseEpisodeReply);
-}
-
-void TheTvdbInformationProvider::parseEpisodeReply()
-{
-    if(!m_currentEpisode)
-        return;
-
-    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
-
-
-    QXmlStreamReader xml(reply);
-
-    while(!xml.atEnd()) {
-        QXmlStreamReader::TokenType token = xml.readNext();
-
-        if(token == QXmlStreamReader::StartElement) {
-            QStringRef name = xml.name();
-            if(name == TOKENNAME_EPISODE)
-                parseEpisode(xml);
-        }
-    }
-
-    emit finished();
-}
-
-void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml)
+void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml, Episode *episode)
 {
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
@@ -207,7 +308,31 @@ void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml)
             QString text = xml.readElementText();
 
             if(name == TOKENNAME_EPISODE_EPISODENAME) {
-                m_currentEpisode->setTitle(text);
+                episode->setTitle(text);
+            }
+            else if(name == TOKENNAME_EPISODE_EPISODENUMBER) {
+                bool ok = false;
+                int number = text.toInt(&ok);
+                if(ok) {
+                    if(episode->number() < 0) {
+                        episode->setNumber(number);
+                    }
+                    else if(episode->number() != number){
+                        qWarning() << Q_FUNC_INFO << "episode->number() != number";
+                    }
+                }
+            }
+            else if(name == TOKENNAME_EPISODE_SEASONNUMBER) {
+                bool ok = false;
+                int number = text.toInt(&ok);
+                if(ok) {
+                    if(episode->seasonNumber() < 0) {
+                        episode->setSeasonNumber(number);
+                    }
+                    else if(episode->seasonNumber() != number){
+                        qWarning() << Q_FUNC_INFO << "episode->seasonNumber() != number";
+                    }
+                }
             }
 
             // TODO: Add missing properties to episode.

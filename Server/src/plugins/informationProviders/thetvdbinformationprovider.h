@@ -15,18 +15,19 @@ public:
 
     void searchSeries(const QString &title) const Q_DECL_OVERRIDE;
     void copySeries(Series *source, Series *target) const Q_DECL_OVERRIDE;
+    void copyEpisode(Episode *source, Episode *target) const Q_DECL_OVERRIDE;
     void scrapeSeries(Series *series) const Q_DECL_OVERRIDE;
-    void scrapeEpisode(Episode *episode) Q_DECL_OVERRIDE;
+    void scrapeSeriesIncludingEpisodes(Series *series) const Q_DECL_OVERRIDE;
+    void scrapeEpisode(Episode *episode) const Q_DECL_OVERRIDE;
 
 private slots:
-    void parseGetSeriesReply();
-    void parseEpisodeReply();
+    void parseSearchSeriesReply();
+    void parseScrapeEpisodeReply();
+    void parseScrapeSeriesReply();
 
 private:
-    void parseSeries(QXmlStreamReader &xml);
-    void parseEpisode(QXmlStreamReader &xml);
-
-    Episode *m_currentEpisode;
+    static void parseSeries(QXmlStreamReader &xml, Series *series);
+    static void parseEpisode(QXmlStreamReader &xml, Episode *episode);
 };
 
 #endif // THETVDBINFORMATIONPROVIDER_H

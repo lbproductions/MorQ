@@ -40,9 +40,9 @@ RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
             this, &RescanCollectionDialog::search);
 
     connect(ui->pushButtonContinue, &QPushButton::clicked,
-            this, &RescanCollectionDialog::saveTvdbResult);
+            this, &RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries);
     connect(ui->pushButtonIgnoreFolder, &QPushButton::clicked,
-            this, &RescanCollectionDialog::ignoreCurrentFolder);
+            this, &RescanCollectionDialog::ignoreCurrentFolderAndContinueToNextSeries);
     connect(ui->pushButtonSkip, &QPushButton::clicked,
             this, &RescanCollectionDialog::skipCurrentSeries);
 
@@ -126,7 +126,7 @@ void RescanCollectionDialog::displaySearchResults()
     m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
     m_seriesListModel = new SeriesListModel(m_seriesDao, this);
 
-    foreach(Series *series, m_provider->results()) {
+    foreach(Series *series, m_provider->seriesSearchResults()) {
         m_seriesDao->insert(series);
     }
 
@@ -163,19 +163,22 @@ void RescanCollectionDialog::showSelectedSeries()
     ui->seriesWidget->setVisible(true);
 }
 
-void RescanCollectionDialog::saveTvdbResult()
+void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
 {
     Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
     m_provider->copySeries(series, m_currentSeries);
     ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
                          .arg(series->title())
                          .arg(series->tvdbId()));
+
     QPersistence::update(m_currentSeries);
+    m_scrapedSeries.append(m_currentSeries);
+    m_currentSeries = nullptr;
 
     continueToNextSeriesOrStartScraping();
 }
 
-void RescanCollectionDialog::ignoreCurrentFolder()
+void RescanCollectionDialog::ignoreCurrentFolderAndContinueToNextSeries()
 {
     // TODO: remove the current series and add it to the ignored folders
     skipCurrentSeries();
@@ -201,10 +204,6 @@ void RescanCollectionDialog::skipCurrentSeries()
 void RescanCollectionDialog::cleanupTvdbResultsPage()
 {
     ui->treeView->setModel(nullptr);
-    QList<Series *> seriesList = m_seriesDao->readAll();
-    foreach(Series *series, seriesList) {
-        delete series;
-    }
 
     delete m_provider;
     delete m_seriesDao;
@@ -224,25 +223,89 @@ void RescanCollectionDialog::scrape()
     ui->pushButtonSkip->setEnabled(false);
 
     m_newEpisodes = m_scraper->newEpisodes();
-    m_totalNewEpisodes = m_newEpisodes.size();
 
-    if(!m_newEpisodes.isEmpty()) {
-        ui->textEdit->append(tr("Scraping new episodes..."));
+    if(!m_scrapedSeries.isEmpty()) {
+        ui->textEdit->append(tr("Scraping new series..."));
+    }
+    else {
+        ui->textEdit->append(tr("No new series to scrape."));
+    }
+
+    scrapeNextSeries();
+}
+
+void RescanCollectionDialog::scrapeNextSeries()
+{
+    if(m_currentSeries) {
+        QPersistence::update(m_currentSeries);
+
+        foreach(Season *season, m_currentSeries->seasons()) {
+            foreach(Episode *episode, season->episodes()) {
+                m_newEpisodes.removeAll(episode);
+            }
+        }
+
+        m_currentSeries = nullptr;
+    }
+
+    delete m_provider;
+    m_provider = nullptr;
+
+    if(m_scrapedSeries.isEmpty()) {
+        if(m_newEpisodes.isEmpty()) {
+            ui->textEdit->append(tr("No new episodes left for scraping."));
+        }
+        else {
+            m_totalNewEpisodes = m_newEpisodes.size();
+            ui->textEdit->append(tr("Scraping new episodes..."));
+        }
         scrapeNextEpisode();
+        return;
+    }
+
+    while(!m_scrapedSeries.isEmpty()) {
+        m_currentSeries = m_scrapedSeries.takeFirst();
+
+        if(m_currentSeries->tvdbId() <= 0) {
+            ui->textEdit->append(tr("Skipping %1").arg(m_currentSeries->title()));
+            m_currentSeries = nullptr;
+        }
+        else {
+            break;
+        }
+    }
+
+    if(m_currentSeries) {
+        m_provider = new TheTvdbInformationProvider(this);
+        connect(m_provider, &InformationProviderPlugin::finished,
+                this, &RescanCollectionDialog::scrapeNextSeries);
+
+        QString message = tr("Scraping series: %1")
+                .arg(m_currentSeries->title());
+        ui->textEdit->append(message);
+        ui->labelStatus->setText(message);
+        m_provider->scrapeSeriesIncludingEpisodes(m_currentSeries);
+    }
+    else {
+        scrapeNextSeries(); // this should only happen, when there are no series left
+        // i.e. this leads to the episode scraping
     }
 }
 
 void RescanCollectionDialog::scrapeNextEpisode()
 {
     delete m_provider;
+    m_provider = nullptr;
 
     if(m_currentEpisode) {
         QPersistence::update(m_currentEpisode);
         m_currentEpisode = nullptr;
     }
 
-    if(m_newEpisodes.isEmpty())
+    if(m_newEpisodes.isEmpty()) {
         finish();
+        return;
+    }
 
     while(!m_newEpisodes.isEmpty()) {
         m_currentEpisode = m_newEpisodes.takeFirst();
@@ -250,6 +313,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
 
         if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
             ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFiles().first()));
+            m_currentEpisode = nullptr;
         }
         else {
             break;
@@ -268,6 +332,10 @@ void RescanCollectionDialog::scrapeNextEpisode()
         ui->textEdit->append(m_currentEpisode->videoFiles().first());
         ui->labelStatus->setText(message);
         m_provider->scrapeEpisode(m_currentEpisode);
+    }
+    else {
+        finish(); // this should only happen, when there are no episodes left
+                  // i.e. this leads to the finish()
     }
 }
 

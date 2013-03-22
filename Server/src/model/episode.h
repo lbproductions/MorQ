@@ -39,6 +39,9 @@ public:
     int number() const;
     void setNumber(int number);
 
+    int seasonNumber() const;
+    void setSeasonNumber(int number);
+
     Season *season() const;
 
     QList<VideoDownloadLink *> downloadLinks() const;
@@ -65,6 +68,7 @@ private:
 
     int m_id;
     int m_number;
+    int m_seasonNumber;
     QString m_serienJunkiesTitle;
     Season *m_season;
     QList<VideoDownloadLink *> m_downloadLinks;
