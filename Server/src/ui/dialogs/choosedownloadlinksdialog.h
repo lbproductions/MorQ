@@ -22,6 +22,8 @@ public:
 private slots:
     void addMirrorsBasedOnSelectedFormat();
 
+    void finish();
+
 private:
     Ui::ChooseDownloadLinksDialog *ui;
 

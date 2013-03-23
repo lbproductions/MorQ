@@ -130,10 +130,17 @@ void NewSeriesWizard::timeout()
 
 void NewSeriesWizard::finish()
 {
-    Series *series = QPersistence::create<Series>();
+    Series *series = Controller::seriesDao()->byTitle(m_currentSeries.title);
+    if(series == 0) {
+        series = QPersistence::create<Series>();
+        QPersistence::insert(series);
+    }
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
-    QPersistence::insert(series);
+
+    Controller::plugins()->downloadProviderPlugins().first()->findMissingEpisodes(series);
+
+    QPersistence::update(series);
 }
 
 void NewSeriesWizard::setSeries(DownloadProviderPlugin::SeriesData series)

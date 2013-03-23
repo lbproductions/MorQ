@@ -10,6 +10,7 @@
 #include "model/download.h"
 #include "model/downloadpackage.h"
 #include "model/episode.h"
+#include "model/videodownloadlink.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -108,5 +109,19 @@ void LinksController::downloadEpisode(Episode *episode)
 //            decrypter->handlePackage(package);
 //            return;
 //        }
-//    }
+    //    }
+}
+
+void LinksController::downloadVideos(QList<VideoDownloadLink *> links)
+{
+    foreach(VideoDownloadLink* link, links) {
+        QUrl url = link->url();
+        foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+            if(decrypter->canHandleUrl(url)) {
+                DownloadPackage *package = createPackage(url);
+                decrypter->handlePackage(package);
+                return;
+            }
+        }
+    }
 }

@@ -87,6 +87,17 @@ QList<VideoDownloadLink *> Episode::downloadLinks() const
     return m_downloadLinks;
 }
 
+QList<VideoDownloadLink *> Episode::downloadLinks(const QString &formatDescription, const QString &mirror) const
+{
+    QList<VideoDownloadLink *> list;
+    foreach(VideoDownloadLink *link, m_downloadLinks) {
+        if(link->formatDescription() == formatDescription && link->mirror() == mirror) {
+            list.append(link);
+        }
+    }
+    return list;
+}
+
 void Episode::addDownloadLink(VideoDownloadLink *link)
 {
     Q_ASSERT(!m_downloadLinks.contains(link));
@@ -138,4 +149,14 @@ QString Episode::title() const
 void Episode::setTitle(const QString &title)
 {
     m_title = title;
+}
+
+QString Episode::overview() const
+{
+    return m_overview;
+}
+
+void Episode::setOverview(const QString &overview)
+{
+    m_overview = overview;
 }

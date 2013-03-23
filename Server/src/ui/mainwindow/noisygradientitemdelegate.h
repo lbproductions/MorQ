@@ -11,7 +11,7 @@ class NoisyGradientItemDelegate : public QStyledItemDelegate
 public:
     // Text
     static const QPoint TITLE_OFFSET_SHADOW;
-    static const QColor COLOR_TITLE_NORMAL;
+    static QColor COLOR_TITLE_NORMAL;
     static const QColor COLOR_TITLE_NORMAL_SHADOW;
     static const QColor COLOR_TITLE_SELECTED;
     static const QColor COLOR_TITLE_SELECTED_SHADOW;
@@ -37,7 +37,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
     void drawTitleText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset) const;
-    void drawText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset, Qt::Alignment alignment = Qt::AlignLeft | Qt::AlignTop) const;
+    void drawText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset, int alignment = Qt::AlignLeft | Qt::AlignTop) const;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 

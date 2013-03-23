@@ -4,6 +4,10 @@
 #include "seriessearchresultitemdelegate.h"
 
 #include "controller/filescraper.h"
+#include "controller/controller.h"
+#include "controller/plugincontroller.h"
+#include "plugins/downloadProviders/downloadproviderplugin.h"
+#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
 #include "model/series.h"
 #include "model/episode.h"
 #include "model/season.h"
@@ -170,6 +174,7 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
     ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
                          .arg(series->title())
                          .arg(series->tvdbId()));
+
 
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);

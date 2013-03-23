@@ -5,7 +5,7 @@
 
 // Text
 const QPoint NoisyGradientItemDelegate::TITLE_OFFSET_SHADOW(0, -1); // relative to title offset
-const QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL(75,77,80);
+QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL(75,77,80);
 const QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL_SHADOW(222,222,222);
 const QColor NoisyGradientItemDelegate::COLOR_TITLE_SELECTED(231,240,249);
 const QColor NoisyGradientItemDelegate::COLOR_TITLE_SELECTED_SHADOW(45,130,201);
@@ -142,7 +142,7 @@ void NoisyGradientItemDelegate::drawText(QPainter *painter,
                                          const QStyleOptionViewItem &option,
                                          const QString &text,
                                          const QPoint &offset,
-                                         Qt::Alignment alignment) const
+                                         int alignment) const
 {
     QColor COLOR_TEXT = COLOR_TEXT_NORMAL;
 

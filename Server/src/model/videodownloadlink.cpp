@@ -60,6 +60,11 @@ void VideoDownloadLink::setUrl(const QUrl &url)
     m_url  = url;
 }
 
+QString VideoDownloadLink::mirror() const
+{
+    return m_mirror;
+}
+
 Episode *VideoDownloadLink::episode() const
 {
     return m_episode;
@@ -68,4 +73,10 @@ Episode *VideoDownloadLink::episode() const
 void VideoDownloadLink::setEpisode(Episode *episode)
 {
     m_episode  = episode;
+}
+
+
+void VideoDownloadLink::setMirror(const QString &mirror)
+{
+    m_mirror = mirror;
 }

@@ -17,6 +17,8 @@ public:
     QList<DecrypterPlugin *> decrypterPlugins() const;
     QList<DownloadProviderPlugin *> downloadProviderPlugins() const;
 
+    DownloadProviderPlugin * downloadProviderPluginByName(QString name) const;
+
     void registerHoster(HosterPlugin *hoster);
     void registerDecrypter(DecrypterPlugin *decrypter);
     void registerDownloadProvider(DownloadProviderPlugin *provider);
