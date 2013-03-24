@@ -6,7 +6,7 @@
 // Text
 const QPoint NoisyGradientItemDelegate::TITLE_OFFSET_SHADOW(0, -1); // relative to title offset
 QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL(75,77,80);
-const QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL_SHADOW(222,222,222);
+QColor NoisyGradientItemDelegate::COLOR_TITLE_NORMAL_SHADOW(222,222,222);
 const QColor NoisyGradientItemDelegate::COLOR_TITLE_SELECTED(231,240,249);
 const QColor NoisyGradientItemDelegate::COLOR_TITLE_SELECTED_SHADOW(45,130,201);
 const QColor NoisyGradientItemDelegate::COLOR_TEXT_NORMAL(148,149,151);
@@ -17,8 +17,8 @@ const bool NoisyGradientItemDelegate::TITLE_BOLD = true;
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP1_NORMAL(255,255,255,0);
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP2_NORMAL(255,255,255,0);
 const QColor NoisyGradientItemDelegate::COLOR_LINE_BOTTOM_NORMAL(210,210,210);
-const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_TOP_NORMAL(255,255,255,0);
-const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_BOTTOM_NORMAL(255,255,255,0);
+QColor NoisyGradientItemDelegate::COLOR_GRADIENT_TOP_NORMAL(255,255,255,0);
+QColor NoisyGradientItemDelegate::COLOR_GRADIENT_BOTTOM_NORMAL(255,255,255,0);
 
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP1_SELECTED(79,154,221);
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP2_SELECTED(138,185,231);

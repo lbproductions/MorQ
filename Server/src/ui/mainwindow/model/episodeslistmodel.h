@@ -15,7 +15,8 @@ public:
 
     enum Role{
         TitleRole = Qt::UserRole + 1,
-        VideoPathRole
+        VideoPathRole,
+        DownloadLinkRole
     };
     
     void setSeason(Season *season);

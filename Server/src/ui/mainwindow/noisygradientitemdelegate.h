@@ -12,7 +12,7 @@ public:
     // Text
     static const QPoint TITLE_OFFSET_SHADOW;
     static QColor COLOR_TITLE_NORMAL;
-    static const QColor COLOR_TITLE_NORMAL_SHADOW;
+    static QColor COLOR_TITLE_NORMAL_SHADOW;
     static const QColor COLOR_TITLE_SELECTED;
     static const QColor COLOR_TITLE_SELECTED_SHADOW;
     static const QColor COLOR_TEXT_NORMAL;
@@ -23,8 +23,8 @@ public:
     static const QColor COLOR_LINE_TOP1_NORMAL;
     static const QColor COLOR_LINE_TOP2_NORMAL;
     static const QColor COLOR_LINE_BOTTOM_NORMAL;
-    static const QColor COLOR_GRADIENT_TOP_NORMAL;
-    static const QColor COLOR_GRADIENT_BOTTOM_NORMAL;
+    static QColor COLOR_GRADIENT_TOP_NORMAL;
+    static QColor COLOR_GRADIENT_BOTTOM_NORMAL;
 
     static const QColor COLOR_LINE_TOP1_SELECTED;
     static const QColor COLOR_LINE_TOP2_SELECTED;

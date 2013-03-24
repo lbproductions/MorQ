@@ -27,6 +27,11 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
         files = episode->videoFiles().first();
     }
 
+    QString links = "";
+    if(episode->downloadLinks().size() > 0) {
+        links = "Downloads available";
+    }
+
     switch(role) {
     case Qt::DisplayRole:
         return QString("E%1 - %2")
@@ -38,6 +43,9 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     case TitleRole:
         return QString("%1")
                 .arg(episode->overview());
+    case DownloadLinkRole:
+        return QString("%1")
+                .arg(links);
     }
 
     return QVariant();
