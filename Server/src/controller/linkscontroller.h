@@ -6,6 +6,7 @@
 class Download;
 class DownloadPackage;
 class Episode;
+class VideoDownloadLink;
 
 class LinksController : public QObject
 {
@@ -17,6 +18,8 @@ public:
     DownloadPackage *createPackage(const QUrl &url);
 
     void downloadEpisode(Episode *episode);
+
+    void downloadVideos(QList<VideoDownloadLink*> links);
 
 private slots:
     void clipboardChanged();

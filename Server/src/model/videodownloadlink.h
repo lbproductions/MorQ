@@ -41,6 +41,9 @@ public:
     QUrl url() const;
     void setUrl(const QUrl &url);
 
+    QString mirror() const;
+    void setMirror(const QString &mirror);
+
     Episode *episode() const;
 
 private:
@@ -52,6 +55,7 @@ private:
     QString m_name;
     QString m_formatDescription;
     QUrl m_url;
+    QString m_mirror;
     Episode *m_episode;
 };
 

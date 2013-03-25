@@ -4,6 +4,10 @@
 #include "seriessearchresultitemdelegate.h"
 
 #include "controller/filescraper.h"
+#include "controller/controller.h"
+#include "controller/plugincontroller.h"
+#include "plugins/downloadProviders/downloadproviderplugin.h"
+#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
 #include "model/series.h"
 #include "model/episode.h"
 #include "model/season.h"
@@ -171,6 +175,8 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
                          .arg(series->title())
                          .arg(series->tvdbId()));
 
+    searchDownlaodsAtSerienjunkies();
+
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
     m_currentSeries = nullptr;
@@ -212,6 +218,29 @@ void RescanCollectionDialog::cleanupTvdbResultsPage()
     m_provider = nullptr;
     m_seriesDao = nullptr;
     m_seriesListModel = nullptr;
+}
+
+void RescanCollectionDialog::searchDownlaodsAtSerienjunkies()
+{
+    DownloadProviderPlugin *plugin = Controller::plugins()->downloadProviderPluginByName("serienjunkies.org");
+
+    plugin->searchSeries(m_currentSeries->title());
+
+    connect(plugin, &DownloadProviderPlugin::foundSeries, this, &RescanCollectionDialog::downloadsFoundAtSerienjunkies);
+}
+
+void RescanCollectionDialog::downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series)
+{
+
+    //TODO: Find a better way to get the right serie (with not the same name)
+    Series* serie = Controller::seriesDao()->byTitle(series.first().title);
+
+    if(serie != 0 && serie->serienJunkiesUrl().toString() == ""){
+       serie->setSerienJunkiesUrl(series.first().url);
+       Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
+       ui->textEdit->append("Serienjunkies-Url for " + series.first().title + " found: " + series.first().url.toString());
+       QPersistence::update(serie);
+    }
 }
 
 void RescanCollectionDialog::scrape()

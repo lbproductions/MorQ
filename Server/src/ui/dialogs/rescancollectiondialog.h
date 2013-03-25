@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "plugins/downloadProviders/downloadproviderplugin.h"
+
 namespace Ui {
 class RescanCollectionDialog;
 }
@@ -39,6 +41,9 @@ private slots:
     void continueToNextSeriesOrStartScraping();
     void skipCurrentSeries();
     void cleanupTvdbResultsPage();
+
+    void searchDownlaodsAtSerienjunkies();
+    void downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);
 
     void scrape();
     void scrapeNextSeries();

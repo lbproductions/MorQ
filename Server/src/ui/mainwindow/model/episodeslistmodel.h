@@ -12,6 +12,12 @@ class EpisodesListModel : public ObjectListModel<Episode>
     Q_OBJECT
 public:
     explicit EpisodesListModel(QObject *parent = 0);
+
+    enum Role{
+        TitleRole = Qt::UserRole + 1,
+        VideoPathRole,
+        DownloadLinkRole
+    };
     
     void setSeason(Season *season);
 

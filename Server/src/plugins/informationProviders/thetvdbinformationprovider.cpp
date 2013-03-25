@@ -256,7 +256,7 @@ void TheTvdbInformationProvider::copyEpisode(Episode *source, Episode *target) c
         qWarning() << Q_FUNC_INFO << "source->number() != target->number()";
     }
 
-    // TODO: Add missing properties to episode.
+    target->setOverview(source->overview());
 }
 
 void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, Series *series)
@@ -333,6 +333,9 @@ void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml, Episode *ep
                         qWarning() << Q_FUNC_INFO << "episode->seasonNumber() != number";
                     }
                 }
+            }
+            else if(name == TOKENNAME_EPISODE_OVERVIEW) {
+              episode->setOverview(text);
             }
 
             // TODO: Add missing properties to episode.

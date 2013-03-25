@@ -32,6 +32,15 @@ QList<DownloadProviderPlugin *> PluginController::downloadProviderPlugins() cons
     return m_downloadProviderPlugins;
 }
 
+DownloadProviderPlugin *PluginController::downloadProviderPluginByName(QString name) const
+{
+    foreach(DownloadProviderPlugin* plugin, m_downloadProviderPlugins) {
+        if(plugin->name() == name) {
+            return plugin;
+        }
+    }
+}
+
 void PluginController::registerHoster(HosterPlugin *hoster)
 {
     m_hosterPlugins.append(hoster);

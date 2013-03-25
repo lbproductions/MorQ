@@ -119,7 +119,7 @@ void SerienjunkiesSearchHandler::searchSeasonsFinished()
             if(m_seasonsNotFinishedCount == 0)
                 this->deleteLater();
 
-            episodeReply->deleteLater();
+            //episodeReply->deleteLater();
         });
     }
 
@@ -131,23 +131,31 @@ void SerienjunkiesSearchHandler::searchEpisodesFinished()
     QSerienJunkiesReply *reply = static_cast<QSerienJunkiesReply *>(sender());
 
     foreach(QSerienJunkiesReply::Format format, reply->formats()) {
-        foreach(QSerienJunkiesReply::DownloadLink link, reply->downloadLinks(format, format.mirrors)) {
-            int snumber = QSerienJunkies::seasonNumberFromName(link.name);
-            int enumber = QSerienJunkies::episodeNumberFromName(link.name);
+        foreach(QString mirror, format.mirrors) {
+            foreach(QSerienJunkiesReply::DownloadLink link, reply->downloadLinks(format, mirror)) {
+                int snumber = QSerienJunkies::seasonNumberFromName(link.name);
+                int enumber = QSerienJunkies::episodeNumberFromName(link.name);
 
-            Season *season = m_series->season(snumber);
-            if(!season) {
-                continue;
-            }
+                Season *season = m_series->season(snumber);
+                if(!season) {
+                    continue;
+                }
 
-            Episode *episode = season->episode(enumber);
+                Episode *episode = season->episode(enumber);
 
-            if(!episode) {
-                episode = QPersistence::create<Episode>();
-                episode->setNumber(enumber);
-                episode->setSerienJunkiesTitle(link.name);
-                season->addEpisode(episode);
-                QPersistence::insert(episode);
+                if(!episode) {
+                    episode = QPersistence::create<Episode>();
+                    episode->setNumber(enumber);
+                    episode->setSerienJunkiesTitle(link.name);
+                    season->addEpisode(episode);
+                    QPersistence::insert(episode);
+                }
+
+                VideoDownloadLink* vLink = new VideoDownloadLink();
+                vLink->setFormatDescription(format.description);
+                vLink->setUrl(link.url);
+                vLink->setMirror(mirror);
+                episode->addDownloadLink(vLink);
             }
         }
     }
