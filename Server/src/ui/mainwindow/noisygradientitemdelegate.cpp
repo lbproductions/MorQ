@@ -14,6 +14,7 @@ const QColor NoisyGradientItemDelegate::COLOR_TITLE_SELECTED_SHADOW(45,130,201);
 const QColor NoisyGradientItemDelegate::COLOR_TEXT_NORMAL(148,149,151);
 const QColor NoisyGradientItemDelegate::COLOR_TEXT_SELECTED(231,240,249);
 const bool NoisyGradientItemDelegate::TITLE_BOLD = true;
+const int NoisyGradientItemDelegate::TEXT_FOOT_DISTANCE(5);
 
 // Background
 const QColor NoisyGradientItemDelegate::COLOR_LINE_TOP1_NORMAL(255,255,255,0);
@@ -178,7 +179,7 @@ QRectF NoisyGradientItemDelegate::drawText(QPainter *painter,
     font.setBold(false);
     painter->setFont(font);
     painter->drawText(option.rect.adjusted(offset.x(), offset.y(),
-                                           offset.x(), offset.y()),
+                                           0, -TEXT_FOOT_DISTANCE),
                       alignment,
                       text,
                       &boundingRect);
