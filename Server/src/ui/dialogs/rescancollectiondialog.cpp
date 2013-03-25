@@ -133,6 +133,8 @@ void RescanCollectionDialog::displaySearchResults()
 
     foreach(Series *series, m_provider->seriesSearchResults()) {
         m_seriesDao->insert(series);
+        connect(series, &Series::checkStateChanged,
+                this, &RescanCollectionDialog::enableContinueButtonBasedOnCheckStates);
     }
 
     ui->treeView->setModel(m_seriesListModel);
@@ -219,6 +221,17 @@ void RescanCollectionDialog::cleanupTvdbResultsPage()
     m_provider = nullptr;
     m_seriesDao = nullptr;
     m_seriesListModel = nullptr;
+}
+
+void RescanCollectionDialog::enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState)
+{
+    if(oldState == Qt::Checked) {
+        ui->pushButtonContinue->setEnabled(false);
+    }
+
+    if(newState == Qt::Checked) {
+        ui->pushButtonContinue->setEnabled(true);
+    }
 }
 
 void RescanCollectionDialog::searchDownlaodsAtSerienjunkies()

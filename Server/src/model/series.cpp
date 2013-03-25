@@ -208,5 +208,10 @@ Qt::CheckState Series::checkState() const
 
 void Series::setCheckState(const Qt::CheckState &checkState)
 {
+    if(checkState == m_checkState)
+        return;
+
+    Qt::CheckState oldState = m_checkState;
     m_checkState = checkState;
+    emit checkStateChanged(oldState, m_checkState);
 }

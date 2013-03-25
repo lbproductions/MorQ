@@ -52,22 +52,22 @@ bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, i
     if(role == Qt::CheckStateRole) {
         Series *series = objectByIndex(index);
         Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
-        series->setCheckState(checkState);
-        emit dataChanged(index, index);
 
         if(checkState == Qt::Checked) {
-            int count = rowCount();
-            for(int row = 0; row < count; ++row) {
-                QModelIndex i = this->index(row);
-                Series *s = objectByIndex(i);
-                if(s->checkState() == Qt::Checked
-                        && series != s) {
-                    s->setCheckState(Qt::PartiallyChecked);
-                    emit dataChanged(i, i);
+            if(m_lastCheckedIndex.isValid()) {
+                Series *lastCheckedSeries = objectByIndex(m_lastCheckedIndex);
+
+                if(lastCheckedSeries && lastCheckedSeries != series && lastCheckedSeries->checkState() == Qt::Checked) {
+                    lastCheckedSeries->setCheckState(Qt::PartiallyChecked);
+                    emit dataChanged(m_lastCheckedIndex, m_lastCheckedIndex);
                 }
             }
+
+            m_lastCheckedIndex = index;
         }
 
+        series->setCheckState(checkState);
+        emit dataChanged(index, index);
         return true;
     }
 

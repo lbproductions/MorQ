@@ -27,6 +27,7 @@ public:
 private:
     QPersistenceAbstractDataAccessObject *m_dao;
     bool m_checkable;
+    QModelIndex m_lastCheckedIndex;
 };
 
 #endif // SERIESLISTMODEL_H

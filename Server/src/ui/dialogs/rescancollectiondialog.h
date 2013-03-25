@@ -41,6 +41,7 @@ private slots:
     void continueToNextSeriesOrStartScraping();
     void skipCurrentSeries();
     void cleanupTvdbResultsPage();
+    void enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState);
 
     void searchDownlaodsAtSerienjunkies();
     void downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);

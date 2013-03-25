@@ -91,6 +91,9 @@ public:
     Qt::CheckState checkState() const;
     void setCheckState(const Qt::CheckState &checkState);
 
+signals:
+    void checkStateChanged(Qt::CheckState oldState, Qt::CheckState newState);
+
 private:
     void setId(int id);
     void setSeasons(const QList<Season *> &seasons);
