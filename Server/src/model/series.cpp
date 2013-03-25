@@ -241,7 +241,12 @@ void Series::addLanguage(QLocale::Language language)
 
 QPixmap Series::primaryLanguageFlag() const
 {
-    QString flag = QString(":/flags/%1.png").arg(Series::tvdbLanguage(m_primaryLanguage));
+    return Series::languageFlag(m_primaryLanguage);
+}
+
+QPixmap Series::languageFlag(QLocale::Language language)
+{
+    QString flag = QString(":/flags/%1.png").arg(Series::tvdbLanguage(language));
     QPixmap pm;
     if(!QPixmapCache::find(flag, pm)) {
         pm = QPixmap(flag);

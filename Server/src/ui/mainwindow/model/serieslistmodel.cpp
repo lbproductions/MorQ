@@ -46,6 +46,8 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
         return series->seasons().size();
     case Qt::DecorationRole:
         return series->primaryLanguageFlag();
+    case RawDataRole:
+        return QVariant::fromValue<Series *>(series);
     }
 
     return QVariant();

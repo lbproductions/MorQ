@@ -73,6 +73,8 @@ public:
 
     QString tvdbLanguage() const;
 
+    QPixmap primaryLanguageFlag() const;
+
 private:
     friend class Season;
     void setId(int id);

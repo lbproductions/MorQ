@@ -38,11 +38,11 @@ public:
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const Q_DECL_OVERRIDE;
 
-    void drawTitleText(QPainter *painter,
+    QRectF drawTitleText(QPainter *painter,
                        const QStyleOptionViewItem &option,
                        const QString &text,
                        const QPoint &offset) const;
-    void drawText(QPainter *painter,
+    QRectF drawText(QPainter *painter,
                   const QStyleOptionViewItem &option,
                   const QString &text,
                   const QPoint &offset,

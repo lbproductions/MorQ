@@ -1,9 +1,11 @@
 #include "episode.h"
 
+#include "series.h"
 #include "season.h"
 #include "videodownloadlink.h"
 
 #include <QDebug>
+#include <QPixmap>
 
 Episode::Episode(QObject *parent) :
     QObject(parent),
@@ -179,4 +181,9 @@ QString Episode::tvdbLanguage() const
 
     QString lang = QLocale(m_primaryLanguage).name();
     return lang.left(lang.lastIndexOf('_'));
+}
+
+QPixmap Episode::primaryLanguageFlag() const
+{
+    return Series::languageFlag(m_primaryLanguage);
 }

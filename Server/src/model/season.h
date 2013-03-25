@@ -52,6 +52,8 @@ public:
     QLocale::Language primaryLanguage() const;
     void setPrimaryLanguage(QLocale::Language language);
 
+    QPixmap primaryLanguageFlag() const;
+
     QSet<QLocale::Language> languages() const;
 
     Series *series() const;

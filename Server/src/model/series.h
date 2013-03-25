@@ -59,6 +59,7 @@ public:
 
     QPixmap primaryLanguageFlag() const;
 
+    static QPixmap languageFlag(QLocale::Language language);
     static QString tvdbLanguage(QLocale::Language language);
 
     // SerienJunkies

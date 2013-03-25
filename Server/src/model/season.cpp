@@ -4,6 +4,7 @@
 #include "series.h"
 
 #include <QDebug>
+#include <QPixmap>
 
 Season::Season(QObject *parent) :
     QObject(parent),
@@ -101,6 +102,11 @@ QLocale::Language Season::primaryLanguage() const
 void Season::setPrimaryLanguage(QLocale::Language language)
 {
     m_primaryLanguage = language;
+}
+
+QPixmap Season::primaryLanguageFlag() const
+{
+    return Series::languageFlag(m_primaryLanguage);
 }
 
 Series *Season::series() const

@@ -113,7 +113,7 @@ void NoisyGradientItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 }
 
 
-void NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
+QRectF NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
                                               const QStyleOptionViewItem &option,
                                               const QString &text,
                                               const QPoint &offset) const
@@ -133,16 +133,20 @@ void NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
     font.setBold(TITLE_BOLD);
     painter->setFont(font);
 
+
     // Shadow title
+    QRectF shadowBoundingRect;
     painter->setPen(COLOR_TITLE_SHADOW);
     painter->drawText(option.rect.adjusted(offset.x() + TITLE_OFFSET_SHADOW.x(),
                                            offset.y() + TITLE_OFFSET_SHADOW.y(),
                                            -offset.x() + TITLE_OFFSET_SHADOW.x(),
                                            -offset.y() + TITLE_OFFSET_SHADOW.y()),
-                      text);
+                      Qt::AlignLeft,
+                      text,
+                      &shadowBoundingRect);
 
     // Foreground title
-    QRect titleBoundingRect;
+    QRectF titleBoundingRect;
     painter->setPen(COLOR_TITLE);
     painter->drawText(option.rect.adjusted(offset.x(), offset.y(),
                                            -offset.x(), -offset.y()),
@@ -150,9 +154,11 @@ void NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
                       text,
                       &titleBoundingRect);
     painter->restore();
+
+    return shadowBoundingRect.united(titleBoundingRect);
 }
 
-void NoisyGradientItemDelegate::drawText(QPainter *painter,
+QRectF NoisyGradientItemDelegate::drawText(QPainter *painter,
                                          const QStyleOptionViewItem &option,
                                          const QString &text,
                                          const QPoint &offset,
@@ -167,14 +173,17 @@ void NoisyGradientItemDelegate::drawText(QPainter *painter,
 
     painter->setPen(COLOR_TEXT);
 
+    QRectF boundingRect;
     QFont font = painter->font();
     font.setBold(false);
     painter->setFont(font);
     painter->drawText(option.rect.adjusted(offset.x(), offset.y(),
                                            offset.x(), offset.y()),
                       alignment,
-                      text);
+                      text,
+                      &boundingRect);
     painter->restore();
+    return boundingRect;
 }
 
 QSize NoisyGradientItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

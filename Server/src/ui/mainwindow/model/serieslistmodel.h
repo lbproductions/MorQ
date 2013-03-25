@@ -11,7 +11,8 @@ class SeriesListModel : public ObjectListModel<Series>
 public:
     enum Role {
         EpisodeCountRole = Qt::UserRole + 1,
-        SeasonCountRole
+        SeasonCountRole,
+        RawDataRole
     };
 
     explicit SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent = 0);
