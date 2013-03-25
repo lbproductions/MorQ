@@ -129,6 +129,7 @@ void RescanCollectionDialog::displaySearchResults()
 
     m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
     m_seriesListModel = new SeriesListModel(m_seriesDao, this);
+//    m_seriesListModel->setCheckable(true);
 
     foreach(Series *series, m_provider->seriesSearchResults()) {
         m_seriesDao->insert(series);
@@ -341,7 +342,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
         ++m_currentScrapingEpisode;
 
         if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
-            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFiles().first()));
+            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFile()));
             m_currentEpisode = nullptr;
         }
         else {
@@ -358,7 +359,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
                 .arg(m_currentScrapingEpisode)
                 .arg(m_totalNewEpisodes);
         ui->textEdit->append(message);
-        ui->textEdit->append(m_currentEpisode->videoFiles().first());
+        ui->textEdit->append(m_currentEpisode->videoFile());
         ui->labelStatus->setText(message);
         m_provider->scrapeEpisode(m_currentEpisode);
     }

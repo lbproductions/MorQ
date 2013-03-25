@@ -7,7 +7,9 @@
 Series::Series(QObject *parent) :
     QObject(parent),
     m_id(-1),
-    m_tvdbId(-1)
+    m_primaryLanguage(QLocale::AnyLanguage),
+    m_tvdbId(-1),
+    m_checkState(Qt::Unchecked)
 {
 }
 
@@ -180,6 +182,16 @@ QList<Episode *> Series::episodes() const
     return result;
 }
 
+QLocale::Language Series::primaryLanguage() const
+{
+    return m_primaryLanguage;
+}
+
+void Series::setPrimaryLanguage(QLocale::Language language)
+{
+    m_primaryLanguage = language;
+}
+
 void Series::setSeasons(const QList<Season *> &seasons)
 {
     m_seasons.clear();
@@ -187,4 +199,14 @@ void Series::setSeasons(const QList<Season *> &seasons)
     foreach(Season *season, seasons){
         addSeason(season);
     }
+}
+
+Qt::CheckState Series::checkState() const
+{
+    return m_checkState;
+}
+
+void Series::setCheckState(const Qt::CheckState &checkState)
+{
+    m_checkState = checkState;
 }

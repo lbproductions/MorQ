@@ -16,13 +16,17 @@ public:
 
     explicit SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent = 0);
 
+    Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) Q_DECL_OVERRIDE;
     QList<Series *> objects() const Q_DECL_OVERRIDE;
 
-    void setDao();
+    bool isCheckable() const;
+    void setCheckable(bool isCheckable);
 
 private:
     QPersistenceAbstractDataAccessObject *m_dao;
+    bool m_checkable;
 };
 
 #endif // SERIESLISTMODEL_H

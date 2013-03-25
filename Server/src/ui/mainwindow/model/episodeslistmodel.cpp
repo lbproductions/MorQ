@@ -22,11 +22,6 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
 
     Episode *episode = objectByIndex(index);
 
-    QString files = "";
-    if(episode->videoFiles().size() > 0) {
-        files = episode->videoFiles().first();
-    }
-
     QString links = "";
     if(episode->downloadLinks().size() > 0) {
         links = "Downloads available";
@@ -39,7 +34,7 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
                 .arg(episode->title());
     case VideoPathRole:
         return QString("%1")
-                .arg(files);
+                .arg(episode->videoFile());
     case TitleRole:
         return QString("%1")
                 .arg(episode->overview());

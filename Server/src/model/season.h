@@ -6,6 +6,7 @@
 #include <QPersistence.h>
 
 #include <QUrl>
+#include <QLocale>
 
 class Series;
 class Episode;
@@ -15,6 +16,7 @@ class Season : public QObject
     Q_OBJECT
     Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(int number READ number WRITE setNumber)
+    Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString serienJunkiesTitle READ serienJunkiesTitle WRITE setSerienJunkiesTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
     Q_PROPERTY(Series* series READ series WRITE setSeries)
@@ -37,11 +39,19 @@ public:
     int number() const;
     void setNumber(int number);
 
+    QString title() const;
+    void setTitle(const QString title);
+
     QString serienJunkiesTitle() const;
     void setSerienJunkiesTitle(const QString &title);
 
     QUrl serienJunkiesUrl() const;
     void setSerienJunkiesUrl(const QUrl &serienJunkiesUrl);
+
+    QLocale::Language primaryLanguage() const;
+    void setPrimaryLanguage(QLocale::Language language);
+
+    QList<QLocale::Language> languages() const;
 
     Series *series() const;
 
@@ -59,9 +69,11 @@ private:
     int m_id;
     int m_number;
     QString m_serienJunkiesTitle;
+    QString m_title;
     QUrl m_serienJunkiesUrl;
     Series *m_series;
     QMap<int, Episode *> m_episodes;
+    QLocale::Language m_primaryLanguage;
 };
 
 #endif // SEASON_H

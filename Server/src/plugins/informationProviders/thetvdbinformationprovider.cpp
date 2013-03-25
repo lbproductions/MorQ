@@ -177,6 +177,11 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
                 if(!season) {
                     season = QPersistence::create<Season>();
                     season->setNumber(episode->seasonNumber());
+
+                    if(season->number() == 0) {
+                        season->setTitle("Specials (TheTVDB)");
+                    }
+
                     series->addSeason(season);
                     QPersistence::insert(season);
                 }
@@ -234,6 +239,7 @@ void TheTvdbInformationProvider::copySeries(Series *source, Series *target) cons
     target->setFirstAired(source->firstAired());
     target->setGenres(source->genres());
     target->setImdbId(source->imdbId());
+    target->setPrimaryLanguage(source->primaryLanguage());
 
     // TODO: Add missing properties to series.
 }
@@ -288,6 +294,9 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, Series *seri
             }
             else if(name == TOKENNAME_SERIES_GENRE) {
                 series->setGenres(text.split("|"));
+            }
+            else if(name == TOKENNAME_SERIES_LANGUAGE) {
+                series->setPrimaryLanguage(QLocale(text).language());
             }
 
             // TODO: Add missing properties to series.

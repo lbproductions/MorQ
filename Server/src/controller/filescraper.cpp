@@ -169,12 +169,14 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         episode = QPersistence::create<Episode>();
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);
-        episode->addVideoFile(result.absolutePath);
+        episode->setVideoFile(result.absolutePath);
         QPersistence::insert(episode);
         m_newEpisodes.append(episode);
     }
-    else if(!episode->videoFiles().contains(result.absolutePath)) {
-        episode->addVideoFile(result.absolutePath);
-        QPersistence::update(episode);
+    else if(episode->videoFile() != result.absolutePath) {
+        qDebug() << QString("Duplicate episode: %1 and %2")
+                    .arg(episode->videoFile())
+                    .arg(result.absolutePath);
+        // TODO: Allow duplicate episodes
     }
 }

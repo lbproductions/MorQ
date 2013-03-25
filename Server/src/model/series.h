@@ -19,6 +19,7 @@ class Series : public QObject
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
     Q_PROPERTY(QList<Season*> seasons READ seasons WRITE setSeasons)
+    Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
 
     Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QString imdbId READ imdbId WRITE setImdbId)
@@ -48,6 +49,9 @@ public:
     void addSeason(Season *season);
 
     QList<Episode *> episodes() const;
+
+    QLocale::Language primaryLanguage() const;
+    void setPrimaryLanguage(QLocale::Language language);
 
     // SerienJunkies
     QUrl serienJunkiesUrl() const;
@@ -84,11 +88,15 @@ public:
     QStringList posterUrls() const;
     void setPosterUrls(const QStringList &urls);
 
+    Qt::CheckState checkState() const;
+    void setCheckState(const Qt::CheckState &checkState);
+
 private:
     void setId(int id);
     void setSeasons(const QList<Season *> &seasons);
 
     int m_id;
+    QLocale::Language m_primaryLanguage;
     int m_tvdbId;
     QString m_title;
     QUrl m_serienJunkiesUrl;
@@ -100,6 +108,7 @@ private:
     QStringList m_actors;
     QStringList m_bannerUrls;
     QStringList m_posterUrls;
+    Qt::CheckState m_checkState;
 };
 
 #endif // SERIES_H

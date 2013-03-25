@@ -10,7 +10,8 @@ Episode::Episode(QObject *parent) :
     m_id(-1),
     m_number(-1),
     m_seasonNumber(-1),
-    m_season(nullptr)
+    m_season(nullptr),
+    m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
@@ -21,7 +22,6 @@ Episode::~Episode()
     if(m_season) {
         m_season->removeEpisode(this);
     }
-
     foreach(VideoDownloadLink *link, m_downloadLinks) {
         link->setEpisode(nullptr);
     }
@@ -123,22 +123,14 @@ void Episode::setDownloadLinks(const QList<VideoDownloadLink *> &links)
     }
 }
 
-QStringList Episode::videoFiles() const
+QString Episode::videoFile() const
 {
-    return m_videoFiles;
+    return m_videoFile;
 }
 
-void Episode::addVideoFile(const QString &fileName)
+void Episode::setVideoFile(const QString &fileName)
 {
-    if(m_videoFiles.contains(fileName))
-        return;
-
-    m_videoFiles.append(fileName);
-}
-
-void Episode::setVideoFiles(const QStringList &files)
-{
-    m_videoFiles = files;
+    m_videoFile = fileName;
 }
 
 QString Episode::title() const

@@ -24,8 +24,7 @@ QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
     Season *season = objectByIndex(index);
     switch(role) {
     case Qt::DisplayRole:
-        return QString("S%1")
-                .arg(season->number(),2,10,QChar('0'));
+        return season->title();
     }
 
     return QVariant();

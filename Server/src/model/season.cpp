@@ -9,7 +9,8 @@ Season::Season(QObject *parent) :
     QObject(parent),
     m_id(-1),
     m_number(0),
-    m_series(nullptr)
+    m_series(nullptr),
+    m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
@@ -44,6 +45,24 @@ int Season::number() const
 void Season::setNumber(int number)
 {
     m_number = number;
+}
+
+QString Season::title() const
+{
+    if(!m_title.isEmpty())
+        return m_title;
+
+    // TODO: condiser language
+
+    if(m_number <= 0)
+        return QString("Specials");
+
+    return QString("Season %1").arg(m_number);
+}
+
+void Season::setTitle(const QString title)
+{
+    m_title = title;
 }
 
 QString Season::serienJunkiesTitle() const
