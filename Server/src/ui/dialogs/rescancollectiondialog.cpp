@@ -182,7 +182,7 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
         m_currentSeries->addLanguage(series->primaryLanguage());
     }
 
-    searchDownlaodsAtSerienjunkies();
+//    searchDownlaodsAtSerienjunkies();
 
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);

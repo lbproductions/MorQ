@@ -21,6 +21,14 @@ static QList<QRegularExpression> SERIESTITLE_REGEXPS()
     return list;
 }
 
+static QList<QPair<QLocale::Language, QRegularExpression> > LANGUAGE_REGEXPS()
+{
+    QList<QPair<QLocale::Language, QRegularExpression> > result;
+    result.append(QPair<QLocale::Language, QRegularExpression>(QLocale::German, QRegularExpression("/Staffel \\d+/")));
+    result.append(QPair<QLocale::Language, QRegularExpression>(QLocale::English, QRegularExpression(".*\\/Season \\d+\\/.*")));
+    return result;
+}
+
 static QStringList VIDEOEXTENSIONS()
 {
     static const QStringList extensions =
@@ -108,6 +116,7 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
         r.episodeNumber = QSerienJunkies::episodeNumberFromName(path);
         r.seriesTitle = seriesTitleFromPath(path);
         r.absolutePath = location + path;
+        r.language = FileScraper::languageFromPath(path);
         emit result(r);
     }
 }
@@ -158,6 +167,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
     if(!season) {
         season = QPersistence::create<Season>();
         season->setNumber(result.seasonNumber);
+        season->setPrimaryLanguage(result.language);
         series->addSeason(season);
         QPersistence::insert(season);
         m_newSeasons.append(season);
@@ -170,6 +180,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);
         episode->setVideoFile(result.absolutePath);
+        episode->setPrimaryLanguage(result.language);
         QPersistence::insert(episode);
         m_newEpisodes.append(episode);
     }
@@ -180,3 +191,19 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         // TODO: Allow duplicate episodes
     }
 }
+
+#define COMMA ,
+
+QLocale::Language FileScraper::languageFromPath(const QString &path)
+{
+    foreach(QPair<QLocale::Language COMMA QRegularExpression> pair, LANGUAGE_REGEXPS()) {
+        QRegularExpression regExp = pair.second;
+        QRegularExpressionMatch match = regExp.match(path);
+        if(match.hasMatch())
+            return pair.first;
+    }
+
+    return QLocale::AnyLanguage;
+}
+
+#undef COMMA

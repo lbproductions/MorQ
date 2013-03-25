@@ -59,7 +59,7 @@ public:
 
     QPixmap primaryLanguageFlag() const;
 
-    QString tvdbLanguage() const;
+    static QString tvdbLanguage(QLocale::Language language);
 
     // SerienJunkies
     QUrl serienJunkiesUrl() const;

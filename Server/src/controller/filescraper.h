@@ -2,6 +2,7 @@
 #define FILESCRAPER_H
 
 #include <QObject>
+#include <QLocale>
 
 namespace FileScraperPrivate {
 struct Result {
@@ -9,6 +10,7 @@ struct Result {
     int episodeNumber;
     QString seriesTitle;
     QString absolutePath;
+    QLocale::Language language;
 };
 }
 
@@ -54,6 +56,8 @@ private:
     QList<Series *> m_newSeries;
     QList<Season *> m_newSeasons;
     QList<Episode *> m_newEpisodes;
+
+    static QLocale::Language languageFromPath(const QString &path);
 };
 
 Q_DECLARE_METATYPE(FileScraperPrivate::Result)
