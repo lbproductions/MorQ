@@ -225,6 +225,12 @@ QSet<QLocale::Language> Series::languages() const
     foreach(int lang, m_additionalLanguages) {
         result.insert(static_cast<QLocale::Language>(lang));
     }
+    foreach(Season *season, m_seasons) {
+        foreach(QLocale::Language lang, season->languages()) {
+            result.insert(lang);
+        }
+    }
+
     return result;
 }
 

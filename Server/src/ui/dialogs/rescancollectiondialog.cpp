@@ -74,15 +74,20 @@ void RescanCollectionDialog::checkForNewSeries()
     ui->labelStatus->setText(message);
     ui->textEdit->append(message);
 
-    if(m_scraper->newSeries().isEmpty()) {
+    m_newSeries = m_scraper->newSeries();
+    foreach(Series *series, Controller::seriesDao()->readAll()) {
+        if(series->tvdbId() <= 0 && !m_newSeries.contains(series))
+            m_newSeries.append(series);
+    }
+
+    if(m_newSeries.isEmpty()) {
         finish();
     }
     else {
         ui->textEdit->append(tr("Found %1 new seasons and %2 new episodes.")
-                             .arg(m_scraper->newSeasons().size())
+                             .arg(m_newSeries.size())
                              .arg(m_scraper->newEpisodes().size()));
 
-        m_newSeries = m_scraper->newSeries();
         m_totalNewSeries = m_newSeries.size();
         confirmNextNewSeries();
     }
@@ -106,7 +111,8 @@ void RescanCollectionDialog::confirmNextNewSeries()
 
 void RescanCollectionDialog::search()
 {
-    delete m_provider;
+    cleanupTvdbResultsPage();
+
     m_provider = new TheTvdbInformationProvider(this);
 
     connect(m_provider, &InformationProviderPlugin::finished,
@@ -151,7 +157,6 @@ void RescanCollectionDialog::displaySearchResults()
 
     if(m_seriesDao->count() > 0) {
         ui->treeView->selectionModel()->select(m_seriesListModel->index(0), QItemSelectionModel::Select);
-        ui->pushButtonContinue->setEnabled(true);
     }
     else {
         // TODO: TVDB search: Show "No results" page
