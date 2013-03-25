@@ -20,6 +20,7 @@ class Season : public QObject
     Q_PROPERTY(QString serienJunkiesTitle READ serienJunkiesTitle WRITE setSerienJunkiesTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
     Q_PROPERTY(Series* series READ series WRITE setSeries)
+    Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QList<Episode*> episodes READ episodes WRITE setEpisodes)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
@@ -51,7 +52,7 @@ public:
     QLocale::Language primaryLanguage() const;
     void setPrimaryLanguage(QLocale::Language language);
 
-    QList<QLocale::Language> languages() const;
+    QSet<QLocale::Language> languages() const;
 
     Series *series() const;
 
@@ -59,6 +60,8 @@ public:
     Episode *episode(int number) const;
     void addEpisode(Episode *episode);
     void removeEpisode(Episode *episode);
+
+    QString tvdbLanguage() const;
 
 private:
     friend class Series;

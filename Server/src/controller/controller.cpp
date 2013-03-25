@@ -38,6 +38,8 @@ bool Controller::initialize()
         return false;
     }
 
+    QPersistence::registerSetType<int>();
+
     static QObject guard;
 
     // Download

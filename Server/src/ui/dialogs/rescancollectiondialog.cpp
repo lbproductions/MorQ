@@ -172,11 +172,15 @@ void RescanCollectionDialog::showSelectedSeries()
 
 void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
 {
-    Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
+    Series *series = m_seriesListModel->checkedSeries();
     m_provider->copySeries(series, m_currentSeries);
     ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
                          .arg(series->title())
                          .arg(series->tvdbId()));
+
+    foreach(series, m_seriesListModel->partiallyCheckedSeries()) {
+        m_currentSeries->addLanguage(series->primaryLanguage());
+    }
 
     searchDownlaodsAtSerienjunkies();
 

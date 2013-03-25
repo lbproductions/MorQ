@@ -20,6 +20,7 @@ class Series : public QObject
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
     Q_PROPERTY(QList<Season*> seasons READ seasons WRITE setSeasons)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
+    Q_PROPERTY(QSet<int> additionalLanguages READ additionalLanguages WRITE setAdditionalLanguages)
 
     Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QString imdbId READ imdbId WRITE setImdbId)
@@ -43,8 +44,8 @@ public:
     // General
     int id() const;
 
-    QList<Season *> seasons() const;
-    Season *season(int number) const;
+    QList<Season *> seasons(QLocale::Language language = QLocale::AnyLanguage) const;
+    Season *season(int number, QLocale::Language language = QLocale::AnyLanguage) const;
     void removeSeason(Season *season);
     void addSeason(Season *season);
 
@@ -52,6 +53,13 @@ public:
 
     QLocale::Language primaryLanguage() const;
     void setPrimaryLanguage(QLocale::Language language);
+
+    QSet<QLocale::Language> languages() const;
+    void addLanguage(QLocale::Language language);
+
+    QPixmap primaryLanguageFlag() const;
+
+    QString tvdbLanguage() const;
 
     // SerienJunkies
     QUrl serienJunkiesUrl() const;
@@ -88,6 +96,7 @@ public:
     QStringList posterUrls() const;
     void setPosterUrls(const QStringList &urls);
 
+    // Internally used
     Qt::CheckState checkState() const;
     void setCheckState(const Qt::CheckState &checkState);
 
@@ -97,13 +106,15 @@ signals:
 private:
     void setId(int id);
     void setSeasons(const QList<Season *> &seasons);
+    void setAdditionalLanguages(const QSet<int> &additionalLanguages);
+    QSet<int> additionalLanguages() const;
 
     int m_id;
     QLocale::Language m_primaryLanguage;
     int m_tvdbId;
     QString m_title;
     QUrl m_serienJunkiesUrl;
-    QMap<int, Season *> m_seasons;
+    QMultiMap<int, Season *> m_seasons;
     QString m_imdbId;
     QString m_overview;
     QDate m_firstAired;
@@ -112,6 +123,9 @@ private:
     QStringList m_bannerUrls;
     QStringList m_posterUrls;
     Qt::CheckState m_checkState;
+    QSet<int> m_additionalLanguages;
 };
+
+Q_DECLARE_METATYPE(QSet<int>)
 
 #endif // SERIES_H

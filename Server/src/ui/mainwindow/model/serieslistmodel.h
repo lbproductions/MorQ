@@ -24,6 +24,9 @@ public:
     bool isCheckable() const;
     void setCheckable(bool isCheckable);
 
+    QList<Series *> partiallyCheckedSeries() const;
+    Series *checkedSeries() const;
+
 private:
     QPersistenceAbstractDataAccessObject *m_dao;
     bool m_checkable;

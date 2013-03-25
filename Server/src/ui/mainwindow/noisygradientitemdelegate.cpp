@@ -2,6 +2,8 @@
 
 #include <QPainter>
 #include <QAbstractItemView>
+#include <QApplication>
+#include <QMouseEvent>
 
 // Text
 const QPoint NoisyGradientItemDelegate::TITLE_OFFSET_SHADOW(0, -1); // relative to title offset
@@ -26,9 +28,21 @@ const QColor NoisyGradientItemDelegate::COLOR_LINE_BOTTOM_SELECTED(34,101,157);
 const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_TOP_SELECTED(111,171,226);
 const QColor NoisyGradientItemDelegate::COLOR_GRADIENT_BOTTOM_SELECTED(37,125,199);
 
+static QRect CheckBoxRect(const QStyleOptionViewItem &view_item_style_options, const QPoint &offset)
+{
+    QStyleOptionButton check_box_style_option;
+    QRect check_box_rect = QApplication::style()->subElementRect(
+                QStyle::SE_CheckBoxIndicator,
+                &check_box_style_option);
+    QPoint check_box_point(view_item_style_options.rect.x() + offset.x(),
+                           view_item_style_options.rect.y() + offset.y());
+    return QRect(check_box_point, check_box_rect.size());
+}
+
 NoisyGradientItemDelegate::NoisyGradientItemDelegate(QAbstractItemView *view, QObject *parent) :
     QStyledItemDelegate(parent),
-    m_view(view)
+    m_view(view),
+    m_checkBoxOffset(8,8)
 {
     connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges);
@@ -177,6 +191,11 @@ QSize NoisyGradientItemDelegate::sizeHint(const QStyleOptionViewItem &option, co
     return size;
 }
 
+void NoisyGradientItemDelegate::setCheckBoxOffset(const QPoint &offset)
+{
+    m_checkBoxOffset = offset;
+}
+
 void NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges(const QItemSelection &selected, const QItemSelection &deselected)
 {
     Q_UNUSED(selected);
@@ -193,4 +212,71 @@ void NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges(const QItemSele
     m_view->resize(size);
     size.setHeight(size.height() - 1);
     m_view->resize(size);
+}
+
+void NoisyGradientItemDelegate::drawCheckBox(QPainter *painter,
+                                             const QStyleOptionViewItem &option,
+                                             const QModelIndex &index) const
+{
+    QStyleOptionButton buttonOption;
+    buttonOption.rect = CheckBoxRect(option, m_checkBoxOffset);
+    buttonOption.state = QStyle::State_Enabled | QStyle::State_Active;
+    Qt::CheckState checkState = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
+    if(checkState == Qt::PartiallyChecked) {
+        buttonOption.state |= QStyle::State_NoChange; // represents "partially"
+    }
+    else if(checkState == Qt::Checked) {
+        buttonOption.state |= QStyle::State_On;
+    }
+    else if(checkState == Qt::Unchecked) {
+        buttonOption.state |= QStyle::State_Off;
+    }
+
+    QApplication::style()->drawControl(QStyle::CE_CheckBox, &buttonOption, painter, NULL);
+}
+
+bool NoisyGradientItemDelegate::editorEvent(QEvent *event,
+                                                 QAbstractItemModel *model,
+                                                 const QStyleOptionViewItem &option,
+                                                 const QModelIndex &index)
+{
+    if ((event->type() == QEvent::MouseButtonRelease)
+            || (event->type() == QEvent::MouseButtonDblClick)) {
+        QMouseEvent *mouse_event = static_cast<QMouseEvent*>(event);
+        if (mouse_event->button() != Qt::LeftButton ||
+                !CheckBoxRect(option, m_checkBoxOffset).contains(mouse_event->pos())) {
+            return false;
+        }
+        if (event->type() == QEvent::MouseButtonDblClick) {
+            return true;
+        }
+    } else if (event->type() == QEvent::KeyPress) {
+        if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space &&
+                static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    Qt::CheckState checkState = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
+    if(checkState == Qt::PartiallyChecked) {
+        checkState = Qt::Checked;
+    }
+    else if(checkState == Qt::Checked) {
+        checkState = Qt::Unchecked;
+    }
+    else if(checkState == Qt::Unchecked) {
+        checkState = Qt::PartiallyChecked;
+    }
+    return model->setData(index, checkState, Qt::CheckStateRole);
+}
+
+void NoisyGradientItemDelegate::drawPixmap(QPainter *painter, const QStyleOptionViewItem &option,const QPixmap &pixmap, const QPoint &offset) const
+{
+    QRect rect(option.rect.adjusted(offset.x(), offset.y(),
+                                      offset.x(), offset.y()).topLeft(),
+               pixmap.size());
+    painter->drawPixmap(rect,
+                        pixmap);
 }

@@ -133,6 +133,16 @@ void Episode::setVideoFile(const QString &fileName)
     m_videoFile = fileName;
 }
 
+QLocale::Language Episode::primaryLanguage() const
+{
+    return  m_primaryLanguage;
+}
+
+void Episode::setPrimaryLanguage(QLocale::Language language)
+{
+    m_primaryLanguage = language;
+}
+
 QString Episode::title() const
 {
     return m_title;
@@ -151,4 +161,22 @@ QString Episode::overview() const
 void Episode::setOverview(const QString &overview)
 {
     m_overview = overview;
+}
+
+
+QSet<QLocale::Language> Episode::languages() const
+{
+    QSet<QLocale::Language> result;
+    result.insert(m_primaryLanguage);
+    // TODO: Get languages from video file, or let them be set manually?
+    return result;
+}
+
+QString Episode::tvdbLanguage() const
+{
+    if(m_primaryLanguage == QLocale::AnyLanguage)
+        return "en";
+
+    QString lang = QLocale(m_primaryLanguage).name();
+    return lang.left(lang.lastIndexOf('_'));
 }

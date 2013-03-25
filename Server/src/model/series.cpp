@@ -3,6 +3,7 @@
 #include "season.h"
 
 #include <QDebug>
+#include <QPixmapCache>
 
 Series::Series(QObject *parent) :
     QObject(parent),
@@ -147,14 +148,44 @@ void Series::setPosterUrls(const QStringList &urls)
     m_posterUrls = urls;
 }
 
-QList<Season *> Series::seasons() const
+QList<Season *> Series::seasons(QLocale::Language language) const
 {
-    return m_seasons.values();
+    if(language == QLocale::AnyLanguage)
+        return m_seasons.values();
+
+    QList<Season *> result;
+    foreach(Season *season, m_seasons) {
+        if(season->primaryLanguage() == language) {
+            result.append(season);
+        }
+    }
+    return result;
 }
 
-Season *Series::season(int number) const
+Season *Series::season(int number, QLocale::Language language) const
 {
-    return m_seasons.value(number);
+    QList<Season*> seasons = m_seasons.values(number);
+
+    if(seasons.isEmpty())
+        return nullptr;
+
+    foreach(Season *season, seasons) {
+        if(season->primaryLanguage() == language) {
+            return season;
+        }
+    }
+
+    if(language == QLocale::AnyLanguage) {
+        foreach(Season *season, seasons) {
+            if(season->primaryLanguage() == m_primaryLanguage) {
+                return season;
+            }
+        }
+
+        return seasons.first();
+    }
+
+    return nullptr;
 }
 
 void Series::removeSeason(Season *season)
@@ -192,6 +223,47 @@ void Series::setPrimaryLanguage(QLocale::Language language)
     m_primaryLanguage = language;
 }
 
+QSet<QLocale::Language> Series::languages() const
+{
+    QSet<QLocale::Language> result;
+    result.insert(m_primaryLanguage);
+    foreach(int lang, m_additionalLanguages) {
+        result.insert(static_cast<QLocale::Language>(lang));
+    }
+    return result;
+}
+
+void Series::addLanguage(QLocale::Language language)
+{
+    m_additionalLanguages.insert(language);
+}
+
+QPixmap Series::primaryLanguageFlag() const
+{
+    QString flag = QString(":/flags/%1.png").arg(tvdbLanguage());
+    QPixmap pm;
+    if(!QPixmapCache::find(flag, pm)) {
+        pm = QPixmap(flag);
+        if(pm.isNull()) {
+            qWarning() << QString("Could not find flag '%1'")
+                          .arg(flag);
+        }
+
+        QPixmapCache::insert(flag, pm);
+    }
+
+    return pm;
+}
+
+QString Series::tvdbLanguage() const
+{
+    if(m_primaryLanguage == QLocale::AnyLanguage)
+        return "en";
+
+    QString lang = QLocale(m_primaryLanguage).name();
+    return lang.left(lang.lastIndexOf('_'));
+}
+
 void Series::setSeasons(const QList<Season *> &seasons)
 {
     m_seasons.clear();
@@ -199,6 +271,16 @@ void Series::setSeasons(const QList<Season *> &seasons)
     foreach(Season *season, seasons){
         addSeason(season);
     }
+}
+
+void Series::setAdditionalLanguages(const QSet<int> &languages)
+{
+    m_additionalLanguages = languages;
+}
+
+QSet<int> Series::additionalLanguages() const
+{
+    return m_additionalLanguages;
 }
 
 Qt::CheckState Series::checkState() const

@@ -20,6 +20,7 @@ class Episode : public QObject
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
     Q_PROPERTY(QList<VideoDownloadLink*> downloadLinks READ downloadLinks WRITE setDownloadLinks)
+    Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
@@ -57,6 +58,8 @@ public:
     QLocale::Language primaryLanguage() const;
     void setPrimaryLanguage(QLocale::Language language);
 
+    QSet<QLocale::Language> languages() const;
+
     // SerienJunkies
     QString serienJunkiesTitle() const;
     void setSerienJunkiesTitle(const QString &title);
@@ -67,6 +70,8 @@ public:
 
     QString overview() const;
     void setOverview(const QString &overview);
+
+    QString tvdbLanguage() const;
 
 private:
     friend class Season;

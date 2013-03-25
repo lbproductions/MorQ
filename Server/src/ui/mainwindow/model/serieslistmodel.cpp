@@ -2,6 +2,8 @@
 
 #include "controller/controller.h"
 
+#include <QPixmap>
+
 SeriesListModel::SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent) :
     ObjectListModel<Series>(parent),
     m_dao(dao),
@@ -42,6 +44,8 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
         return series->episodes().size();
     case SeasonCountRole:
         return series->seasons().size();
+    case Qt::DecorationRole:
+        return series->primaryLanguageFlag();
     }
 
     return QVariant();
@@ -65,6 +69,13 @@ bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, i
 
             m_lastCheckedIndex = index;
         }
+        else if(checkState == Qt::PartiallyChecked && !m_lastCheckedIndex.isValid()) {
+            m_lastCheckedIndex = index;
+            checkState = Qt::Checked;
+        }
+        else if(checkState == Qt::Unchecked) {
+            m_lastCheckedIndex = QModelIndex();
+        }
 
         series->setCheckState(checkState);
         emit dataChanged(index, index);
@@ -87,4 +98,24 @@ bool SeriesListModel::isCheckable() const
 void SeriesListModel::setCheckable(bool checkable)
 {
     m_checkable = checkable;
+}
+
+QList<Series *> SeriesListModel::partiallyCheckedSeries() const
+{
+    QList<Series *> result;
+    foreach(Series *series, objects()) {
+        if(series->checkState() == Qt::PartiallyChecked) {
+            result.append(series);
+        }
+    }
+    return result;
+}
+
+
+Series *SeriesListModel::checkedSeries() const
+{
+    if(!m_lastCheckedIndex.isValid())
+        return nullptr;
+
+    return objectByIndex(m_lastCheckedIndex);
 }

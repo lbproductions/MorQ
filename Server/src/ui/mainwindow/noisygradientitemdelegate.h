@@ -34,18 +34,44 @@ public:
 
     explicit NoisyGradientItemDelegate(QAbstractItemView *view, QObject *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const Q_DECL_OVERRIDE;
 
-    void drawTitleText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset) const;
-    void drawText(QPainter *painter, const QStyleOptionViewItem &option, const QString &text, const QPoint &offset, int alignment = Qt::AlignLeft | Qt::AlignTop) const;
+    void drawTitleText(QPainter *painter,
+                       const QStyleOptionViewItem &option,
+                       const QString &text,
+                       const QPoint &offset) const;
+    void drawText(QPainter *painter,
+                  const QStyleOptionViewItem &option,
+                  const QString &text,
+                  const QPoint &offset,
+                  int alignment = Qt::AlignLeft | Qt::AlignTop) const;
+    void drawCheckBox(QPainter *painter,
+                      const QStyleOptionViewItem &option,
+                      const QModelIndex &index) const;
+    void drawPixmap(QPainter *painter,
+                    const QStyleOptionViewItem &option,
+                    const QPixmap &pixmap,
+                    const QPoint &offset) const;
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const Q_DECL_OVERRIDE;
+    bool editorEvent(QEvent *event,
+                     QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option,
+                     const QModelIndex &index) Q_DECL_OVERRIDE;
+
+protected:
+    void setCheckBoxOffset(const QPoint &offset);
 
 private slots:
     void repaintItemsWhenSelectionChanges(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     QAbstractItemView *m_view;
+
+    QPoint m_checkBoxOffset;
 };
 
 #endif // NOISYGRADIENTITEMDELEGATE_H

@@ -59,8 +59,11 @@ static const QString TOKENNAME_EPISODE_SERIESID("seriesid");
 
 static const QByteArray QNETWORKREPLY_DYNAMICPROPERTY_SERIES("THETVDBINFORMATIONSCRAPER_SERIES");
 static const QByteArray QNETWORKREPLY_DYNAMICPROPERTY_EPISODE("THETVDBINFORMATIONSCRAPER_EPISODE");
+static const QByteArray QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE("THETVDBINFORMATIONSCRAPER_LANGUAGE");
 
 static const QString APIKEY("691EE4AC475E9ACB");
+
+Q_DECLARE_METATYPE(QLocale::Language)
 
 TheTvdbInformationProvider::TheTvdbInformationProvider(QObject *parent) :
     InformationProviderPlugin(parent)
@@ -81,12 +84,14 @@ void TheTvdbInformationProvider::searchSeries(const QString &title) const
 void TheTvdbInformationProvider::scrapeSeries(Series *series) const
 {
     QUrl url(QString("http://thetvdb.com/api/%1/series/%2/%3.xml")
-                      .arg(APIKEY)
-                      .arg(series->tvdbId())
-                      .arg("en")); // TODO: use actual language, once its implemented
+             .arg(APIKEY)
+             .arg(series->tvdbId())
+             .arg(series->tvdbLanguage()));
+    // TODO scrape additional languages
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
     reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(series->primaryLanguage()));
 
     connect(reply, &QNetworkReply::finished,
             this, &TheTvdbInformationProvider::parseScrapeSeriesReply);
@@ -95,12 +100,15 @@ void TheTvdbInformationProvider::scrapeSeries(Series *series) const
 void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(Series *series) const
 {
     QUrl url(QString("http://thetvdb.com/api/%1/series/%2/all/%3.xml")
-                      .arg(APIKEY)
-                      .arg(series->tvdbId())
-                      .arg("en")); // TODO: use actual language, once its implemented
+             .arg(APIKEY)
+             .arg(series->tvdbId())
+             .arg(series->tvdbLanguage()));
+
+    // TODO scrape additional languages
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
     reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(series->primaryLanguage()));
 
     connect(reply, &QNetworkReply::finished,
             this, &TheTvdbInformationProvider::parseScrapeSeriesReply);
@@ -116,10 +124,11 @@ void TheTvdbInformationProvider::scrapeEpisode(Episode *episode) const
              .arg(series->tvdbId())
              .arg(season->number())
              .arg(episode->number())
-             .arg("en")); // TODO: use actual language, once its implemented
+             .arg(episode->tvdbLanguage()));
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
     reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE, QVariant::fromValue<Episode *>(episode));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(episode->primaryLanguage()));
 
     connect(reply, &QNetworkReply::finished,
             this, &TheTvdbInformationProvider::parseScrapeEpisodeReply);
@@ -151,6 +160,7 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
 {
     QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
     Series *series = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_SERIES).value<Series *>();
+    QLocale::Language language = static_cast<QLocale::Language>(reply->property(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE).toInt());
 
     if(!series) {
         emit finished(); // TODO: emit error;
@@ -185,6 +195,8 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
                     series->addSeason(season);
                     QPersistence::insert(season);
                 }
+
+                season->setPrimaryLanguage(language);
 
                 Episode *originalEpisode = season->episode(episode->number());
 
@@ -344,7 +356,10 @@ void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml, Episode *ep
                 }
             }
             else if(name == TOKENNAME_EPISODE_OVERVIEW) {
-              episode->setOverview(text);
+                episode->setOverview(text);
+            }
+            else if(name == TOKENNAME_EPISODE_LANGUAGE) {
+                episode->setPrimaryLanguage(QLocale(text).language());
             }
 
             // TODO: Add missing properties to episode.
