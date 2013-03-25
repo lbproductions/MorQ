@@ -9,8 +9,8 @@ class SeriesSearchResultItemDelegate : public NoisyGradientItemDelegate
 public:
     explicit SeriesSearchResultItemDelegate(QAbstractItemView *view, QObject *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
 };
 
 #endif // SERIESSEARCHRESULTITEMDELEGATE_H

@@ -39,6 +39,8 @@ DownloadProviderPlugin *PluginController::downloadProviderPluginByName(QString n
             return plugin;
         }
     }
+
+    return nullptr;
 }
 
 void PluginController::registerHoster(HosterPlugin *hoster)

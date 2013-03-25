@@ -74,15 +74,20 @@ void RescanCollectionDialog::checkForNewSeries()
     ui->labelStatus->setText(message);
     ui->textEdit->append(message);
 
-    if(m_scraper->newSeries().isEmpty()) {
+    m_newSeries = m_scraper->newSeries();
+    foreach(Series *series, Controller::seriesDao()->readAll()) {
+        if(series->tvdbId() <= 0 && !m_newSeries.contains(series))
+            m_newSeries.append(series);
+    }
+
+    if(m_newSeries.isEmpty()) {
         finish();
     }
     else {
         ui->textEdit->append(tr("Found %1 new seasons and %2 new episodes.")
-                             .arg(m_scraper->newSeasons().size())
+                             .arg(m_newSeries.size())
                              .arg(m_scraper->newEpisodes().size()));
 
-        m_newSeries = m_scraper->newSeries();
         m_totalNewSeries = m_newSeries.size();
         confirmNextNewSeries();
     }
@@ -106,7 +111,8 @@ void RescanCollectionDialog::confirmNextNewSeries()
 
 void RescanCollectionDialog::search()
 {
-    delete m_provider;
+    cleanupTvdbResultsPage();
+
     m_provider = new TheTvdbInformationProvider(this);
 
     connect(m_provider, &InformationProviderPlugin::finished,
@@ -129,9 +135,12 @@ void RescanCollectionDialog::displaySearchResults()
 
     m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
     m_seriesListModel = new SeriesListModel(m_seriesDao, this);
+//    m_seriesListModel->setCheckable(true);
 
     foreach(Series *series, m_provider->seriesSearchResults()) {
         m_seriesDao->insert(series);
+        connect(series, &Series::checkStateChanged,
+                this, &RescanCollectionDialog::enableContinueButtonBasedOnCheckStates);
     }
 
     ui->treeView->setModel(m_seriesListModel);
@@ -148,7 +157,6 @@ void RescanCollectionDialog::displaySearchResults()
 
     if(m_seriesDao->count() > 0) {
         ui->treeView->selectionModel()->select(m_seriesListModel->index(0), QItemSelectionModel::Select);
-        ui->pushButtonContinue->setEnabled(true);
     }
     else {
         // TODO: TVDB search: Show "No results" page
@@ -169,13 +177,17 @@ void RescanCollectionDialog::showSelectedSeries()
 
 void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
 {
-    Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
+    Series *series = m_seriesListModel->checkedSeries();
     m_provider->copySeries(series, m_currentSeries);
     ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
                          .arg(series->title())
                          .arg(series->tvdbId()));
 
-    searchDownlaodsAtSerienjunkies();
+    foreach(series, m_seriesListModel->partiallyCheckedSeries()) {
+        m_currentSeries->addLanguage(series->primaryLanguage());
+    }
+
+//    searchDownlaodsAtSerienjunkies();
 
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
@@ -218,6 +230,17 @@ void RescanCollectionDialog::cleanupTvdbResultsPage()
     m_provider = nullptr;
     m_seriesDao = nullptr;
     m_seriesListModel = nullptr;
+}
+
+void RescanCollectionDialog::enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState)
+{
+    if(oldState == Qt::Checked) {
+        ui->pushButtonContinue->setEnabled(false);
+    }
+
+    if(newState == Qt::Checked) {
+        ui->pushButtonContinue->setEnabled(true);
+    }
 }
 
 void RescanCollectionDialog::searchDownlaodsAtSerienjunkies()
@@ -341,7 +364,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
         ++m_currentScrapingEpisode;
 
         if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
-            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFiles().first()));
+            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFile()));
             m_currentEpisode = nullptr;
         }
         else {
@@ -358,7 +381,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
                 .arg(m_currentScrapingEpisode)
                 .arg(m_totalNewEpisodes);
         ui->textEdit->append(message);
-        ui->textEdit->append(m_currentEpisode->videoFiles().first());
+        ui->textEdit->append(m_currentEpisode->videoFile());
         ui->labelStatus->setText(message);
         m_provider->scrapeEpisode(m_currentEpisode);
     }

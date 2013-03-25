@@ -1,16 +1,19 @@
 #include "episode.h"
 
+#include "series.h"
 #include "season.h"
 #include "videodownloadlink.h"
 
 #include <QDebug>
+#include <QPixmap>
 
 Episode::Episode(QObject *parent) :
     QObject(parent),
     m_id(-1),
     m_number(-1),
     m_seasonNumber(-1),
-    m_season(nullptr)
+    m_season(nullptr),
+    m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
@@ -21,7 +24,6 @@ Episode::~Episode()
     if(m_season) {
         m_season->removeEpisode(this);
     }
-
     foreach(VideoDownloadLink *link, m_downloadLinks) {
         link->setEpisode(nullptr);
     }
@@ -123,22 +125,24 @@ void Episode::setDownloadLinks(const QList<VideoDownloadLink *> &links)
     }
 }
 
-QStringList Episode::videoFiles() const
+QString Episode::videoFile() const
 {
-    return m_videoFiles;
+    return m_videoFile;
 }
 
-void Episode::addVideoFile(const QString &fileName)
+void Episode::setVideoFile(const QString &fileName)
 {
-    if(m_videoFiles.contains(fileName))
-        return;
-
-    m_videoFiles.append(fileName);
+    m_videoFile = fileName;
 }
 
-void Episode::setVideoFiles(const QStringList &files)
+QLocale::Language Episode::primaryLanguage() const
 {
-    m_videoFiles = files;
+    return  m_primaryLanguage;
+}
+
+void Episode::setPrimaryLanguage(QLocale::Language language)
+{
+    m_primaryLanguage = language;
 }
 
 QString Episode::title() const
@@ -159,4 +163,27 @@ QString Episode::overview() const
 void Episode::setOverview(const QString &overview)
 {
     m_overview = overview;
+}
+
+
+QSet<QLocale::Language> Episode::languages() const
+{
+    QSet<QLocale::Language> result;
+    result.insert(m_primaryLanguage);
+    // TODO: Get languages from video file, or let them be set manually?
+    return result;
+}
+
+QString Episode::tvdbLanguage() const
+{
+    if(m_primaryLanguage == QLocale::AnyLanguage)
+        return "en";
+
+    QString lang = QLocale(m_primaryLanguage).name();
+    return lang.left(lang.lastIndexOf('_'));
+}
+
+QPixmap Episode::primaryLanguageFlag() const
+{
+    return Series::languageFlag(m_primaryLanguage);
 }

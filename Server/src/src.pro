@@ -153,7 +153,8 @@ FORMS += \
     ui/widgets/serieswidget.ui
 
 RESOURCES += \
-    ui/resources/uiresources.qrc
+    ui/resources/uiresources.qrc \
+    ui/resources/flags.qrc
 
 OBJECTIVE_SOURCES +=
 

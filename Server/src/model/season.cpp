@@ -4,12 +4,14 @@
 #include "series.h"
 
 #include <QDebug>
+#include <QPixmap>
 
 Season::Season(QObject *parent) :
     QObject(parent),
     m_id(-1),
     m_number(0),
-    m_series(nullptr)
+    m_series(nullptr),
+    m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
@@ -46,6 +48,32 @@ void Season::setNumber(int number)
     m_number = number;
 }
 
+QString Season::title() const
+{
+    if(!m_title.isEmpty())
+        return m_title;
+
+    if(m_number <= 0)
+        return QString("Specials");
+
+    static QHash<QLocale::Language, QString> translations;
+    translations[QLocale::AnyLanguage] = QString("S%1");
+    translations[QLocale::German] = QString("Staffel %1");
+    translations[QLocale::English] = QString("Season %1");
+
+    if(translations.contains(m_primaryLanguage))
+        return translations.value(m_primaryLanguage).arg(m_number);
+
+    return translations.value(QLocale::AnyLanguage)
+            .arg(m_number).append(QString(" (%1)")
+                                  .arg(QLocale::languageToString(m_primaryLanguage)));
+}
+
+void Season::setTitle(const QString title)
+{
+    m_title = title;
+}
+
 QString Season::serienJunkiesTitle() const
 {
     return m_serienJunkiesTitle;
@@ -66,6 +94,21 @@ void Season::setSerienJunkiesUrl(const QUrl &serienJunkiesUrl)
     m_serienJunkiesUrl = serienJunkiesUrl;
 }
 
+QLocale::Language Season::primaryLanguage() const
+{
+    return m_primaryLanguage;
+}
+
+void Season::setPrimaryLanguage(QLocale::Language language)
+{
+    m_primaryLanguage = language;
+}
+
+QPixmap Season::primaryLanguageFlag() const
+{
+    return Series::languageFlag(m_primaryLanguage);
+}
+
 Series *Season::series() const
 {
     return m_series;
@@ -75,7 +118,6 @@ void Season::setSeries(Series *series)
 {
     m_series = series;
 }
-
 
 QList<Episode *> Season::episodes() const
 {
@@ -110,4 +152,25 @@ void Season::setEpisodes(const QList<Episode *> &episodes)
     foreach(Episode *episode, episodes) {
         addEpisode(episode);
     }
+}
+
+QSet<QLocale::Language> Season::languages() const
+{
+    QSet<QLocale::Language> result;
+    result.insert(m_primaryLanguage);
+    foreach(Episode *episode, m_episodes) {
+        foreach(QLocale::Language lang, episode->languages()) {
+            result.insert(lang);
+        }
+    }
+    return result;
+}
+
+QString Season::tvdbLanguage() const
+{
+    if(m_primaryLanguage == QLocale::AnyLanguage)
+        return "en";
+
+    QString lang = QLocale(m_primaryLanguage).name();
+    return lang.left(lang.lastIndexOf('_'));
 }

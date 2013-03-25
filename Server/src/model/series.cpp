@@ -3,11 +3,14 @@
 #include "season.h"
 
 #include <QDebug>
+#include <QPixmapCache>
 
 Series::Series(QObject *parent) :
     QObject(parent),
     m_id(-1),
-    m_tvdbId(-1)
+    m_primaryLanguage(QLocale::AnyLanguage),
+    m_tvdbId(-1),
+    m_checkState(Qt::Unchecked)
 {
 }
 
@@ -145,14 +148,41 @@ void Series::setPosterUrls(const QStringList &urls)
     m_posterUrls = urls;
 }
 
-QList<Season *> Series::seasons() const
+QList<Season *> Series::seasons(QLocale::Language language) const
 {
-    return m_seasons.values();
+    if(language == QLocale::AnyLanguage)
+        return m_seasons.values();
+
+    QList<Season *> result;
+    foreach(Season *season, m_seasons) {
+        if(season->primaryLanguage() == language) {
+            result.append(season);
+        }
+    }
+    return result;
 }
 
-Season *Series::season(int number) const
+Season *Series::season(int number, QLocale::Language language) const
 {
-    return m_seasons.value(number);
+    QList<Season*> seasons = m_seasons.values(number);
+
+    if(seasons.isEmpty())
+        return nullptr;
+
+    QLocale::Language lang = language;
+    if(lang == QLocale::AnyLanguage)
+        lang = m_primaryLanguage;
+
+    foreach(Season *season, seasons) {
+        if(season->primaryLanguage() == lang) {
+            return season;
+        }
+    }
+
+    if(lang == QLocale::AnyLanguage)
+        return seasons.first();
+
+    return nullptr;
 }
 
 void Series::removeSeason(Season *season)
@@ -165,8 +195,6 @@ void Series::removeSeason(Season *season)
 
 void Series::addSeason(Season *season)
 {
-    Q_ASSERT(!m_seasons.contains(season->number()));
-
     season->setSeries(this);
     m_seasons.insert(season->number(), season);
 }
@@ -180,6 +208,68 @@ QList<Episode *> Series::episodes() const
     return result;
 }
 
+QLocale::Language Series::primaryLanguage() const
+{
+    return m_primaryLanguage;
+}
+
+void Series::setPrimaryLanguage(QLocale::Language language)
+{
+    m_primaryLanguage = language;
+}
+
+QSet<QLocale::Language> Series::languages() const
+{
+    QSet<QLocale::Language> result;
+    result.insert(m_primaryLanguage);
+    foreach(int lang, m_additionalLanguages) {
+        result.insert(static_cast<QLocale::Language>(lang));
+    }
+    foreach(Season *season, m_seasons) {
+        foreach(QLocale::Language lang, season->languages()) {
+            result.insert(lang);
+        }
+    }
+
+    return result;
+}
+
+void Series::addLanguage(QLocale::Language language)
+{
+    m_additionalLanguages.insert(language);
+}
+
+QPixmap Series::primaryLanguageFlag() const
+{
+    return Series::languageFlag(m_primaryLanguage);
+}
+
+QPixmap Series::languageFlag(QLocale::Language language)
+{
+    QString flag = QString(":/flags/%1.png").arg(Series::tvdbLanguage(language));
+    QPixmap pm;
+    if(!QPixmapCache::find(flag, pm)) {
+        pm = QPixmap(flag);
+        if(pm.isNull()) {
+            qWarning() << QString("Could not find flag '%1'")
+                          .arg(flag);
+        }
+
+        QPixmapCache::insert(flag, pm);
+    }
+
+    return pm;
+}
+
+QString Series::tvdbLanguage(QLocale::Language language)
+{
+    if(language == QLocale::AnyLanguage)
+        return "en";
+
+    QString lang = QLocale(language).name();
+    return lang.left(lang.lastIndexOf('_'));
+}
+
 void Series::setSeasons(const QList<Season *> &seasons)
 {
     m_seasons.clear();
@@ -187,4 +277,29 @@ void Series::setSeasons(const QList<Season *> &seasons)
     foreach(Season *season, seasons){
         addSeason(season);
     }
+}
+
+void Series::setAdditionalLanguages(const QSet<int> &languages)
+{
+    m_additionalLanguages = languages;
+}
+
+QSet<int> Series::additionalLanguages() const
+{
+    return m_additionalLanguages;
+}
+
+Qt::CheckState Series::checkState() const
+{
+    return m_checkState;
+}
+
+void Series::setCheckState(const Qt::CheckState &checkState)
+{
+    if(checkState == m_checkState)
+        return;
+
+    Qt::CheckState oldState = m_checkState;
+    m_checkState = checkState;
+    emit checkStateChanged(oldState, m_checkState);
 }

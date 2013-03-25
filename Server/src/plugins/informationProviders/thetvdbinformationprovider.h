@@ -28,6 +28,10 @@ private slots:
 private:
     static void parseSeries(QXmlStreamReader &xml, Series *series);
     static void parseEpisode(QXmlStreamReader &xml, Episode *episode);
+
+    mutable int m_activeRequestsCount;
+
+    void decreaseActiveRequestCountAndMaybeEmitFinished();
 };
 
 #endif // THETVDBINFORMATIONPROVIDER_H

@@ -21,7 +21,7 @@ class ObjectListModel : public ObjectListModelBase
 public:
     explicit ObjectListModel(QObject *parent = 0);
 
-    int rowCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     virtual int rowOf(QObject *object) const;
 
     T *objectByIndex(const QModelIndex &index) const;
