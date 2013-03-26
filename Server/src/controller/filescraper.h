@@ -9,6 +9,8 @@ struct Result {
     int seasonNumber;
     int episodeNumber;
     QString seriesTitle;
+    QString seriesPath;
+    QString seasonPath;
     QString absolutePath;
     QLocale::Language language;
 };

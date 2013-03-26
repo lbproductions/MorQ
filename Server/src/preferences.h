@@ -22,6 +22,8 @@ public:
     static void setExtractDownloads(bool extract);
     static QString extractFolder();
     static void setExtractFolder(const QString &folder);
+    static QString extractMode();
+    static void setExtractMode(const QString &mode);
 
     static QStringList seriesLocations();
     static void setSeriesLocations(const QStringList &locations);

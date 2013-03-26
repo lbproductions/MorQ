@@ -6,6 +6,7 @@ static const QString PREMIUMIZEME_USERNAME("hosters/premiumizeme/username");
 static const QString PREMIUMIZEME_PASSWORD("hosters/premiumizeme/password");
 
 static const QString EXTRACTDOWNLOADS("downloads/extract");
+static const QString EXTRACTMODE("FOLDER");
 static const QString EXTRACTFOLDER("downloads/extractFolder");
 static const QString DOWNLOADFOLDER("downloads/folder");
 static const QString DOWNLOADSMAX("downloads/max");
@@ -82,6 +83,18 @@ void Preferences::setExtractFolder(const QString &folder)
 {
     QSettings settings;
     settings.setValue(EXTRACTFOLDER, folder);
+}
+
+QString Preferences::extractMode()
+{
+    QSettings settings;
+    return settings.value(EXTRACTMODE).toString();
+}
+
+void Preferences::setExtractMode(const QString &mode)
+{
+    QSettings settings;
+    settings.setValue(EXTRACTMODE, mode);
 }
 
 QStringList Preferences::seriesLocations()

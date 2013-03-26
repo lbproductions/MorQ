@@ -311,9 +311,20 @@ QTime DownloadPackage::eta() const
     return m_eta;
 }
 
+QString DownloadPackage::extractFolder() const
+{
+    return m_extractFolder;
+}
+
 
 void DownloadPackage::maybeEmitDownloadFinished()
 {
     if(isDownloadFinished())
         emit downloadFinished();
+}
+
+
+void DownloadPackage::setExtractFolder(const QString &extractFolder)
+{
+    m_extractFolder = extractFolder;
 }

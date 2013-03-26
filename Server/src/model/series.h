@@ -31,6 +31,8 @@ class Series : public QObject
     Q_PROPERTY(QStringList bannerUrls READ bannerUrls WRITE setBannerUrls)
     Q_PROPERTY(QStringList posterUrls READ posterUrls WRITE setPosterUrls)
 
+    Q_PROPERTY(QStringList folders READ folders WRITE setFolders)
+
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
                 "autoincremented=true;")
@@ -101,6 +103,10 @@ public:
     Qt::CheckState checkState() const;
     void setCheckState(const Qt::CheckState &checkState);
 
+    QStringList folders() const;
+    void setFolders(const QStringList &folders);
+    void addFolder(const QString &folder);
+
 signals:
     void checkStateChanged(Qt::CheckState oldState, Qt::CheckState newState);
 
@@ -125,6 +131,7 @@ private:
     QStringList m_posterUrls;
     Qt::CheckState m_checkState;
     QSet<int> m_additionalLanguages;
+    QStringList m_folders;
 };
 
 Q_DECLARE_METATYPE(QSet<int>)

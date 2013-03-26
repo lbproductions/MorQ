@@ -303,3 +303,18 @@ void Series::setCheckState(const Qt::CheckState &checkState)
     m_checkState = checkState;
     emit checkStateChanged(oldState, m_checkState);
 }
+
+QStringList Series::folders() const
+{
+    return m_folders;
+}
+
+void Series::setFolders(const QStringList &folders)
+{
+    m_folders = folders;
+}
+
+void Series::addFolder(const QString &folder)
+{
+    m_folders.append(folder);
+}

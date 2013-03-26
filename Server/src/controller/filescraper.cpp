@@ -105,7 +105,9 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
     {
         QString path = it.next();
         path.remove(0, location.length());
+        QStringList folders = path.split("/");
         emit scrapingFile(path);
+
 
         QString extension = fileExtension(path);
         if(!VIDEOEXTENSIONS().contains(extension))
@@ -114,6 +116,10 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
         FileScraperPrivate::Result r;
         r.seasonNumber = QSerienJunkies::seasonNumberFromName(path);
         r.episodeNumber = QSerienJunkies::episodeNumberFromName(path);
+        r.seriesPath = location + "/" + folders.at(1);
+        if(folders.size() >= 3){
+            r.seasonPath = r.seriesPath + "/" + folders.at(2);
+        }
         r.seriesTitle = seriesTitleFromPath(path);
         r.absolutePath = location + path;
         r.language = FileScraper::languageFromPath(path);
@@ -161,9 +167,11 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         QPersistence::insert(series);
         m_newSeries.append(series);
     }
+    if(!series->folders().contains(result.seriesPath)) {
+        series->addFolder(result.seriesPath);
+    }
 
     Season *season = series->season(result.seasonNumber);
-
     if(!season) {
         season = QPersistence::create<Season>();
         season->setNumber(result.seasonNumber);
@@ -171,6 +179,9 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         series->addSeason(season);
         QPersistence::insert(season);
         m_newSeasons.append(season);
+    }
+    if(!season->folders().contains(result.seasonPath)) {
+        season->addFolder(result.seasonPath);
     }
 
     Episode *episode = season->episode(result.episodeNumber);

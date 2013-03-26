@@ -22,6 +22,7 @@ class Season : public QObject
     Q_PROPERTY(Series* series READ series WRITE setSeries)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QList<Episode*> episodes READ episodes WRITE setEpisodes)
+    Q_PROPERTY(QStringList folders READ folders WRITE setFolders)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
@@ -65,6 +66,10 @@ public:
 
     QString tvdbLanguage() const;
 
+    QStringList folders() const;
+    void setFolders(const QStringList &folders);
+    void addFolder(const QString &folder);
+
 private:
     friend class Series;
     void setId(int id);
@@ -79,6 +84,7 @@ private:
     Series *m_series;
     QMap<int, Episode *> m_episodes;
     QLocale::Language m_primaryLanguage;
+    QStringList m_folders;
 };
 
 #endif // SEASON_H

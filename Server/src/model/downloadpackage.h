@@ -73,6 +73,9 @@ public:
     qint64 speedWeighted() const;
     QTime eta() const;
 
+    QString extractFolder() const;
+    void setExtractFolder(const QString &extractFolder);
+
 signals:
     void captchaStringChanged();
     void downloadFinished();
@@ -104,6 +107,8 @@ private:
     mutable QTime m_eta;
 
     static float s_speedAlpha;
+
+    QString m_extractFolder;
 };
 
 Q_DECLARE_METATYPE(DownloadPackage *)

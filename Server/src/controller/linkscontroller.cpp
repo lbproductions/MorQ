@@ -119,6 +119,7 @@ void LinksController::downloadVideos(QList<VideoDownloadLink *> links)
         foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
             if(decrypter->canHandleUrl(url)) {
                 DownloadPackage *package = createPackage(url);
+                package->setExtractFolder(link->extractFolder());
                 decrypter->handlePackage(package);
                 return;
             }

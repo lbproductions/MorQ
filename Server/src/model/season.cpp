@@ -174,3 +174,18 @@ QString Season::tvdbLanguage() const
     QString lang = QLocale(m_primaryLanguage).name();
     return lang.left(lang.lastIndexOf('_'));
 }
+
+QStringList Season::folders() const
+{
+    return m_folders;
+}
+
+void Season::setFolders(const QStringList &folders)
+{
+    m_folders = folders;
+}
+
+void Season::addFolder(const QString &folder)
+{
+    m_folders.append(folder);
+}

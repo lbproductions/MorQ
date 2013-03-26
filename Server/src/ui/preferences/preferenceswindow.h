@@ -53,6 +53,10 @@ private slots:
 
     void enableRemoveLocationButtonUponSelection(const QItemSelection &selected, const QItemSelection &deselected);
 
+    void on_radioButtonExtractSeriesFolder_clicked();
+
+    void on_radioButtonExtractFolder_clicked();
+
 private:
     Ui::PreferencesWindow *ui;
 

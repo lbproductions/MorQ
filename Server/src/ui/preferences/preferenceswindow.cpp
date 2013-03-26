@@ -17,9 +17,13 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) :
     ui->lineEditUserName->setText(Preferences::premiumizeMeUserName());
     ui->lineEditPassword->setText(Preferences::premiumizeMeUserPassword());
 
+    ui->radioButtonExtractFolder->setEnabled(Preferences::extractDownloads());
+    ui->radioButtonExtractSeriesFolder->setEnabled(Preferences::extractDownloads());
     ui->checkBoxEnableExtract->setChecked(Preferences::extractDownloads());
-    ui->lineEditExtractFolder->setEnabled(Preferences::extractDownloads());
-    ui->pushButtonChooseExtractFolder->setEnabled(Preferences::extractDownloads());
+    ui->lineEditExtractFolder->setEnabled(Preferences::extractDownloads() && Preferences::extractMode()=="FOLDER");
+    ui->pushButtonChooseExtractFolder->setEnabled(Preferences::extractDownloads() && Preferences::extractMode()=="FOLDER");
+    ui->radioButtonExtractFolder->setChecked(Preferences::extractMode()=="FOLDER");
+    ui->radioButtonExtractSeriesFolder->setChecked(Preferences::extractMode()=="SERIES");
 
     ui->lineEditDownloadFolder->setText(Preferences::downloadFolder());
     ui->lineEditExtractFolder->setText(Preferences::extractFolder());
@@ -70,6 +74,8 @@ void PreferencesWindow::on_checkBoxEnableExtract_clicked()
 {
     ui->lineEditExtractFolder->setEnabled(ui->checkBoxEnableExtract->isChecked());
     ui->pushButtonChooseExtractFolder->setEnabled(ui->checkBoxEnableExtract->isChecked());
+    ui->radioButtonExtractFolder->setEnabled(ui->checkBoxEnableExtract->isChecked());
+    ui->radioButtonExtractSeriesFolder->setEnabled(ui->checkBoxEnableExtract->isChecked());
     Preferences::setExtractDownloads(ui->checkBoxEnableExtract->isChecked());
 }
 
@@ -190,4 +196,24 @@ void PreferencesWindow::saveSeriesLocations()
     }
 
     Preferences::setSeriesLocations(locations);
+}
+
+void PreferencesWindow::on_radioButtonExtractSeriesFolder_clicked()
+{
+    ui->radioButtonExtractFolder->setChecked(false);
+
+    ui->lineEditExtractFolder->setEnabled(false);
+    ui->pushButtonChooseExtractFolder->setEnabled(false);
+
+    Preferences::setExtractMode("SERIES");
+}
+
+void PreferencesWindow::on_radioButtonExtractFolder_clicked()
+{
+    ui->radioButtonExtractSeriesFolder->setChecked(false);
+
+    ui->lineEditExtractFolder->setEnabled(true);
+    ui->pushButtonChooseExtractFolder->setEnabled(true);
+
+    Preferences::setExtractMode("FOLDER");
 }

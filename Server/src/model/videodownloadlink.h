@@ -18,6 +18,7 @@ class VideoDownloadLink : public QObject
     Q_PROPERTY(QString formatDescription READ formatDescription WRITE setFormatDescription)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
     Q_PROPERTY(Episode* episode READ episode WRITE setEpisode)
+    Q_PROPERTY(QString extractFolder READ extractFolder WRITE setExtractFolder)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
@@ -44,6 +45,9 @@ public:
     QString mirror() const;
     void setMirror(const QString &mirror);
 
+    QString extractFolder() const;
+    void setExtractFolder(const QString &extractFolder);
+
     Episode *episode() const;
 
 private:
@@ -56,6 +60,7 @@ private:
     QString m_formatDescription;
     QUrl m_url;
     QString m_mirror;
+    QString m_extractFolder;
     Episode *m_episode;
 };
 

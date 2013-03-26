@@ -80,3 +80,13 @@ void VideoDownloadLink::setMirror(const QString &mirror)
 {
     m_mirror = mirror;
 }
+
+QString VideoDownloadLink::extractFolder() const
+{
+    return m_extractFolder;
+}
+
+void VideoDownloadLink::setExtractFolder(const QString &extractFolder)
+{
+    m_extractFolder = extractFolder;
+}

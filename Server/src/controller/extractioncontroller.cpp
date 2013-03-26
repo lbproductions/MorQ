@@ -60,7 +60,7 @@ void ExtractionController::extractPackage(DownloadPackage *package)
         dl->setDestinationFolder(Preferences::downloadFolder());
 
     QuunRar *rar = new QuunRar(dl->destinationFolder() + QDir::separator() + dl->fileName(), this);
-    rar->setDestinationDir(Preferences::extractFolder());
+    rar->setDestinationDir(package->extractFolder());
     rar->setPassword("serienjunkies.org");
     if(!rar->open()) {
         package->setMessage(QLatin1String("Extraction failed: ") + rar->errorString());
