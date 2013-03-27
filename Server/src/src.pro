@@ -99,7 +99,9 @@ HEADERS += \
     plugins/informationProviders/thetvdbinformationprovider.h \
     ui/widgets/serieswidget.h \
     ui/dialogs/seriessearchresultitemdelegate.h \ #\
-    ui/preferences/addlanguagedialog.h
+    ui/preferences/addlanguagedialog.h \
+    plugins/renamer/renamerplugin.h \
+    plugins/renamer/classicrenamerandmoverplugin.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -143,7 +145,9 @@ SOURCES += main.cpp \
     plugins/informationProviders/thetvdbinformationprovider.cpp \
     ui/widgets/serieswidget.cpp \
     ui/dialogs/seriessearchresultitemdelegate.cpp \ #\
-    ui/preferences/addlanguagedialog.cpp
+    ui/preferences/addlanguagedialog.cpp \
+    plugins/renamer/renamerplugin.cpp \
+    plugins/renamer/classicrenamerandmoverplugin.cpp
     #controller/filestorage.cpp
 
 FORMS += \

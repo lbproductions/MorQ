@@ -7,6 +7,8 @@
 #include "plugins/decrypter/serienjunkiesdecrypterplugin.h"
 #include "plugins/downloadProviders/downloadproviderplugin.h"
 #include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
+#include "plugins/renamer/renamerplugin.h"
+#include "plugins/renamer/classicrenamerandmoverplugin.h"
 
 
 PluginController::PluginController(QObject *parent) :
@@ -15,6 +17,7 @@ PluginController::PluginController(QObject *parent) :
     createHosterPlugins();
     createDecrypterPlugins();
     createDownloadProviderPlugins();
+    createRenamerPlugins();
 }
 
 QList<HosterPlugin *> PluginController::hosterPlugins() const
@@ -30,6 +33,11 @@ QList<DecrypterPlugin *> PluginController::decrypterPlugins() const
 QList<DownloadProviderPlugin *> PluginController::downloadProviderPlugins() const
 {
     return m_downloadProviderPlugins;
+}
+
+QList<RenamerPlugin *> PluginController::renamerPlugins() const
+{
+    return m_renamerPlugins;
 }
 
 DownloadProviderPlugin *PluginController::downloadProviderPluginByName(QString name) const
@@ -58,6 +66,11 @@ void PluginController::registerDownloadProvider(DownloadProviderPlugin *provider
     m_downloadProviderPlugins.append(provider);
 }
 
+void PluginController::registerRenamerPlugin(RenamerPlugin *renamer)
+{
+    m_renamerPlugins.append(renamer);
+}
+
 void PluginController::createHosterPlugins()
 {
     HosterPlugin *plugin = new PremuimizeMePlugin(this);
@@ -79,4 +92,10 @@ void PluginController::createDownloadProviderPlugins()
 {
     DownloadProviderPlugin *provider = new SerienjunkiesProviderPlugin(this);
     registerDownloadProvider(provider);
+}
+
+void PluginController::createRenamerPlugins()
+{
+    ClassicRenamerAndMoverPlugin *renamer = new ClassicRenamerAndMoverPlugin(this);
+    registerRenamerPlugin(renamer);
 }
