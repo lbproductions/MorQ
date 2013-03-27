@@ -12,6 +12,7 @@ static const QString DOWNLOADFOLDER("downloads/folder");
 static const QString DOWNLOADSMAX("downloads/max");
 
 static const QString SERIESLOCATIONS("series/locations");
+static const QString TVDB_LANGUAGES("tvdb/languages");
 
 QString Preferences::premiumizeMeUserName()
 {
@@ -107,4 +108,25 @@ void Preferences::setSeriesLocations(const QStringList &locations)
 {
     QSettings settings;
     settings.setValue(SERIESLOCATIONS, locations);
+}
+
+QList<QLocale::Language> Preferences::languages()
+{
+    QList<QLocale::Language> result;
+    QSettings settings;
+    QStringList list = settings.value(TVDB_LANGUAGES).toStringList();
+    foreach(QString string, list) {
+        result.append(static_cast<QLocale::Language>(string.toInt()));
+    }
+    return result;
+}
+
+void Preferences::setLanguages(const QList<QLocale::Language> &languages)
+{
+    QSettings settings;
+    QStringList result;
+    foreach(QLocale::Language language, languages) {
+        result.append(QString::number(language));
+    }
+    settings.setValue(TVDB_LANGUAGES, result);
 }

@@ -57,10 +57,24 @@ private slots:
 
     void on_radioButtonExtractFolder_clicked();
 
+    void on_pushButtonAdd_clicked();
+
+    void on_actionTheTVDB_triggered();
+
+    void on_pushButtonUp_clicked();
+
+    void on_pushButtonDown_clicked();
+
 private:
     Ui::PreferencesWindow *ui;
 
     void saveSeriesLocations();
+    void showTvdbLanguagesList();
+    void saveLanguages();
+
+    enum DataRoles {
+        LanguageDataRole = Qt::UserRole + 1
+    };
 };
 
 #endif // PREFERENCESWINDOW_H

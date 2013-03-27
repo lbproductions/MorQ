@@ -141,6 +141,60 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="pageTvdb">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pushButtonUp">
+          <property name="text">
+           <string>Move up</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="pushButtonAdd">
+          <property name="text">
+           <string>Choose languages...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>153</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButtonDown">
+          <property name="text">
+           <string>Move down</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="0" rowspan="3" colspan="2">
+         <widget class="QListWidget" name="listWidgetLanguages"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="pageSeries">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -230,6 +284,7 @@
    <addaction name="actionDownloads"/>
    <addaction name="actionPremuimizeMe"/>
    <addaction name="actionSeries"/>
+   <addaction name="actionTheTVDB"/>
   </widget>
   <action name="actionPremuimizeMe">
    <property name="checkable">
@@ -265,6 +320,14 @@
    </property>
    <property name="toolTip">
     <string>TV Shows</string>
+   </property>
+  </action>
+  <action name="actionTheTVDB">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>TheTVDB</string>
    </property>
   </action>
  </widget>

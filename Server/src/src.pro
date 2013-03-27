@@ -98,7 +98,8 @@ HEADERS += \
     controller/filescraper.h \
     plugins/informationProviders/thetvdbinformationprovider.h \
     ui/widgets/serieswidget.h \
-    ui/dialogs/seriessearchresultitemdelegate.h #\
+    ui/dialogs/seriessearchresultitemdelegate.h \ #\
+    ui/preferences/addlanguagedialog.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -141,7 +142,8 @@ SOURCES += main.cpp \
     controller/filescraper.cpp \
     plugins/informationProviders/thetvdbinformationprovider.cpp \
     ui/widgets/serieswidget.cpp \
-    ui/dialogs/seriessearchresultitemdelegate.cpp #\
+    ui/dialogs/seriessearchresultitemdelegate.cpp \ #\
+    ui/preferences/addlanguagedialog.cpp
     #controller/filestorage.cpp
 
 FORMS += \
@@ -150,7 +152,8 @@ FORMS += \
     ui/dialogs/newserieswizard.ui \
     ui/dialogs/choosedownloadlinksdialog.ui \
     ui/dialogs/rescancollectiondialog.ui \
-    ui/widgets/serieswidget.ui
+    ui/widgets/serieswidget.ui \
+    ui/preferences/addlanguagedialog.ui
 
 RESOURCES += \
     ui/resources/uiresources.qrc \

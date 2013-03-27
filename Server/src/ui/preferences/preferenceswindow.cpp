@@ -1,7 +1,10 @@
 #include "preferenceswindow.h"
 #include "ui_preferenceswindow.h"
 
+#include "addlanguagedialog.h"
+
 #include "preferences.h"
+#include "model/series.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -34,10 +37,13 @@ PreferencesWindow::PreferencesWindow(QWidget *parent) :
     connect(ui->listWidgetLocations->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &PreferencesWindow::enableRemoveLocationButtonUponSelection);
 
+    showTvdbLanguagesList();
+
     QActionGroup *viewActionGroup = new QActionGroup(this);
     viewActionGroup->addAction(ui->actionDownloads);
     viewActionGroup->addAction(ui->actionPremuimizeMe);
     viewActionGroup->addAction(ui->actionSeries);
+    viewActionGroup->addAction(ui->actionTheTVDB);
 
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
@@ -96,6 +102,13 @@ void PreferencesWindow::on_actionSeries_triggered()
     ui->actionSeries->setChecked(true);
     ui->stackedWidget->setCurrentWidget(ui->pageSeries);
 }
+
+void PreferencesWindow::on_actionTheTVDB_triggered()
+{
+    ui->actionTheTVDB->setChecked(true);
+    ui->stackedWidget->setCurrentWidget(ui->pageTvdb);
+}
+
 
 void PreferencesWindow::on_lineEditDownloadFolder_editingFinished()
 {
@@ -198,6 +211,28 @@ void PreferencesWindow::saveSeriesLocations()
     Preferences::setSeriesLocations(locations);
 }
 
+void PreferencesWindow::showTvdbLanguagesList()
+{
+    foreach(QLocale::Language language, Preferences::languages()) {
+        QListWidgetItem *item = new QListWidgetItem(QIcon(Series::languageFlag(language)),
+                                                    QLocale::languageToString(language),
+                                                    ui->listWidgetLanguages);
+        item->setData(LanguageDataRole, static_cast<int>(language));
+        ui->listWidgetLanguages->addItem(item);
+    }
+}
+
+void PreferencesWindow::saveLanguages()
+{
+    QList<QLocale::Language> languages;
+    int count = ui->listWidgetLanguages->count();
+    for(int i = 0; i < count; ++i) {
+        QListWidgetItem *item = ui->listWidgetLanguages->item(i);
+        languages.append(static_cast<QLocale::Language>(item->data(LanguageDataRole).toInt()));
+    }
+    Preferences::setLanguages(languages);
+}
+
 void PreferencesWindow::on_radioButtonExtractSeriesFolder_clicked()
 {
     ui->radioButtonExtractFolder->setChecked(false);
@@ -216,4 +251,51 @@ void PreferencesWindow::on_radioButtonExtractFolder_clicked()
     ui->pushButtonChooseExtractFolder->setEnabled(true);
 
     Preferences::setExtractMode("FOLDER");
+}
+
+void PreferencesWindow::on_pushButtonAdd_clicked()
+{
+    AddLanguageDialog dialog(this);
+    int ret = dialog.exec();
+
+    if(ret != QDialog::Accepted)
+        return;
+
+    QList<QLocale::Language> checkedLanguages = dialog.checkedLanguages();
+    QList<QLocale::Language> languages = Preferences::languages();
+
+    ui->listWidgetLanguages->clear();
+    foreach(QLocale::Language language, languages) {
+        if(!checkedLanguages.contains(language)) {
+            languages.removeAll(language);
+        }
+        else {
+            checkedLanguages.removeAll(language);
+        }
+    }
+
+    foreach(QLocale::Language language, checkedLanguages) {
+        languages.append(language);
+    }
+
+    Preferences::setLanguages(languages);
+    showTvdbLanguagesList();
+}
+
+void PreferencesWindow::on_pushButtonUp_clicked()
+{
+    int currentIndex = ui->listWidgetLanguages->currentRow();
+    QListWidgetItem *currentItem = ui->listWidgetLanguages->takeItem(currentIndex);
+    ui->listWidgetLanguages->insertItem(currentIndex-1, currentItem);
+    ui->listWidgetLanguages->setCurrentRow(currentIndex-1);
+    saveLanguages();
+}
+
+void PreferencesWindow::on_pushButtonDown_clicked()
+{
+    int currentIndex = ui->listWidgetLanguages->currentRow();
+    QListWidgetItem *currentItem = ui->listWidgetLanguages->takeItem(currentIndex);
+    ui->listWidgetLanguages->insertItem(currentIndex+1, currentItem);
+    ui->listWidgetLanguages->setCurrentRow(currentIndex+1);
+    saveLanguages();
 }

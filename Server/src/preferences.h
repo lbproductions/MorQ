@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QLocale>
 
 class Preferences
 {
@@ -27,6 +28,9 @@ public:
 
     static QStringList seriesLocations();
     static void setSeriesLocations(const QStringList &locations);
+
+    static QList<QLocale::Language> languages();
+    static void setLanguages(const QList<QLocale::Language> &languages);
 };
 
 #endif // PREFERENCES_H
