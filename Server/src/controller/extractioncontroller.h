@@ -30,6 +30,9 @@ private slots:
 
     void downloadDestroyed();
 
+signals:
+    void extractionFinished(DownloadPackage *package);
+
 private:
     QHash<QuunRarJob *, QElapsedTimer *> m_timers;
     QHash<DownloadPackage *, Download *> m_currentExtractingDownloads;

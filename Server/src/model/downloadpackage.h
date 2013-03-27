@@ -10,6 +10,7 @@
 #include <QUrl>
 
 class Download;
+class VideoDownloadLink;
 
 class DownloadPackage : public QObject
 {
@@ -19,6 +20,7 @@ class DownloadPackage : public QObject
     Q_PROPERTY(QString message READ message WRITE setMessage)
     Q_PROPERTY(QList<Download*> downloads READ downloads WRITE setDownloads)
     Q_PROPERTY(QUrl sourceUrl READ sourceUrl WRITE setSourceUrl)
+    //Q_PROPERTY(QList<VideoDownloadLink*> videoDownloadLinks READ videoDownloadLinks WRITE setVideoDownloadLinks)
 
     Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
@@ -44,6 +46,10 @@ public:
     QList<Download *> downloads() const;
     void addDownload(Download *download);
     void removeDownload(Download *download);
+
+    QList<VideoDownloadLink *> videoDownloadLinks() const;
+    void addVideoDownloadLink(VideoDownloadLink *download);
+
 
     QByteArray captcha() const;
     void setCaptcha(const QByteArray &captcha);
@@ -76,6 +82,8 @@ public:
     QString extractFolder() const;
     void setExtractFolder(const QString &extractFolder);
 
+
+
 signals:
     void captchaStringChanged();
     void downloadFinished();
@@ -86,6 +94,7 @@ private slots:
 private:
     void setId(int id);
     void setDownloads(const QList<Download *> downloads);
+    void setVideoDownloadLinks(const QList<VideoDownloadLink *> downloads);
 
     void calculateSpeed() const;
 
@@ -93,6 +102,7 @@ private:
     QString m_name;
     QString m_message;
     QList<Download *> m_downloads;
+    QList<VideoDownloadLink*> m_videoDownloadLinks;
     QUrl m_sourceUrl;
     QByteArray m_captcha;
     QString m_captchaString;

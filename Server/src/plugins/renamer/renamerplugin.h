@@ -11,6 +11,7 @@ class RenamerPlugin : public QObject
 public:
     explicit RenamerPlugin(QObject *parent = 0);
 
+public slots:
     virtual void renameEpisodes(QList<Episode*> episodes) = 0;
     
 signals:

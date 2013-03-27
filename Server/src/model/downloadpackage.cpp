@@ -95,6 +95,11 @@ void DownloadPackage::removeDownload(Download *download)
     m_downloads.removeAll(download);
 }
 
+QList<VideoDownloadLink *> DownloadPackage::videoDownloadLinks() const
+{
+    return m_videoDownloadLinks;
+}
+
 QByteArray DownloadPackage::captcha() const
 {
     return m_captcha;
@@ -131,6 +136,11 @@ void DownloadPackage::setDownloads(const QList<Download *> downloads)
     }
 
     m_downloads = downloads;
+}
+
+void DownloadPackage::setVideoDownloadLinks(const QList<VideoDownloadLink *> downloads)
+{
+    m_videoDownloadLinks = downloads;
 }
 
 qint64 DownloadPackage::totalFileSize() const
@@ -327,4 +337,10 @@ void DownloadPackage::maybeEmitDownloadFinished()
 void DownloadPackage::setExtractFolder(const QString &extractFolder)
 {
     m_extractFolder = extractFolder;
+}
+
+
+void DownloadPackage::addVideoDownloadLink(VideoDownloadLink *download)
+{
+    m_videoDownloadLinks.append(download);
 }

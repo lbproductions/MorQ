@@ -29,7 +29,7 @@ static QList<QPair<QLocale::Language, QRegularExpression> > LANGUAGE_REGEXPS()
     return result;
 }
 
-static QStringList VIDEOEXTENSIONS()
+QStringList FileScraper::VIDEOEXTENSIONS()
 {
     static const QStringList extensions =
             QStringList() << "m4v" << "3gp" << "nsv" << "ts" << "ty"

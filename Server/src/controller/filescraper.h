@@ -42,6 +42,8 @@ public:
     QList<Season *> newSeasons();
     QList<Episode *> newEpisodes();
 
+    static QStringList VIDEOEXTENSIONS();
+
 signals:
     void scrapingFile(const QString &folder);
     void finished();

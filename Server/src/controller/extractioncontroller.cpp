@@ -255,4 +255,6 @@ void ExtractionController::quitAndRemoveJob(QuunRarJob *job)
 //        job->archive()->deleteLater();
         m_jobs.removeAll(job);
     }
+
+    emit extractionFinished(package);
 }

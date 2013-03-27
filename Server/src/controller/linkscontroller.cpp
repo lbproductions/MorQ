@@ -120,6 +120,7 @@ void LinksController::downloadVideos(QList<VideoDownloadLink *> links)
             if(decrypter->canHandleUrl(url)) {
                 DownloadPackage *package = createPackage(url);
                 package->setExtractFolder(link->extractFolder());
+                package->addVideoDownloadLink(link);
                 decrypter->handlePackage(package);
                 return;
             }
