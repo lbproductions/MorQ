@@ -5,7 +5,7 @@
 
 #include <controller/controller.h>
 #include <controller/extractioncontroller.h>
-#include <controller/filescraper.h>
+#include <plugins/scraper/filescraper.h>
 
 #include <model/episode.h>
 #include <model/season.h>

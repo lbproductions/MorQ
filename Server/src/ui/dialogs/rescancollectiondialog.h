@@ -9,7 +9,7 @@ namespace Ui {
 class RescanCollectionDialog;
 }
 
-class FileScraper;
+class Scraper;
 class Series;
 class InformationProviderPlugin;
 template<class T>
@@ -23,7 +23,7 @@ class RescanCollectionDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit RescanCollectionDialog(QWidget *parent = 0);
+    explicit RescanCollectionDialog(Scraper *scraper, QWidget *parent = 0);
     ~RescanCollectionDialog();
     
     void scan();
@@ -53,7 +53,7 @@ private slots:
     void finish();
 
 private:
-    FileScraper *m_scraper;
+    Scraper *m_scraper;
     Ui::RescanCollectionDialog *ui;
 
     Series *m_currentSeries;

@@ -48,6 +48,11 @@ NewSeriesWizard::~NewSeriesWizard()
     delete ui;
 }
 
+QString NewSeriesWizard::seriesTitle()
+{
+    return m_currentSeries.title;
+}
+
 void NewSeriesWizard::on_comboBoxProvider_currentIndexChanged(int index)
 {
     button(QWizard::NextButton)->setEnabled(false);
@@ -138,9 +143,11 @@ void NewSeriesWizard::finish()
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
 
-    Controller::plugins()->downloadProviderPlugins().first()->findMissingEpisodes(series);
+    //Controller::plugins()->downloadProviderPlugins().first()->findMissingEpisodes(series);
 
     QPersistence::update(series);
+
+
 }
 
 void NewSeriesWizard::setSeries(DownloadProviderPlugin::SeriesData series)

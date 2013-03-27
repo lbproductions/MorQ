@@ -95,13 +95,15 @@ HEADERS += \
     ui/mainwindow/episodeslistitemdelegate.h \
     model/seriesdataaccessobject.h \
     ui/dialogs/rescancollectiondialog.h \
-    controller/filescraper.h \
+    plugins/scraper/filescraper.h \
     plugins/informationProviders/thetvdbinformationprovider.h \
     ui/widgets/serieswidget.h \
-    ui/dialogs/seriessearchresultitemdelegate.h \ #\
+    ui/dialogs/seriessearchresultitemdelegate.h \
     ui/preferences/addlanguagedialog.h \
     plugins/renamer/renamerplugin.h \
-    plugins/renamer/classicrenamerandmoverplugin.h
+    plugins/renamer/classicrenamerandmoverplugin.h \
+    plugins/scraper/scraper.h \
+    plugins/scraper/newseriesscraper.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -141,13 +143,15 @@ SOURCES += main.cpp \
     ui/mainwindow/episodeslistitemdelegate.cpp \
     model/seriesdataaccessobject.cpp \
     ui/dialogs/rescancollectiondialog.cpp \
-    controller/filescraper.cpp \
+    plugins/scraper/filescraper.cpp \
     plugins/informationProviders/thetvdbinformationprovider.cpp \
     ui/widgets/serieswidget.cpp \
-    ui/dialogs/seriessearchresultitemdelegate.cpp \ #\
+    ui/dialogs/seriessearchresultitemdelegate.cpp \
     ui/preferences/addlanguagedialog.cpp \
     plugins/renamer/renamerplugin.cpp \
-    plugins/renamer/classicrenamerandmoverplugin.cpp
+    plugins/renamer/classicrenamerandmoverplugin.cpp \
+    plugins/scraper/scraper.cpp \
+    plugins/scraper/newseriesscraper.cpp
     #controller/filestorage.cpp
 
 FORMS += \

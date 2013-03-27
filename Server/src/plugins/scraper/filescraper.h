@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QLocale>
 
+#include "scraper.h"
+
 namespace FileScraperPrivate {
 struct Result {
     int seasonNumber;
@@ -20,16 +22,17 @@ class Series;
 class Season;
 class Episode;
 
-class FileScraper : public QObject
+class FileScraper : public Scraper
 {
     Q_OBJECT
-
 public:
     explicit FileScraper(QObject *parent = 0);
 
     int locationCount() const;
     int currentLocationCount() const;
     QString currentLocation() const;
+
+    void scan();
 
     void scanAllLocationsForShowsSeasonsAndEpisodesAsync();
 
@@ -46,7 +49,6 @@ public:
 
 signals:
     void scrapingFile(const QString &folder);
-    void finished();
 
     void result(const FileScraperPrivate::Result &result);
 

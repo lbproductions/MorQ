@@ -1,6 +1,6 @@
 #include "filescraper.h"
 
-#include "controller.h"
+#include <controller/controller.h>
 
 #include "preferences.h"
 #include "model/seriesdataaccessobject.h"
@@ -54,7 +54,7 @@ static QString fileExtension(const QString &name)
 }
 
 FileScraper::FileScraper(QObject *parent) :
-    QObject(parent),
+    Scraper(parent),
     m_locationCount(-1),
     m_currentLocationCount(-1)
 {
@@ -77,6 +77,11 @@ int FileScraper::currentLocationCount() const
 QString FileScraper::currentLocation() const
 {
     return m_currentLocation;
+}
+
+void FileScraper::scan()
+{
+    scanAllLocationsForShowsSeasonsAndEpisodesAsync();
 }
 
 void FileScraper::scanAllLocationsForShowsSeasonsAndEpisodesAsync()

@@ -13,6 +13,7 @@ class QDir;
  */
 class ClassicRenamerAndMoverPlugin : public RenamerPlugin
 {
+    Q_OBJECT
 public:
     ClassicRenamerAndMoverPlugin(QObject *parent = 0);
 

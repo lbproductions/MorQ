@@ -18,6 +18,9 @@
 #include "controller/downloadcontroller.h"
 #include "controller/extractioncontroller.h"
 
+#include "plugins/scraper/filescraper.h"
+#include "plugins/scraper/newseriesscraper.h"
+
 #include "model/download.h"
 #include "model/downloadpackage.h"
 #include "model/episode.h"
@@ -302,6 +305,10 @@ void MainWindow::on_actionAdd_show_triggered()
 
     NewSeriesWizard wizard(this);
     wizard.exec();
+
+    RescanCollectionDialog dialog(new NewSeriesScraper(wizard.seriesTitle(),this), this);
+    dialog.scan();
+    dialog.exec();
 }
 
 void MainWindow::showSeasonsForSelectedSeries()
@@ -432,7 +439,7 @@ void MainWindow::on_actionAddDownload_triggered()
 
 void MainWindow::on_actionRescan_collection_triggered()
 {
-    RescanCollectionDialog dialog(this);
+    RescanCollectionDialog dialog(new FileScraper(this), this);
     dialog.scan();
     dialog.exec();
 }

@@ -22,6 +22,8 @@ public:
     explicit NewSeriesWizard(QWidget *parent = 0);
     ~NewSeriesWizard();
 
+    QString seriesTitle();
+
 private slots:
     void on_comboBoxProvider_currentIndexChanged(int index);
 

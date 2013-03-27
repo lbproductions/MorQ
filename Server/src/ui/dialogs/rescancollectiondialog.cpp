@@ -3,7 +3,7 @@
 
 #include "seriessearchresultitemdelegate.h"
 
-#include "controller/filescraper.h"
+#include "plugins/scraper/filescraper.h"
 #include "controller/controller.h"
 #include "controller/plugincontroller.h"
 #include "plugins/downloadProviders/downloadproviderplugin.h"
@@ -18,9 +18,9 @@
 
 #include <QPushButton>
 
-RescanCollectionDialog::RescanCollectionDialog(QWidget *parent) :
+RescanCollectionDialog::RescanCollectionDialog(Scraper *scraper, QWidget *parent) :
     QDialog(parent),
-    m_scraper(new FileScraper(this)),
+    m_scraper(scraper),
     ui(new Ui::RescanCollectionDialog),
     m_currentSeries(nullptr),
     m_provider(nullptr),
@@ -65,7 +65,7 @@ void RescanCollectionDialog::scan()
     ui->progressBar->setRange(0, 0);
     ui->labelStatus->setText(message);
     ui->textEdit->append(message);
-    m_scraper->scanAllLocationsForShowsSeasonsAndEpisodesAsync();
+    m_scraper->scan();
 }
 
 void RescanCollectionDialog::checkForNewSeries()
@@ -187,7 +187,7 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
         m_currentSeries->addLanguage(series->primaryLanguage());
     }
 
-//    searchDownlaodsAtSerienjunkies();
+    searchDownlaodsAtSerienjunkies();
 
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
