@@ -257,7 +257,7 @@ QVariant DownloadsItemModel::headerData(int section, Qt::Orientation orientation
 int DownloadsItemModel::rowCount(const QModelIndex &parent) const
 {
     if(!parent.isValid())
-        return QPersistence::count<DownloadPackage>();
+        return m_packageRows.size();
 
     DownloadPackage *package = packageByIndex(parent);
     if(!package)
