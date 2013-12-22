@@ -187,7 +187,7 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
         m_currentSeries->addLanguage(series->primaryLanguage());
     }
 
-    searchDownlaodsAtSerienjunkies();
+    //searchDownlaodsAtSerienjunkies();
 
     QPersistence::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
@@ -260,10 +260,12 @@ void RescanCollectionDialog::downloadsFoundAtSerienjunkies(QList<DownloadProvide
 
     if(serie != 0 && serie->serienJunkiesUrl().toString() == ""){
        serie->setSerienJunkiesUrl(series.first().url);
-       Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
        ui->textEdit->append("Serienjunkies-Url for " + series.first().title + " found: " + series.first().url.toString());
        QPersistence::update(serie);
     }
+
+    // TODO: Find a better call structure to search for download links
+    Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
 }
 
 void RescanCollectionDialog::scrape()

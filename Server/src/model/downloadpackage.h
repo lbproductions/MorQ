@@ -46,6 +46,7 @@ public:
     QList<Download *> downloads() const;
     void addDownload(Download *download);
     void removeDownload(Download *download);
+    bool downloadExists(Download *download);
 
     QList<VideoDownloadLink *> videoDownloadLinks() const;
     void addVideoDownloadLink(VideoDownloadLink *download);
@@ -97,6 +98,7 @@ private:
     void setVideoDownloadLinks(const QList<VideoDownloadLink *> downloads);
 
     void calculateSpeed() const;
+    QList<Download*> differentDownloads() const;
 
     qint64 m_id;
     QString m_name;

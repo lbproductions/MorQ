@@ -71,7 +71,7 @@ QList<Download *> DownloadPackage::downloads() const
 
 void DownloadPackage::addDownload(Download *download)
 {
-    if(m_downloads.contains(download))
+    if(downloadExists(download))
         return;
 
     connect(download, &Download::destroyed, [=]() {
@@ -87,12 +87,21 @@ void DownloadPackage::addDownload(Download *download)
 
 void DownloadPackage::removeDownload(Download *download)
 {
-    if(!m_downloads.contains(download))
+    if(!downloadExists(download))
         return;
 
     disconnect(download, 0, this, 0);
     download->setPackage(nullptr);
     m_downloads.removeAll(download);
+}
+
+bool DownloadPackage::downloadExists(Download *download)
+{
+    if(m_downloads.contains(download)) {
+        return true;
+    }
+
+    return false;
 }
 
 QList<VideoDownloadLink *> DownloadPackage::videoDownloadLinks() const
@@ -146,7 +155,7 @@ void DownloadPackage::setVideoDownloadLinks(const QList<VideoDownloadLink *> dow
 qint64 DownloadPackage::totalFileSize() const
 {
     qint64 total = 0;
-    foreach(Download *dl, downloads()) {
+    foreach(Download *dl, differentDownloads()) {
         total += dl->fileSize();
     }
 
@@ -156,7 +165,7 @@ qint64 DownloadPackage::totalFileSize() const
 qint64 DownloadPackage::bytesDownloaded() const
 {
     qint64 total = 0;
-    foreach(Download *dl, downloads()) {
+    foreach(Download *dl, differentDownloads()) {
         total += dl->bytesDownloaded();
     }
 
@@ -301,6 +310,19 @@ void DownloadPackage::calculateSpeed() const
         }
         m_eta = qMax(maxDownloadEta, m_eta);
     }
+}
+
+QList<Download *> DownloadPackage::differentDownloads() const
+{
+    QList<Download*> differentFiles;
+    QStringList fileNames;
+    foreach(Download* dl, downloads()) {
+        if(!fileNames.contains(dl->fileName())) {
+            differentFiles.append(dl);
+            fileNames.append(dl->fileName());
+        }
+    }
+    return differentFiles;
 }
 
 qint64 DownloadPackage::speed() const

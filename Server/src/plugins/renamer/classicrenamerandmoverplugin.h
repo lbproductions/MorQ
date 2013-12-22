@@ -26,6 +26,8 @@ private:
     QString numberToString(int number);
 
     void removeDir(QString dirName);
+
+    QList<QDir> subDirectories(QDir dir);
 };
 
 #endif // CLASSICRENAMERANDMOVERPLUGIN_H

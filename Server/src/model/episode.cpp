@@ -26,6 +26,8 @@ Episode::~Episode()
     }
     foreach(VideoDownloadLink *link, m_downloadLinks) {
         link->setEpisode(nullptr);
+        delete link;
+        link = 0;
     }
 }
 

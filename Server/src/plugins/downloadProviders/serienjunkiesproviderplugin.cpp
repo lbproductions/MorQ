@@ -65,6 +65,26 @@ void SerienjunkiesProviderPlugin::findMissingEpisodes(Series *series) const
     handler->findMissingEpisodes(series);
 }
 
+void SerienjunkiesProviderPlugin::searchAndSetDownloadsForSeries(Series *series)
+{
+    connect(this,&SerienjunkiesProviderPlugin::foundSeries, this, &SerienjunkiesProviderPlugin::onSeriesFound);
+
+    searchSeries(series->title());
+}
+
+void SerienjunkiesProviderPlugin::onSeriesFound(QList<DownloadProviderPlugin::SeriesData> series)
+{
+    //TODO: Find a better way to get the right serie (with not the same name)
+    Series* serie = Controller::seriesDao()->byTitle(series.first().title);
+
+    if(serie != 0 && serie->serienJunkiesUrl().toString() == ""){
+       serie->setSerienJunkiesUrl(series.first().url);
+       QPersistence::update(serie);
+    }
+
+    findMissingEpisodes(serie);
+}
+
 
 SerienjunkiesSearchHandler::SerienjunkiesSearchHandler(QObject *parent) :
     QObject(parent),
@@ -146,16 +166,20 @@ void SerienjunkiesSearchHandler::searchEpisodesFinished()
                 if(!episode) {
                     episode = QPersistence::create<Episode>();
                     episode->setNumber(enumber);
-                    episode->setSerienJunkiesTitle(link.name);
                     season->addEpisode(episode);
                     QPersistence::insert(episode);
                 }
+                //episode->setSerienJunkiesTitle(link.name);
+                //QPersistence::update(episode);
 
                 VideoDownloadLink* vLink = new VideoDownloadLink();
+                vLink->setName(link.name);
                 vLink->setFormatDescription(format.description);
                 vLink->setUrl(link.url);
                 vLink->setMirror(mirror);
                 episode->addDownloadLink(vLink);
+                //QPersistence::insert(vLink);
+                //QPersistence::update(episode);
             }
         }
     }

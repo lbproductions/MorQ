@@ -187,6 +187,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
     }
     if(!season->folders().contains(result.seasonPath)) {
         season->addFolder(result.seasonPath);
+        QPersistence::update(season);
     }
 
     Episode *episode = season->episode(result.episodeNumber);

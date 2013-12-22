@@ -32,12 +32,11 @@ VideoDownloadLinksDAO *Controller::s_videoDownloadLinksDao = nullptr;
 bool Controller::initialize()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("test.sqlite");
+    db.setDatabaseName("/Users/niclasraabe/Dropbox/Public/morq.db");
     if(!db.open()) {
         qCritical() << db.lastError();
         return false;
     }
-
     QPersistence::registerSetType<int>();
 
     static QObject guard;
@@ -74,8 +73,8 @@ bool Controller::initialize()
 
     // Adjust database
     QPersistenceDatabaseSchema databaseSchema;
-        databaseSchema.createCleanSchema();
-//    databaseSchema.adjustSchema();
+    //databaseSchema.createCleanSchema();
+    //databaseSchema.adjustSchema();
 
 
     // Call these methods, to once initialize each controller

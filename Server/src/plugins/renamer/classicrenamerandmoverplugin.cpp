@@ -15,6 +15,8 @@
 
 #include "preferences.h"
 
+#include <QDirIterator>
+
 ClassicRenamerAndMoverPlugin::ClassicRenamerAndMoverPlugin(QObject *parent):
     RenamerPlugin(parent)
 {
@@ -77,6 +79,16 @@ void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(DownloadPack
     extractSubFolder = extractSubFolder.remove(extractSubFolder.size()-1, extractSubFolder.size());
     qDebug() << "Dir: " << package->extractFolder() + "/" + extractSubFolder;
     QDir dir(package->extractFolder() + "/" + extractSubFolder);
+
+    if(!dir.exists()) {
+        //TODO: Extract folder is different to package name. Find a way to get the right directory
+        QDir dir(package->extractFolder());
+        QList<QDir> subs = subDirectories(dir);
+        if(subs.size() == 1) {
+            dir.setCurrent(subs.first().absolutePath());
+        }
+    }
+
     QStringList videoFiles;
     foreach(QFileInfo info, dir.entryInfoList()) {
         if(FileScraper::VIDEOEXTENSIONS().contains(info.suffix())) {
@@ -120,5 +132,16 @@ void ClassicRenamerAndMoverPlugin::removeDir(QString dirName)
                 }
             }
             dir.rmdir(dirName);
-        }
+    }
+}
+
+QList<QDir> ClassicRenamerAndMoverPlugin::subDirectories(QDir dir)
+{
+    QList<QDir> list;
+    QDirIterator it(dir, QDirIterator::Subdirectories);
+    while(it.hasNext())
+    {
+        list.append(QDir(it.next()));
+    }
+    return list;
 }

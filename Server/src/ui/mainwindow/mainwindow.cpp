@@ -17,6 +17,9 @@
 #include "controller/controller.h"
 #include "controller/downloadcontroller.h"
 #include "controller/extractioncontroller.h"
+#include "controller/plugincontroller.h"
+#include "plugins/downloadProviders/downloadproviderplugin.h"
+#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
 
 #include "plugins/scraper/filescraper.h"
 #include "plugins/scraper/newseriesscraper.h"
@@ -75,6 +78,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeries->setModel(m_seriesModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
+
+    ui->treeViewSeries->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction* action = new QAction(tr("Search for download links"), this);
+    ui->treeViewSeries->addAction(action);
+    connect(action, SIGNAL(triggered()), this, SLOT(on_actionSearchDownloadLinks_triggered()));
 
     m_seasonsModel = new SeasonsListModel(this);
     ui->treeViewSeasons->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -442,4 +450,15 @@ void MainWindow::on_actionRescan_collection_triggered()
     RescanCollectionDialog dialog(new FileScraper(this), this);
     dialog.scan();
     dialog.exec();
+}
+
+void MainWindow::on_actionSearchDownloadLinks_triggered()
+{
+    QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
+    if(list.isEmpty())
+        return;
+
+    Series *series = m_seriesModel->objectByIndex(list.first());
+    SerienjunkiesProviderPlugin* plugin = static_cast<SerienjunkiesProviderPlugin*>(Controller::plugins()->downloadProviderPluginByName("serienjunkies.org"));
+    plugin->searchAndSetDownloadsForSeries(series);
 }

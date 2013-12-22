@@ -6,9 +6,11 @@
 #include "plugins/downloadProviders/downloadproviderplugin.h"
 
 #include "model/series.h"
+#include "preferences.h"
 
 #include <QCompleter>
 #include <QPushButton>
+#include <QDir>
 
 NewSeriesWizard::NewSeriesWizard(QWidget *parent) :
     QWizard(parent),
@@ -21,6 +23,10 @@ NewSeriesWizard::NewSeriesWizard(QWidget *parent) :
 
     foreach(DownloadProviderPlugin *provider, Controller::plugins()->downloadProviderPlugins()) {
         ui->comboBoxProvider->addItem(provider->name());
+    }
+
+    foreach(QString location, Preferences::seriesLocations()) {
+        ui->comboBoxLocation->addItem(location);
     }
 
     ui->comboBoxProvider->setCurrentIndex(0);
@@ -143,7 +149,11 @@ void NewSeriesWizard::finish()
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
 
-    //Controller::plugins()->downloadProviderPlugins().first()->findMissingEpisodes(series);
+    QDir dir(ui->comboBoxLocation->currentText());
+    dir.mkdir(m_currentSeries.title);
+    dir.cd(m_currentSeries.title);
+
+    series->addFolder(dir.absolutePath());
 
     QPersistence::update(series);
 
@@ -155,4 +165,9 @@ void NewSeriesWizard::setSeries(DownloadProviderPlugin::SeriesData series)
     m_currentSeries = series;
     ui->labelTitle->setText(series.title);
     ui->labelBaseUrl->setText(series.url.toString());
+}
+
+void NewSeriesWizard::on_comboBoxLocation_currentIndexChanged(const QString &arg1)
+{
+    ui->labelLocation->setText(arg1);
 }

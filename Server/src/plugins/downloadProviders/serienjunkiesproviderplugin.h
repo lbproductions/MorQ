@@ -15,6 +15,11 @@ public:
     bool canHandleSeries(Series *series) const;
     void findMissingEpisodes(Series *series) const;
 
+    void searchAndSetDownloadsForSeries(Series* series);
+
+private slots:
+    void onSeriesFound(QList<DownloadProviderPlugin::SeriesData> series);
+
 private:
     QSerienJunkiesReply *m_latestReply;
 };

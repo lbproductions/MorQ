@@ -24,12 +24,22 @@ Download *DownloadController::findNextUnfinishedDownload()
     foreach(DownloadPackage *package, packages) {
         if(package->isDownloadFinished())
             continue;
-
+        QStringList fileNames;
+        foreach(Download *dl , package->downloads()) {
+            if(fileNames.contains(dl->fileName())) {
+                removeDownload(dl);
+            }
+            else{
+                fileNames.append(dl->fileName());
+            }
+        }
         foreach(Download *dl , package->downloads()) {
             if(!dl->isDownloadFinished()
-                    && !m_runningDownloaders.contains(dl->id())
-                    && dl->isEnabled())
+               && !m_runningDownloaders.contains(dl->id())
+               && dl->isEnabled()) {
                 return dl;
+            }
+
         }
     }
 
@@ -125,7 +135,7 @@ void DownloadController::resetDownload(Download *download)
     }
 
     if(wasRunning
-            || isDownloadRunning())
+       || isDownloadRunning())
         startDownloads();
 }
 

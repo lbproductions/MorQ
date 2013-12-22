@@ -34,6 +34,8 @@ private slots:
 
     void finish();
 
+    void on_comboBoxLocation_currentIndexChanged(const QString &arg1);
+
 private:
     Ui::NewSeriesWizard *ui;
 

@@ -484,6 +484,9 @@ background-color: #fff;
    <property name="text">
     <string>Download</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionRescan_collection">
    <property name="text">
