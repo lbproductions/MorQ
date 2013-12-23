@@ -15,12 +15,12 @@
 ExtractionController::ExtractionController(QObject *parent) :
     QObject(parent)
 {
-    foreach(DownloadPackage *package, QPersistence::readAll<DownloadPackage>()) {
+    foreach(DownloadPackage *package, Qp::readAll<DownloadPackage>()) {
         connect(package, &DownloadPackage::downloadFinished,
                 this, &ExtractionController::extractFinishedPackage);
     }
 
-    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectInserted, [=](QObject *obj) {
+    connect(Controller::downloadPackagesDao(), &QpAbstractDataAccessObject::objectInserted, [=](QObject *obj) {
         DownloadPackage *package = qobject_cast<DownloadPackage *>(obj);
         if(!package)
             return;
@@ -64,7 +64,7 @@ void ExtractionController::extractPackage(DownloadPackage *package)
     rar->setPassword("serienjunkies.org");
     if(!rar->open()) {
         package->setMessage(QLatin1String("Extraction failed: ") + rar->errorString());
-        QPersistence::update(package);
+        Qp::update(package);
         return;
     }
 
@@ -78,7 +78,7 @@ void ExtractionController::extractPackage(DownloadPackage *package)
     m_jobs.append(job);
     m_runningExtractions.insert(job, package);
     m_currentExtractingDownloads.insert(package, dl);
-    QPersistence::update(package);
+    Qp::update(package);
 
     // Must not use lambdas, because the signals come from a different thread!
     connect(job, &QuunRarJob::dataProcessed,
@@ -131,12 +131,12 @@ void ExtractionController::bytesProcessed()
     }
 
     package->setBytesExtracted(job->processedData());
-    QPersistence::update(package);
+    Qp::update(package);
 
     Download *dl = m_currentExtractingDownloads.value(package);
     if(dl) {
         dl->setExtracting(true);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 }
 
@@ -154,7 +154,7 @@ void ExtractionController::volumeChanged(const QString &volumeName)
     if(dl) {
         disconnect(dl, 0, this, 0);
         dl->setExtracting(false);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 
     QFileInfo info(volumeName);
@@ -168,7 +168,7 @@ void ExtractionController::volumeChanged(const QString &volumeName)
             dl->setExtracting(true);
             m_currentExtractingDownloads.remove(package);
             m_currentExtractingDownloads.insert(package, dl);
-            QPersistence::update(dl);
+            Qp::update(dl);
             break;
         }
     }
@@ -188,12 +188,12 @@ void ExtractionController::finished()
     if(dl) {
         dl->setExtracting(false);
         m_currentExtractingDownloads.remove(package);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 
     package->setBytesExtracted(job->processedData());
     package->setMessage(tr("Extract OK"));
-    QPersistence::update(package);
+    Qp::update(package);
 
     quitAndRemoveJob(job);
 }
@@ -209,7 +209,7 @@ void ExtractionController::currentFileChanged(const QString &fileName)
     }
 
     package->setMessage(tr("Extracting %1").arg(fileName));
-    QPersistence::update(package);
+    Qp::update(package);
 }
 
 void ExtractionController::error()

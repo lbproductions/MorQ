@@ -98,15 +98,15 @@ void SerienjunkiesSearchHandler::searchSeasonsFinished()
         Season *season = m_series->season(number);
 
         if(!season) {
-            season = QPersistence::create<Season>();
+            season = Qp::create<Season>();
             season->setNumber(number);
             m_series->addSeason(season);
-            QPersistence::insert(season);
+            Qp::insert(season);
         }
 
         season->setSerienJunkiesTitle(se.title);
         season->setSerienJunkiesUrl(se.url);
-        QPersistence::update(season);
+        Qp::update(season);
 
         QSerienJunkiesReply *episodeReply = QSerienJunkies::searchDownloads(se.url);
         connect(episodeReply, &QSerienJunkiesReply::finished,
@@ -144,11 +144,11 @@ void SerienjunkiesSearchHandler::searchEpisodesFinished()
                 Episode *episode = season->episode(enumber);
 
                 if(!episode) {
-                    episode = QPersistence::create<Episode>();
+                    episode = Qp::create<Episode>();
                     episode->setNumber(enumber);
                     episode->setSerienJunkiesTitle(link.name);
                     season->addEpisode(episode);
-                    QPersistence::insert(episode);
+                    Qp::insert(episode);
                 }
 
                 VideoDownloadLink* vLink = new VideoDownloadLink();

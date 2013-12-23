@@ -4,7 +4,7 @@
 
 #include <QPixmap>
 
-SeriesListModel::SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent) :
+SeriesListModel::SeriesListModel(QpAbstractDataAccessObject *dao, QObject *parent) :
     ObjectListModel<Series>(parent),
     m_dao(dao),
     m_checkable(false)
@@ -89,7 +89,7 @@ bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, i
 
 QList<Series *> SeriesListModel::objects() const
 {
-    return QPersistence::castList<Series>(m_dao->readAllObjects());
+    return Qp::castList<Series>(m_dao->readAllObjects());
 }
 
 bool SeriesListModel::isCheckable() const

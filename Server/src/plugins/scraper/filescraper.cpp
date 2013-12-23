@@ -167,9 +167,9 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
     Series *series = Controller::seriesDao()->byTitle(result.seriesTitle);
 
     if(!series) {
-        series = QPersistence::create<Series>();
+        series = Qp::create<Series>();
         series->setTitle(result.seriesTitle);
-        QPersistence::insert(series);
+        Qp::insert(series);
         m_newSeries.append(series);
     }
     if(!series->folders().contains(result.seriesPath)) {
@@ -178,11 +178,11 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 
     Season *season = series->season(result.seasonNumber);
     if(!season) {
-        season = QPersistence::create<Season>();
+        season = Qp::create<Season>();
         season->setNumber(result.seasonNumber);
         season->setPrimaryLanguage(result.language);
         series->addSeason(season);
-        QPersistence::insert(season);
+        Qp::insert(season);
         m_newSeasons.append(season);
     }
     if(!season->folders().contains(result.seasonPath)) {
@@ -192,12 +192,12 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
     Episode *episode = season->episode(result.episodeNumber);
 
     if(!episode) {
-        episode = QPersistence::create<Episode>();
+        episode = Qp::create<Episode>();
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);
         episode->setVideoFile(result.absolutePath);
         episode->setPrimaryLanguage(result.language);
-        QPersistence::insert(episode);
+        Qp::insert(episode);
         m_newEpisodes.append(episode);
     }
     else if(episode->videoFile() != result.absolutePath) {

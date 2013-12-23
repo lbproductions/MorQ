@@ -19,7 +19,7 @@ DownloadController::DownloadController(QObject *parent) :
 
 Download *DownloadController::findNextUnfinishedDownload()
 {
-    QList<DownloadPackage *> packages = QPersistence::readAll<DownloadPackage>();
+    QList<DownloadPackage *> packages = Qp::readAll<DownloadPackage>();
 
     foreach(DownloadPackage *package, packages) {
         if(package->isDownloadFinished())
@@ -82,7 +82,7 @@ void DownloadController::removeDownload(Download *download)
         wasRunning = true;
     }
 
-    QPersistence::remove(download);
+    Qp::remove(download);
 
     if(download->package()) {
         download->package()->removeDownload(download);
@@ -99,7 +99,7 @@ void DownloadController::removePackage(DownloadPackage *package)
             removeDownload(dl);
     }
 
-    QPersistence::remove(package);
+    Qp::remove(package);
 }
 
 void DownloadController::resetDownload(Download *download)
@@ -116,7 +116,7 @@ void DownloadController::resetDownload(Download *download)
         file.remove();
 
     download->reset();
-    QPersistence::update(download);
+    Qp::update(download);
     foreach(HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
         if(hoster->canHandleUrl(download->url())) {
             hoster->getDownloadInformation(download);

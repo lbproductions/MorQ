@@ -21,9 +21,9 @@ QList<Series *> NewSeriesScraper::newSeries()
     Series *series = Controller::seriesDao()->byTitle(m_title);
 
     if(!series) {
-        series = QPersistence::create<Series>();
+        series = Qp::create<Series>();
         series->setTitle(m_title);
-        QPersistence::insert(series);
+        Qp::insert(series);
     }
 
     return QList<Series *>() << series;

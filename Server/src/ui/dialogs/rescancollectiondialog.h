@@ -13,7 +13,7 @@ class Scraper;
 class Series;
 class InformationProviderPlugin;
 template<class T>
-class QPersistenceSimpleDataAccessObject;
+class QpSimpleDataAccessObject;
 class SeriesListModel;
 class QItemSelection;
 class Episode;
@@ -61,7 +61,7 @@ private:
     InformationProviderPlugin *m_provider;
     QList<Series *> m_scrapedSeries;
 
-    QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
+    QpSimpleDataAccessObject<Series> *m_seriesDao;
     SeriesListModel *m_seriesListModel;
     int m_totalNewSeries;
 

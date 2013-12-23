@@ -26,7 +26,7 @@ QMAKE_CXXFLAGS  += $$QPERSISTENCE_COMMON_QMAKE_CXXFLAGS
 DEFINES         += "VERSION=\"$$VERSION\""
 LIBS            += -framework AppKit
 
-### QPersistence ###
+### Qp ###
 
 INCLUDEPATH     += $$QPERSISTENCE_INCLUDEPATH
 LIBS            += $$QPERSISTENCE_LIBS

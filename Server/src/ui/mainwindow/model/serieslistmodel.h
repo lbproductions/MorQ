@@ -15,7 +15,7 @@ public:
         RawDataRole
     };
 
-    explicit SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent = 0);
+    explicit SeriesListModel(QpAbstractDataAccessObject *dao, QObject *parent = 0);
 
     Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
@@ -29,7 +29,7 @@ public:
     Series *checkedSeries() const;
 
 private:
-    QPersistenceAbstractDataAccessObject *m_dao;
+    QpAbstractDataAccessObject *m_dao;
     bool m_checkable;
     QModelIndex m_lastCheckedIndex;
 };

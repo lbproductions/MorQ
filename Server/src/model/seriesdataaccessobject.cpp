@@ -3,7 +3,7 @@
 #include <QPersistencePersistentDataAccessObject.h>
 
 SeriesDataAccessObject::SeriesDataAccessObject(QObject *parent) :
-    QPersistenceCachedDataAccessObject<Series>(new QPersistencePersistentDataAccessObject<Series>(), parent)
+    QpCachedDataAccessObject<Series>(new QpPersistentDataAccessObject<Series>(), parent)
 {
 }
 

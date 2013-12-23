@@ -137,15 +137,15 @@ void NewSeriesWizard::finish()
 {
     Series *series = Controller::seriesDao()->byTitle(m_currentSeries.title);
     if(series == 0) {
-        series = QPersistence::create<Series>();
-        QPersistence::insert(series);
+        series = Qp::create<Series>();
+        Qp::insert(series);
     }
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
 
     //Controller::plugins()->downloadProviderPlugins().first()->findMissingEpisodes(series);
 
-    QPersistence::update(series);
+    Qp::update(series);
 
 
 }

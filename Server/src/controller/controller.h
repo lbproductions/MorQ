@@ -17,12 +17,12 @@ class Season;
 class Episode;
 class VideoDownloadLink;
 
-typedef QPersistenceCachedDataAccessObject<Download> DownloadsDAO;
-typedef QPersistenceCachedDataAccessObject<DownloadPackage> DownloadPackagesDAO;
+typedef QpCachedDataAccessObject<Download> DownloadsDAO;
+typedef QpCachedDataAccessObject<DownloadPackage> DownloadPackagesDAO;
 typedef SeriesDataAccessObject SeriesDAO;
-typedef QPersistenceCachedDataAccessObject<Season> SeasonsDAO;
-typedef QPersistenceCachedDataAccessObject<Episode> EpisodesDAO;
-typedef QPersistenceCachedDataAccessObject<VideoDownloadLink> VideoDownloadLinksDAO;
+typedef QpCachedDataAccessObject<Season> SeasonsDAO;
+typedef QpCachedDataAccessObject<Episode> EpisodesDAO;
+typedef QpCachedDataAccessObject<VideoDownloadLink> VideoDownloadLinksDAO;
 
 class Controller
 {

@@ -3,11 +3,11 @@
 
 #include <QAbstractListModel>
 
-class ObjectListModelBase : public QAbstractListModel
+class QpAbstractObjectListModelBase : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit ObjectListModelBase(QObject *parent = 0);
+    explicit QpAbstractObjectListModelBase(QObject *parent = 0);
 
 protected slots:
     virtual void objectInserted(QObject *object) = 0;
@@ -16,7 +16,7 @@ protected slots:
 };
 
 template<class T>
-class ObjectListModel : public ObjectListModelBase
+class ObjectListModel : public QpAbstractObjectListModelBase
 {
 public:
     explicit ObjectListModel(QObject *parent = 0);
@@ -48,7 +48,7 @@ T *ObjectListModel<T>::objectByIndex(const QModelIndex &index) const
 
 template<class T>
 ObjectListModel<T>::ObjectListModel(QObject *parent) :
-    ObjectListModelBase(parent)
+    QpAbstractObjectListModelBase(parent)
 {
 }
 

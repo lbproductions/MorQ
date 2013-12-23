@@ -5,7 +5,7 @@
 
 #include "model/series.h"
 
-class SeriesDataAccessObject : public QPersistenceCachedDataAccessObject<Series>
+class SeriesDataAccessObject : public QpCachedDataAccessObject<Series>
 {
     Q_OBJECT
 public:

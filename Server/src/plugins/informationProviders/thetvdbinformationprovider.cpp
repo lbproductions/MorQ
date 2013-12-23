@@ -152,7 +152,7 @@ void TheTvdbInformationProvider::parseSearchSeriesReply()
         if(token == QXmlStreamReader::StartElement) {
             QStringRef name = xml.name();
             if(name == TOKENNAME_SERIES) {
-                Series *series = QPersistence::create<Series>();
+                Series *series = Qp::create<Series>();
                 TheTvdbInformationProvider::parseSeries(xml, series);
                 InformationProviderPlugin::addResult(series);
             }
@@ -184,16 +184,16 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
             QStringRef name = xml.name();
             if(name == TOKENNAME_SERIES) {
                 TheTvdbInformationProvider::parseSeries(xml, series);
-                QPersistence::update(series);
+                Qp::update(series);
             }
             else if(name == TOKENNAME_EPISODE) {
-                Episode *episode = QPersistence::create<Episode>();
+                Episode *episode = Qp::create<Episode>();
                 TheTvdbInformationProvider::parseEpisode(xml, episode);
 
                 Season *season = series->season(episode->seasonNumber(), language);
 
                 if(!season) {
-                    season = QPersistence::create<Season>();
+                    season = Qp::create<Season>();
                     season->setNumber(episode->seasonNumber());
                     season->setPrimaryLanguage(language);
 
@@ -202,19 +202,19 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
                     }
 
                     series->addSeason(season);
-                    QPersistence::insert(season);
+                    Qp::insert(season);
                 }
 
                 Episode *originalEpisode = season->episode(episode->number());
 
                 if(originalEpisode) {
                     copyEpisode(episode, originalEpisode);
-                    QPersistence::update(originalEpisode);
+                    Qp::update(originalEpisode);
                     delete episode;
                 }
                 else {
                     season->addEpisode(episode);
-                    QPersistence::insert(episode);
+                    Qp::insert(episode);
                     InformationProviderPlugin::addNewEpisode(episode);
                 }
             }

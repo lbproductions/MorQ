@@ -38,42 +38,42 @@ bool Controller::initialize()
         return false;
     }
 
-    QPersistence::registerSetType<int>();
+    Qp::registerSetType<int>();
 
     static QObject guard;
 
     // Download
-    s_downloadsDao = new DownloadsDAO(new QPersistencePersistentDataAccessObject<Download>(), &guard);
-    QPersistence::registerDataAccessObject<Download>(s_downloadsDao);
+    s_downloadsDao = new DownloadsDAO(new QpPersistentDataAccessObject<Download>(), &guard);
+    Qp::registerDataAccessObject<Download>(s_downloadsDao);
 
 
     // DownloadPackage
-    s_downloadPackagesDao = new DownloadPackagesDAO(new QPersistencePersistentDataAccessObject<DownloadPackage>(), &guard);
-    QPersistence::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao);
+    s_downloadPackagesDao = new DownloadPackagesDAO(new QpPersistentDataAccessObject<DownloadPackage>(), &guard);
+    Qp::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao);
 
 
     // Series
     s_seriesDao = new SeriesDAO(&guard);
-    QPersistence::registerDataAccessObject<Series>(s_seriesDao);
+    Qp::registerDataAccessObject<Series>(s_seriesDao);
 
 
     // Season
-    s_seasonDao = new SeasonsDAO(new QPersistencePersistentDataAccessObject<Season>(), &guard);
-    QPersistence::registerDataAccessObject<Season>(s_seasonDao);
+    s_seasonDao = new SeasonsDAO(new QpPersistentDataAccessObject<Season>(), &guard);
+    Qp::registerDataAccessObject<Season>(s_seasonDao);
 
 
     // Episode
-    s_episodesDao = new EpisodesDAO(new QPersistencePersistentDataAccessObject<Episode>(), &guard);
-    QPersistence::registerDataAccessObject<Episode>(s_episodesDao);
+    s_episodesDao = new EpisodesDAO(new QpPersistentDataAccessObject<Episode>(), &guard);
+    Qp::registerDataAccessObject<Episode>(s_episodesDao);
 
 
     // VideoDownloadLink
-    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QPersistencePersistentDataAccessObject<VideoDownloadLink>(), &guard);
-    QPersistence::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao);
+    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QpPersistentDataAccessObject<VideoDownloadLink>(), &guard);
+    Qp::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao);
 
 
     // Adjust database
-    QPersistenceDatabaseSchema databaseSchema;
+    QpDatabaseSchema databaseSchema;
         databaseSchema.createCleanSchema();
 //    databaseSchema.adjustSchema();
 

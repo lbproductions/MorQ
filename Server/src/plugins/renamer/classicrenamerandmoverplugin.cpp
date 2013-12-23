@@ -59,7 +59,7 @@ void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<Episode *> episodes)
 
         episode->setVideoFile(newName);
 
-        QPersistence::update(episode);
+        Qp::update(episode);
     }
 }
 

@@ -133,7 +133,7 @@ void RescanCollectionDialog::displaySearchResults()
     delete m_seriesDao;
     delete m_seriesListModel;
 
-    m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
+    m_seriesDao = new QpSimpleDataAccessObject<Series>(this);
     m_seriesListModel = new SeriesListModel(m_seriesDao, this);
 //    m_seriesListModel->setCheckable(true);
 
@@ -189,7 +189,7 @@ void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
 
     searchDownlaodsAtSerienjunkies();
 
-    QPersistence::update(m_currentSeries);
+    Qp::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
     m_currentSeries = nullptr;
 
@@ -262,7 +262,7 @@ void RescanCollectionDialog::downloadsFoundAtSerienjunkies(QList<DownloadProvide
        serie->setSerienJunkiesUrl(series.first().url);
        Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
        ui->textEdit->append("Serienjunkies-Url for " + series.first().title + " found: " + series.first().url.toString());
-       QPersistence::update(serie);
+       Qp::update(serie);
     }
 }
 
@@ -289,7 +289,7 @@ void RescanCollectionDialog::scrape()
 void RescanCollectionDialog::scrapeNextSeries()
 {
     if(m_currentSeries) {
-        QPersistence::update(m_currentSeries);
+        Qp::update(m_currentSeries);
 
         foreach(Season *season, m_currentSeries->seasons()) {
             foreach(Episode *episode, season->episodes()) {
@@ -350,7 +350,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
     m_provider = nullptr;
 
     if(m_currentEpisode) {
-        QPersistence::update(m_currentEpisode);
+        Qp::update(m_currentEpisode);
         m_currentEpisode = nullptr;
     }
 
