@@ -55,8 +55,13 @@ void SerienjunkiesProviderPlugin::searchSeries(const QString &seriesTitle)
 
 bool SerienjunkiesProviderPlugin::canHandleSeries(QSharedPointer<Series> series) const
 {
-    return !series->serienJunkiesUrl().isEmpty()
-            && series->serienJunkiesUrl().host().startsWith("serienjunkies");
+    return canHandleUrl(series->serienJunkiesUrl());
+}
+
+bool SerienjunkiesProviderPlugin::canHandleUrl(const QUrl &url) const
+{
+    return !url.isEmpty()
+            && url.host().startsWith("serienjunkies.org");
 }
 
 void SerienjunkiesProviderPlugin::findMissingEpisodes(QSharedPointer<Series> series) const

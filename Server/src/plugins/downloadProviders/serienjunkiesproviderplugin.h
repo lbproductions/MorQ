@@ -14,6 +14,7 @@ public:
 
     void searchSeries(const QString &seriesName);
     bool canHandleSeries(QSharedPointer<Series> series) const;
+    bool canHandleUrl(const QUrl &url) const;
     void findMissingEpisodes(QSharedPointer<Series> series) const;
 
     void searchAndSetDownloadsForSeries(QSharedPointer<Series>  series);
@@ -24,6 +25,8 @@ private slots:
 private:
     QSerienJunkiesReply *m_latestReply;
 };
+
+
 
 class SerienjunkiesSearchHandler : public QObject
 {

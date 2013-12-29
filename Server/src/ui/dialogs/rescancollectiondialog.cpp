@@ -41,7 +41,7 @@ RescanCollectionDialog::RescanCollectionDialog(Scraper *scraper, QWidget *parent
             this, &RescanCollectionDialog::search);
 
     connect(ui->pushButtonContinue, &QPushButton::clicked,
-            this, &RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries);
+            this, &RescanCollectionDialog::saveTvdbResultAndContinueToSerienjunkiesSearch);
     connect(ui->pushButtonIgnoreFolder, &QPushButton::clicked,
             this, &RescanCollectionDialog::ignoreCurrentFolderAndContinueToNextSeries);
     connect(ui->pushButtonSkip, &QPushButton::clicked,
@@ -49,10 +49,14 @@ RescanCollectionDialog::RescanCollectionDialog(Scraper *scraper, QWidget *parent
 
     connect(ui->pushButtonClose, &QPushButton::clicked,
             this, &QDialog::accept);
+
+    connect(ui->comboBoxSerienjunkiesUrl, &QComboBox::currentTextChanged,
+            this, &RescanCollectionDialog::enableContinueButtonBasedOnSerienJunkiesURL);
 }
 
 RescanCollectionDialog::~RescanCollectionDialog()
 {
+    clear();
     delete ui;
 }
 
@@ -92,6 +96,11 @@ void RescanCollectionDialog::checkForNewSeries()
 
 void RescanCollectionDialog::confirmNextNewSeries()
 {
+    connect(ui->pushButtonContinue, &QPushButton::clicked,
+               this, &RescanCollectionDialog::saveTvdbResultAndContinueToSerienjunkiesSearch);
+    disconnect(ui->pushButtonContinue, &QPushButton::clicked,
+            this, &RescanCollectionDialog::saveSerienjunkiesUrlAndContinueToNextSeries);
+
     m_currentSeries = m_newSeries.takeFirst();
     ui->labelProgress->setText(tr("TV Show %1 of %2")
                                .arg(m_totalNewSeries - m_newSeries.size())
@@ -108,7 +117,7 @@ void RescanCollectionDialog::confirmNextNewSeries()
 
 void RescanCollectionDialog::search()
 {
-    cleanupTvdbResultsPage();
+    clear();
 
     m_provider = new TheTvdbInformationProvider(this);
 
@@ -174,31 +183,27 @@ void RescanCollectionDialog::showSelectedSeries()
     ui->seriesWidget->setVisible(true);
 }
 
-void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
+void RescanCollectionDialog::saveTvdbResultAndContinueToSerienjunkiesSearch()
 {
-    QSharedPointer<Series> series = m_seriesListModel->checkedSeries();
-    m_provider->copySeries(series, m_currentSeries);
-    ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
-                         .arg(series->title())
-                         .arg(series->tvdbId()));
+    {
+        QSharedPointer<Series> series = m_seriesListModel->checkedSeries();
+        m_provider->copySeries(series, m_currentSeries);
+        ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
+                             .arg(series->title())
+                             .arg(series->tvdbId()));
+
+        Qp::update(m_currentSeries);
+        m_scrapedSeries.append(m_currentSeries);
+    }
 
     foreach(QSharedPointer<Series> s, m_seriesListModel->objects()) {
-        if(s->checkState() == Qt::Checked)
-            continue;
-
         if(s->checkState() == Qt::PartiallyChecked)
             m_currentSeries->addLanguage(s->primaryLanguage());
 
         Qp::remove(s);
     }
 
-    //searchDownlaodsAtSerienjunkies();
-
-    Qp::update(m_currentSeries);
-    m_scrapedSeries.append(m_currentSeries);
-    m_currentSeries = QSharedPointer<Series>();
-
-    continueToNextSeriesOrStartScraping();
+    searchDownlaodsAtSerienjunkies();
 }
 
 void RescanCollectionDialog::ignoreCurrentFolderAndContinueToNextSeries()
@@ -209,7 +214,7 @@ void RescanCollectionDialog::ignoreCurrentFolderAndContinueToNextSeries()
 
 void RescanCollectionDialog::continueToNextSeriesOrStartScraping()
 {
-    cleanupTvdbResultsPage();
+    clear();
 
     if(!m_newSeries.isEmpty()) {
         confirmNextNewSeries();
@@ -221,16 +226,18 @@ void RescanCollectionDialog::continueToNextSeriesOrStartScraping()
 
 void RescanCollectionDialog::skipCurrentSeries()
 {
-    foreach(QSharedPointer<Series> series, m_seriesListModel->objects()) {
-        Qp::remove(series);
-    }
-
     continueToNextSeriesOrStartScraping();
 }
 
-void RescanCollectionDialog::cleanupTvdbResultsPage()
+void RescanCollectionDialog::clear()
 {
     ui->treeView->setModel(nullptr);
+
+    if(m_seriesListModel) {
+        foreach(QSharedPointer<Series> series, m_seriesListModel->objects()) {
+            Qp::remove(series);
+        }
+    }
 
     delete m_provider;
     delete m_seriesListModel;
@@ -254,24 +261,49 @@ void RescanCollectionDialog::searchDownlaodsAtSerienjunkies()
 {
     DownloadProviderPlugin *plugin = Controller::plugins()->downloadProviderPluginByName("serienjunkies.org");
 
+    ui->labelSeriesTitle2->setText(m_currentSeries->title());
+    ui->pushButtonContinue->setEnabled(false);
+    ui->stackedWidget->setCurrentWidget(ui->pageConfirmSerienjunkies);
+    ui->comboBoxSerienjunkiesUrl->setEnabled(false);
+    ui->comboBoxSerienjunkiesUrl->clear();
+    ui->comboBoxSerienjunkiesUrl->setCurrentText(tr("Searching show..."));
+    ui->pushButtonSkip->setEnabled(false);
+    disconnect(ui->pushButtonContinue, &QPushButton::clicked,
+               this, &RescanCollectionDialog::saveTvdbResultAndContinueToSerienjunkiesSearch);
+    connect(ui->pushButtonContinue, &QPushButton::clicked,
+            this, &RescanCollectionDialog::saveSerienjunkiesUrlAndContinueToNextSeries);
+
     plugin->searchSeries(m_currentSeries->title());
 
-    connect(plugin, &DownloadProviderPlugin::foundSeries, this, &RescanCollectionDialog::downloadsFoundAtSerienjunkies);
+    connect(plugin, &DownloadProviderPlugin::foundSeries, this, &RescanCollectionDialog::seriesFoundAtSerienjunkies);
 }
 
-void RescanCollectionDialog::downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series)
+void RescanCollectionDialog::seriesFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series)
 {
-    //TODO: Find a better way to get the right serie (with not the same name)
-    QSharedPointer<Series>  serie = Series::forTitle(series.first().title);
+    ui->comboBoxSerienjunkiesUrl->setEnabled(true);
 
-    if(serie && serie->serienJunkiesUrl().toString() == ""){
-       serie->setSerienJunkiesUrl(series.first().url);
-       ui->textEdit->append("Serienjunkies-Url for " + series.first().title + " found: " + series.first().url.toString());
+    if(series.isEmpty()) {
+        ui->comboBoxSerienjunkiesUrl->setItemText(0, tr("No results"));
     }
-    Qp::update(serie);
+    else {
+        ui->comboBoxSerienjunkiesUrl->clear();
+        foreach(DownloadProviderPlugin::SeriesData s, series) {
+            ui->comboBoxSerienjunkiesUrl->addItem(s.url.toString());
+        }
+    }
+}
 
-    // TODO: Find a better call structure to search for download links
-    Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
+void RescanCollectionDialog::enableContinueButtonBasedOnSerienJunkiesURL()
+{
+    DownloadProviderPlugin *plugin = Controller::plugins()->downloadProviderPluginByName("serienjunkies.org");
+    ui->pushButtonContinue->setEnabled(plugin->canHandleUrl(ui->comboBoxSerienjunkiesUrl->currentText()));
+}
+
+void RescanCollectionDialog::saveSerienjunkiesUrlAndContinueToNextSeries()
+{
+    m_currentSeries->setSerienJunkiesUrl(QUrl(ui->comboBoxSerienjunkiesUrl->currentText()));
+    Qp::update(m_currentSeries);
+    continueToNextSeriesOrStartScraping();
 }
 
 void RescanCollectionDialog::scrape()
@@ -396,7 +428,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
     }
     else {
         finish(); // this should only happen, when there are no episodes left
-                  // i.e. this leads to the finish()
+        // i.e. this leads to the finish()
     }
 }
 

@@ -34,15 +34,17 @@ private slots:
     void displaySearchResults();
     void showSelectedSeries();
 
-    void saveTvdbResultAndContinueToNextSeries();
+    void saveTvdbResultAndContinueToSerienjunkiesSearch();
     void ignoreCurrentFolderAndContinueToNextSeries();
     void continueToNextSeriesOrStartScraping();
     void skipCurrentSeries();
-    void cleanupTvdbResultsPage();
+    void clear();
     void enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState);
 
     void searchDownlaodsAtSerienjunkies();
-    void downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);
+    void seriesFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);
+    void enableContinueButtonBasedOnSerienJunkiesURL();
+    void saveSerienjunkiesUrlAndContinueToNextSeries();
 
     void scrape();
     void scrapeNextSeries();
