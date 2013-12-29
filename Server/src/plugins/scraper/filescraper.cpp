@@ -3,9 +3,9 @@
 #include <controller/controller.h>
 
 #include "preferences.h"
-#include "model/seriesdataaccessobject.h"
 #include "model/season.h"
 #include "model/episode.h"
+#include "model/series.h"
 
 #include <QRegularExpression>
 #include <QStringList>
@@ -147,58 +147,58 @@ QString FileScraper::seriesTitleFromPath(const QString &path)
     return path;
 }
 
-QList<Series *> FileScraper::newSeries()
+QList<QSharedPointer<Series> > FileScraper::newSeries()
 {
     return m_newSeries;
 }
 
-QList<Season *> FileScraper::newSeasons()
+QList<QSharedPointer<Season> > FileScraper::newSeasons()
 {
     return m_newSeasons;
 }
 
-QList<Episode *> FileScraper::newEpisodes()
+QList<QSharedPointer<Episode> > FileScraper::newEpisodes()
 {
     return m_newEpisodes;
 }
 
 void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 {
-    Series *series = Controller::seriesDao()->byTitle(result.seriesTitle);
+    QSharedPointer<Series> series = Series::forTitle(result.seriesTitle);
 
     if(!series) {
-        series = QPersistence::create<Series>();
+        series = Qp::create<Series>();
         series->setTitle(result.seriesTitle);
-        QPersistence::insert(series);
+        Qp::update(series);
         m_newSeries.append(series);
     }
     if(!series->folders().contains(result.seriesPath)) {
         series->addFolder(result.seriesPath);
     }
 
-    Season *season = series->season(result.seasonNumber);
+    QSharedPointer<Season> season = series->season(result.seasonNumber);
     if(!season) {
-        season = QPersistence::create<Season>();
+        season = Qp::create<Season>();
         season->setNumber(result.seasonNumber);
         season->setPrimaryLanguage(result.language);
         series->addSeason(season);
-        QPersistence::insert(season);
+        Qp::update(season);
         m_newSeasons.append(season);
     }
     if(!season->folders().contains(result.seasonPath)) {
         season->addFolder(result.seasonPath);
-        QPersistence::update(season);
+        Qp::update(season);
     }
 
-    Episode *episode = season->episode(result.episodeNumber);
+    QSharedPointer<Episode> episode = season->episode(result.episodeNumber);
 
     if(!episode) {
-        episode = QPersistence::create<Episode>();
+        episode = Qp::create<Episode>();
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);
         episode->setVideoFile(result.absolutePath);
         episode->setPrimaryLanguage(result.language);
-        QPersistence::insert(episode);
+        Qp::update(episode);
         m_newEpisodes.append(episode);
     }
     else if(episode->videoFile() != result.absolutePath) {

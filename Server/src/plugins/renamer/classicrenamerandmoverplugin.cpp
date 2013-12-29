@@ -23,9 +23,9 @@ ClassicRenamerAndMoverPlugin::ClassicRenamerAndMoverPlugin(QObject *parent):
     connect(Controller::extractor(), &ExtractionController::extractionFinished, this, &ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload);
 }
 
-void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<Episode *> episodes)
+void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<QSharedPointer<Episode> > episodes)
 {
-    foreach(Episode *episode, episodes) {
+    foreach(QSharedPointer<Episode> episode, episodes) {
         if(episode->videoFile() == "") {
             continue;
         }
@@ -61,11 +61,11 @@ void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<Episode *> episodes)
 
         episode->setVideoFile(newName);
 
-        QPersistence::update(episode);
+        Qp::update(episode);
     }
 }
 
-void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(DownloadPackage *package)
+void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(QSharedPointer<DownloadPackage> package)
 {
     if(Preferences::extractMode() != "SERIES") {
         return;
@@ -100,11 +100,11 @@ void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(DownloadPack
         // TODO: Choose correct file if there are more than one video-file e.g. sampler
     }
     qDebug() << videoFiles;
-    Episode* episode = package->videoDownloadLinks().first()->episode();
+    QSharedPointer<Episode>  episode = package->videoDownloadLinks().first()->episode();
 
     episode->setVideoFile(videoFiles.first());
 
-    renameEpisodes(QList<Episode*>() << episode);
+    renameEpisodes(QList<QSharedPointer<Episode> >() << episode);
 
     removeDir(package->extractFolder() + "/" + extractSubFolder);
 }

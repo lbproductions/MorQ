@@ -5,6 +5,7 @@
 #include <QLocale>
 
 #include "scraper.h"
+#include "model/series.h"
 
 namespace FileScraperPrivate {
 struct Result {
@@ -18,7 +19,6 @@ struct Result {
 };
 }
 
-class Series;
 class Season;
 class Episode;
 
@@ -41,9 +41,9 @@ public:
 
     QString seriesTitleFromPath(const QString &path);
 
-    QList<Series *> newSeries();
-    QList<Season *> newSeasons();
-    QList<Episode *> newEpisodes();
+    QList<QSharedPointer<Series> > newSeries();
+    QList<QSharedPointer<Season> > newSeasons();
+    QList<QSharedPointer<Episode> > newEpisodes();
 
     static QStringList VIDEOEXTENSIONS();
 
@@ -59,9 +59,9 @@ private:
     int m_locationCount;
     int m_currentLocationCount;
     QString m_currentLocation;
-    QList<Series *> m_newSeries;
-    QList<Season *> m_newSeasons;
-    QList<Episode *> m_newEpisodes;
+    QList<QSharedPointer<Series> > m_newSeries;
+    QList<QSharedPointer<Season> > m_newSeasons;
+    QList<QSharedPointer<Episode> > m_newEpisodes;
 
     static QLocale::Language languageFromPath(const QString &path);
 };

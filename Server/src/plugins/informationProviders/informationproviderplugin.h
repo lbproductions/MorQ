@@ -14,30 +14,30 @@ public:
     virtual ~InformationProviderPlugin();
 
     virtual void searchSeries(const QString &title) const = 0;
-    QList<Series *> seriesSearchResults() const;
+    QList<QSharedPointer<Series> > seriesSearchResults() const;
 
-    virtual void copySeries(Series *source, Series *target) const = 0;
-    virtual void copyEpisode(Episode *source, Episode *target) const = 0;
+    virtual void copySeries(QSharedPointer<Series> source, QSharedPointer<Series> target) const = 0;
+    virtual void copyEpisode(QSharedPointer<Episode> source, QSharedPointer<Episode> target) const = 0;
 
-    virtual void scrapeSeries(Series *series) const = 0;
-    virtual void scrapeSeriesIncludingEpisodes(Series *series) const = 0;
+    virtual void scrapeSeries(QSharedPointer<Series> series) const = 0;
+    virtual void scrapeSeriesIncludingEpisodes(QSharedPointer<Series> series) const = 0;
 
-    QList<Episode *> newEpisodes() const;
+    QList<QSharedPointer<Episode> > newEpisodes() const;
 
-    virtual void scrapeEpisode(Episode *episode) const = 0;
+    virtual void scrapeEpisode(QSharedPointer<Episode> episode) const = 0;
 
 signals:
     void finished();
 
 protected:
-    void addResult(Series *series);
-    void addResults(const QList<Series *> &series);
+    void addResult(QSharedPointer<Series> series);
+    void addResults(const QList<QSharedPointer<Series> > &series);
 
-    void addNewEpisode(Episode *episode);
+    void addNewEpisode(QSharedPointer<Episode> episode);
 
 private:
-    QList<Series *> m_results;
-    QList<Episode *>  m_newEpisodes;
+    QList<QSharedPointer<Series> > m_results;
+    QList<QSharedPointer<Episode> >  m_newEpisodes;
 };
 
 #endif // INFORMATIONPROVIDERPLUGIN_H

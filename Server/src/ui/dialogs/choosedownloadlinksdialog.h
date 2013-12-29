@@ -17,7 +17,7 @@ public:
     explicit ChooseDownloadLinksDialog(QWidget *parent = 0);
     ~ChooseDownloadLinksDialog();
     
-    void setEpisodes(QList<Episode *> episodes);
+    void setEpisodes(QList<QSharedPointer<Episode> > episodes);
 
 private slots:
     void addMirrorsBasedOnSelectedFormat();
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::ChooseDownloadLinksDialog *ui;
 
-    QList<Episode *> m_episodes;
+    QList<QSharedPointer<Episode> > m_episodes;
 };
 
 #endif // CHOOSEDOWNLOADLINKSDIALOG_H

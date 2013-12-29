@@ -21,8 +21,8 @@ public:
     QString name() const;
 
     virtual void searchSeries(const QString &seriesTitle) = 0;
-    virtual bool canHandleSeries(Series *series) const = 0;
-    virtual void findMissingEpisodes(Series *series) const = 0;
+    virtual bool canHandleSeries(QSharedPointer<Series> series) const = 0;
+    virtual void findMissingEpisodes(QSharedPointer<Series> series) const = 0;
 
     QString errorString();
 

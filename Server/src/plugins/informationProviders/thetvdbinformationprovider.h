@@ -14,11 +14,11 @@ public:
     explicit TheTvdbInformationProvider(QObject *parent = 0);
 
     void searchSeries(const QString &title) const Q_DECL_OVERRIDE;
-    void copySeries(Series *source, Series *target) const Q_DECL_OVERRIDE;
-    void copyEpisode(Episode *source, Episode *target) const Q_DECL_OVERRIDE;
-    void scrapeSeries(Series *series) const Q_DECL_OVERRIDE;
-    void scrapeSeriesIncludingEpisodes(Series *series) const Q_DECL_OVERRIDE;
-    void scrapeEpisode(Episode *episode) const Q_DECL_OVERRIDE;
+    void copySeries(QSharedPointer<Series> source, QSharedPointer<Series> target) const Q_DECL_OVERRIDE;
+    void copyEpisode(QSharedPointer<Episode> source, QSharedPointer<Episode> target) const Q_DECL_OVERRIDE;
+    void scrapeSeries(QSharedPointer<Series> series) const Q_DECL_OVERRIDE;
+    void scrapeSeriesIncludingEpisodes(QSharedPointer<Series> series) const Q_DECL_OVERRIDE;
+    void scrapeEpisode(QSharedPointer<Episode> episode) const Q_DECL_OVERRIDE;
 
 private slots:
     void parseSearchSeriesReply();
@@ -26,8 +26,8 @@ private slots:
     void parseScrapeSeriesReply();
 
 private:
-    static void parseSeries(QXmlStreamReader &xml, Series *series);
-    static void parseEpisode(QXmlStreamReader &xml, Episode *episode);
+    static void parseSeries(QXmlStreamReader &xml, QSharedPointer<Series> series);
+    static void parseEpisode(QXmlStreamReader &xml, QSharedPointer<Episode> episode);
 
     mutable int m_activeRequestsCount;
 

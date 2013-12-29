@@ -3,13 +3,15 @@
 
 #include "decrypterplugin.h"
 
+#include <model/downloadpackage.h>
+
 class SerienJunkiesDecrypterPlugin : public DecrypterPlugin
 {
     Q_OBJECT
 public:
     explicit SerienJunkiesDecrypterPlugin(QObject *parent = 0);
 
-    void handlePackage(DownloadPackage *package);
+    void handlePackage(QSharedPointer<DownloadPackage> package);
     bool canHandleUrl(const QUrl &url) const;
 
 private slots:
@@ -20,10 +22,10 @@ class SerienJunkiesDecryptHandler : public QObject
 {
     Q_OBJECT
 public:
-    SerienJunkiesDecryptHandler(DownloadPackage *package, SerienJunkiesDecrypterPlugin *parent);
+    SerienJunkiesDecryptHandler(QSharedPointer<DownloadPackage> package, SerienJunkiesDecrypterPlugin *parent);
     void getInformation();
 
-    DownloadPackage *package() const;
+    QSharedPointer<DownloadPackage> package() const;
 
 signals:
     void finished();
@@ -33,7 +35,7 @@ private slots:
     void replyFinished();
 
 private:
-    DownloadPackage *m_package;
+    QSharedPointer<DownloadPackage> m_package;
     SerienJunkiesDecrypterPlugin *m_plugin;
 };
 

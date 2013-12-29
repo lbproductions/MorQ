@@ -7,17 +7,12 @@
 VideoDownloadLink::VideoDownloadLink(QObject *parent) :
     QObject(parent),
     m_id(-1),
-    m_episode(nullptr)
+    m_episode("episode", this)
 {
 }
 
 VideoDownloadLink::~VideoDownloadLink()
 {
-    qDebug() << "~VideoDownloadLink(" << m_id << ")=" << this;
-
-    if(m_episode) {
-        m_episode->removeDownloadLink(this);
-    }
 }
 
 int VideoDownloadLink::id() const
@@ -65,14 +60,14 @@ QString VideoDownloadLink::mirror() const
     return m_mirror;
 }
 
-Episode *VideoDownloadLink::episode() const
+QSharedPointer<Episode> VideoDownloadLink::episode() const
 {
-    return m_episode;
+    return m_episode.resolve();
 }
 
-void VideoDownloadLink::setEpisode(Episode *episode)
+void VideoDownloadLink::setEpisode(QSharedPointer<Episode> episode)
 {
-    m_episode  = episode;
+    m_episode.relate(episode);
 }
 
 

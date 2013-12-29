@@ -18,9 +18,9 @@ public:
     ClassicRenamerAndMoverPlugin(QObject *parent = 0);
 
 public slots:
-    virtual void renameEpisodes(QList<Episode*> episodes);
+    virtual void renameEpisodes(QList<QSharedPointer<Episode> > episodes);
 
-    void renameAndMoveEpisodeFromDownload(DownloadPackage *package);
+    void renameAndMoveEpisodeFromDownload(QSharedPointer<DownloadPackage> package);
 
 private:
     QString numberToString(int number);

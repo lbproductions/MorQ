@@ -53,19 +53,19 @@ void SerienjunkiesProviderPlugin::searchSeries(const QString &seriesTitle)
     });
 }
 
-bool SerienjunkiesProviderPlugin::canHandleSeries(Series *series) const
+bool SerienjunkiesProviderPlugin::canHandleSeries(QSharedPointer<Series> series) const
 {
     return !series->serienJunkiesUrl().isEmpty()
             && series->serienJunkiesUrl().host().startsWith("serienjunkies");
 }
 
-void SerienjunkiesProviderPlugin::findMissingEpisodes(Series *series) const
+void SerienjunkiesProviderPlugin::findMissingEpisodes(QSharedPointer<Series> series) const
 {
     SerienjunkiesSearchHandler *handler = new SerienjunkiesSearchHandler(const_cast<SerienjunkiesProviderPlugin *>(this));
     handler->findMissingEpisodes(series);
 }
 
-void SerienjunkiesProviderPlugin::searchAndSetDownloadsForSeries(Series *series)
+void SerienjunkiesProviderPlugin::searchAndSetDownloadsForSeries(QSharedPointer<Series> series)
 {
     connect(this,&SerienjunkiesProviderPlugin::foundSeries, this, &SerienjunkiesProviderPlugin::onSeriesFound);
 
@@ -75,11 +75,11 @@ void SerienjunkiesProviderPlugin::searchAndSetDownloadsForSeries(Series *series)
 void SerienjunkiesProviderPlugin::onSeriesFound(QList<DownloadProviderPlugin::SeriesData> series)
 {
     //TODO: Find a better way to get the right serie (with not the same name)
-    Series* serie = Controller::seriesDao()->byTitle(series.first().title);
+    QSharedPointer<Series> serie = Series::forTitle(series.first().title);
 
     if(serie != 0 && serie->serienJunkiesUrl().toString() == ""){
        serie->setSerienJunkiesUrl(series.first().url);
-       QPersistence::update(serie);
+       Qp::update(serie);
     }
 
     findMissingEpisodes(serie);
@@ -93,7 +93,7 @@ SerienjunkiesSearchHandler::SerienjunkiesSearchHandler(QObject *parent) :
 {
 }
 
-void SerienjunkiesSearchHandler::findMissingEpisodes(Series *series)
+void SerienjunkiesSearchHandler::findMissingEpisodes(QSharedPointer<Series> series)
 {
     m_series = series;
 
@@ -115,18 +115,17 @@ void SerienjunkiesSearchHandler::searchSeasonsFinished()
 
     foreach(QSerienJunkiesReply::Season se, reply->seasons()) {
         int number = QSerienJunkies::seasonNumberFromTitle(se.title);
-        Season *season = m_series->season(number);
+        QSharedPointer<Season> season = m_series->season(number);
 
         if(!season) {
-            season = QPersistence::create<Season>();
+            season = Qp::create<Season>();
             season->setNumber(number);
             m_series->addSeason(season);
-            QPersistence::insert(season);
         }
 
         season->setSerienJunkiesTitle(se.title);
         season->setSerienJunkiesUrl(se.url);
-        QPersistence::update(season);
+        Qp::update(season);
 
         QSerienJunkiesReply *episodeReply = QSerienJunkies::searchDownloads(se.url);
         connect(episodeReply, &QSerienJunkiesReply::finished,
@@ -156,30 +155,30 @@ void SerienjunkiesSearchHandler::searchEpisodesFinished()
                 int snumber = QSerienJunkies::seasonNumberFromName(link.name);
                 int enumber = QSerienJunkies::episodeNumberFromName(link.name);
 
-                Season *season = m_series->season(snumber);
+                QSharedPointer<Season> season = m_series->season(snumber);
                 if(!season) {
                     continue;
                 }
 
-                Episode *episode = season->episode(enumber);
+                QSharedPointer<Episode> episode = season->episode(enumber);
 
                 if(!episode) {
-                    episode = QPersistence::create<Episode>();
+                    episode = Qp::create<Episode>();
                     episode->setNumber(enumber);
                     season->addEpisode(episode);
-                    QPersistence::insert(episode);
+                    Qp::update(episode);
                 }
                 //episode->setSerienJunkiesTitle(link.name);
                 //QPersistence::update(episode);
 
-                VideoDownloadLink* vLink = new VideoDownloadLink();
+                QSharedPointer<VideoDownloadLink>  vLink = Qp::create<VideoDownloadLink>();
                 vLink->setName(link.name);
                 vLink->setFormatDescription(format.description);
                 vLink->setUrl(link.url);
                 vLink->setMirror(mirror);
                 episode->addDownloadLink(vLink);
-                //QPersistence::insert(vLink);
-                //QPersistence::update(episode);
+                Qp::update(vLink);
+                Qp::update(episode);
             }
         }
     }

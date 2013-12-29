@@ -14,8 +14,6 @@
 #include "plugins/informationProviders/thetvdbinformationprovider.h"
 #include "ui/mainwindow/model/serieslistmodel.h"
 
-#include <QPersistenceSimpleDataAccessObject.h>
-
 #include <QPushButton>
 
 RescanCollectionDialog::RescanCollectionDialog(Scraper *scraper, QWidget *parent) :
@@ -24,7 +22,6 @@ RescanCollectionDialog::RescanCollectionDialog(Scraper *scraper, QWidget *parent
     ui(new Ui::RescanCollectionDialog),
     m_currentSeries(nullptr),
     m_provider(nullptr),
-    m_seriesDao(nullptr),
     m_seriesListModel(nullptr),
     m_totalNewSeries(0),
     m_currentEpisode(nullptr),
@@ -75,7 +72,7 @@ void RescanCollectionDialog::checkForNewSeries()
     ui->textEdit->append(message);
 
     m_newSeries = m_scraper->newSeries();
-    foreach(Series *series, Controller::seriesDao()->readAll()) {
+    foreach(QSharedPointer<Series> series, Qp::readAll<Series>()) {
         if(series->tvdbId() <= 0 && !m_newSeries.contains(series))
             m_newSeries.append(series);
     }
@@ -130,16 +127,14 @@ void RescanCollectionDialog::search()
 void RescanCollectionDialog::displaySearchResults()
 {
     ui->treeView->setModel(nullptr);
-    delete m_seriesDao;
     delete m_seriesListModel;
 
-    m_seriesDao = new QPersistenceSimpleDataAccessObject<Series>(this);
-    m_seriesListModel = new SeriesListModel(m_seriesDao, this);
-//    m_seriesListModel->setCheckable(true);
+    m_seriesListModel = new SeriesListModel(this);
+    m_seriesListModel->setObjects(m_provider->seriesSearchResults());
+    m_seriesListModel->setCheckable(true);
 
-    foreach(Series *series, m_provider->seriesSearchResults()) {
-        m_seriesDao->insert(series);
-        connect(series, &Series::checkStateChanged,
+    foreach(QSharedPointer<Series> series, m_provider->seriesSearchResults()) {
+        connect(series.data(), &Series::checkStateChanged,
                 this, &RescanCollectionDialog::enableContinueButtonBasedOnCheckStates);
     }
 
@@ -155,7 +150,7 @@ void RescanCollectionDialog::displaySearchResults()
 
     ui->seriesWidget->setVisible(false);
 
-    if(m_seriesDao->count() > 0) {
+    if(m_seriesListModel->rowCount() > 0) {
         ui->treeView->selectionModel()->select(m_seriesListModel->index(0), QItemSelectionModel::Select);
     }
     else {
@@ -170,28 +165,38 @@ void RescanCollectionDialog::displaySearchResults()
 
 void RescanCollectionDialog::showSelectedSeries()
 {
-    Series *series = m_seriesListModel->objectByIndex(ui->treeView->selectionModel()->selectedIndexes().first());
+    QModelIndexList list = ui->treeView->selectionModel()->selectedIndexes();
+    if(list.isEmpty())
+        return;
+
+    QSharedPointer<Series> series = m_seriesListModel->objectByIndex(list.first());
     ui->seriesWidget->setSeries(series);
     ui->seriesWidget->setVisible(true);
 }
 
 void RescanCollectionDialog::saveTvdbResultAndContinueToNextSeries()
 {
-    Series *series = m_seriesListModel->checkedSeries();
+    QSharedPointer<Series> series = m_seriesListModel->checkedSeries();
     m_provider->copySeries(series, m_currentSeries);
     ui->textEdit->append(tr("Set TVDB id of %1 to %2.")
                          .arg(series->title())
                          .arg(series->tvdbId()));
 
-    foreach(series, m_seriesListModel->partiallyCheckedSeries()) {
-        m_currentSeries->addLanguage(series->primaryLanguage());
+    foreach(QSharedPointer<Series> s, m_seriesListModel->objects()) {
+        if(s->checkState() == Qt::Checked)
+            continue;
+
+        if(s->checkState() == Qt::PartiallyChecked)
+            m_currentSeries->addLanguage(s->primaryLanguage());
+
+        Qp::remove(s);
     }
 
     //searchDownlaodsAtSerienjunkies();
 
-    QPersistence::update(m_currentSeries);
+    Qp::update(m_currentSeries);
     m_scrapedSeries.append(m_currentSeries);
-    m_currentSeries = nullptr;
+    m_currentSeries = QSharedPointer<Series>();
 
     continueToNextSeriesOrStartScraping();
 }
@@ -216,6 +221,10 @@ void RescanCollectionDialog::continueToNextSeriesOrStartScraping()
 
 void RescanCollectionDialog::skipCurrentSeries()
 {
+    foreach(QSharedPointer<Series> series, m_seriesListModel->objects()) {
+        Qp::remove(series);
+    }
+
     continueToNextSeriesOrStartScraping();
 }
 
@@ -224,11 +233,9 @@ void RescanCollectionDialog::cleanupTvdbResultsPage()
     ui->treeView->setModel(nullptr);
 
     delete m_provider;
-    delete m_seriesDao;
     delete m_seriesListModel;
 
     m_provider = nullptr;
-    m_seriesDao = nullptr;
     m_seriesListModel = nullptr;
 }
 
@@ -254,15 +261,14 @@ void RescanCollectionDialog::searchDownlaodsAtSerienjunkies()
 
 void RescanCollectionDialog::downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series)
 {
-
     //TODO: Find a better way to get the right serie (with not the same name)
-    Series* serie = Controller::seriesDao()->byTitle(series.first().title);
+    QSharedPointer<Series>  serie = Series::forTitle(series.first().title);
 
-    if(serie != 0 && serie->serienJunkiesUrl().toString() == ""){
+    if(serie && serie->serienJunkiesUrl().toString() == ""){
        serie->setSerienJunkiesUrl(series.first().url);
        ui->textEdit->append("Serienjunkies-Url for " + series.first().title + " found: " + series.first().url.toString());
-       QPersistence::update(serie);
     }
+    Qp::update(serie);
 
     // TODO: Find a better call structure to search for download links
     Controller::plugins()->downloadProviderPluginByName("serienjunkies.org")->findMissingEpisodes(serie);
@@ -291,15 +297,15 @@ void RescanCollectionDialog::scrape()
 void RescanCollectionDialog::scrapeNextSeries()
 {
     if(m_currentSeries) {
-        QPersistence::update(m_currentSeries);
+        Qp::update(m_currentSeries);
 
-        foreach(Season *season, m_currentSeries->seasons()) {
-            foreach(Episode *episode, season->episodes()) {
+        foreach(QSharedPointer<Season> season, m_currentSeries->seasons()) {
+            foreach(QSharedPointer<Episode> episode, season->episodes()) {
                 m_newEpisodes.removeAll(episode);
             }
         }
 
-        m_currentSeries = nullptr;
+        m_currentSeries = QSharedPointer<Series>();
     }
 
     delete m_provider;
@@ -322,7 +328,7 @@ void RescanCollectionDialog::scrapeNextSeries()
 
         if(m_currentSeries->tvdbId() <= 0) {
             ui->textEdit->append(tr("Skipping %1").arg(m_currentSeries->title()));
-            m_currentSeries = nullptr;
+            m_currentSeries = QSharedPointer<Series>();
         }
         else {
             break;
@@ -339,6 +345,7 @@ void RescanCollectionDialog::scrapeNextSeries()
         ui->textEdit->append(message);
         ui->labelStatus->setText(message);
         m_provider->scrapeSeriesIncludingEpisodes(m_currentSeries);
+        Qp::update(m_currentSeries);
     }
     else {
         scrapeNextSeries(); // this should only happen, when there are no series left
@@ -352,8 +359,8 @@ void RescanCollectionDialog::scrapeNextEpisode()
     m_provider = nullptr;
 
     if(m_currentEpisode) {
-        QPersistence::update(m_currentEpisode);
-        m_currentEpisode = nullptr;
+        Qp::update(m_currentEpisode);
+        m_currentEpisode = QSharedPointer<Episode>();
     }
 
     if(m_newEpisodes.isEmpty()) {
@@ -367,7 +374,7 @@ void RescanCollectionDialog::scrapeNextEpisode()
 
         if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
             ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFile()));
-            m_currentEpisode = nullptr;
+            m_currentEpisode = QSharedPointer<Episode>();
         }
         else {
             break;

@@ -88,7 +88,7 @@ void NewSeriesWizard::on_lineEditName_textEdited(const QString &text)
         return;
 
     button(QWizard::NextButton)->setEnabled(false);
-    m_timer.start(100);
+    m_timer.start(1000);
 
     foreach(DownloadProviderPlugin::SeriesData s, m_mostRecentResults) {
         if(QString::compare(s.title, ui->lineEditName->text(), Qt::CaseInsensitive) == 0) {
@@ -141,10 +141,10 @@ void NewSeriesWizard::timeout()
 
 void NewSeriesWizard::finish()
 {
-    Series *series = Controller::seriesDao()->byTitle(m_currentSeries.title);
-    if(series == 0) {
-        series = QPersistence::create<Series>();
-        QPersistence::insert(series);
+    QSharedPointer<Series> series = Series::forTitle(m_currentSeries.title);
+    if(!series) {
+        series = Qp::create<Series>();
+        Qp::update(series);
     }
     series->setSerienJunkiesUrl(m_currentSeries.url);
     series->setTitle(m_currentSeries.title);
@@ -155,9 +155,7 @@ void NewSeriesWizard::finish()
 
     series->addFolder(dir.absolutePath());
 
-    QPersistence::update(series);
-
-
+    Qp::update(series);
 }
 
 void NewSeriesWizard::setSeries(DownloadProviderPlugin::SeriesData series)

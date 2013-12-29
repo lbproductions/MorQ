@@ -52,7 +52,7 @@ void LinksController::clipboardChanged()
 
     foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
         if(decrypter->canHandleUrl(url)) {
-            DownloadPackage *package = createPackage(url);
+            QSharedPointer<DownloadPackage> package = createPackage(url);
             decrypter->handlePackage(package);
             return;
         }
@@ -60,16 +60,16 @@ void LinksController::clipboardChanged()
 
     foreach(HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
         if(hoster->canHandleUrl(url)) {
-            Download * dl = createDownload(url);
+            QSharedPointer<Download>  dl = createDownload(url);
             hoster->getDownloadInformation(dl);
             return;
         }
     }
 }
 
-void LinksController::packageFinished(DownloadPackage *package)
+void LinksController::packageFinished(QSharedPointer<DownloadPackage> package)
 {
-    foreach(Download *dl, package->downloads()) {
+    foreach(QSharedPointer<Download> dl, package->downloads()) {
         foreach(HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
             if(hoster->canHandleUrl(dl->url())) {
                 hoster->getDownloadInformation(dl);
@@ -79,46 +79,44 @@ void LinksController::packageFinished(DownloadPackage *package)
     }
 }
 
-Download *LinksController::createDownload(const QUrl &url)
+QSharedPointer<Download> LinksController::createDownload(const QUrl &url)
 {
-    auto downloadsDao = Controller::downloadsDao();
-    Download *download = downloadsDao->create();
+    QSharedPointer<Download> download = Qp::create<Download>();
     download->setUrl(url);
-    downloadsDao->insert(download);
+    Qp::update(download);
 
     return download;
 }
 
-DownloadPackage *LinksController::createPackage(const QUrl &url)
+QSharedPointer<DownloadPackage> LinksController::createPackage(const QUrl &url)
 {
-    auto packageDao = Controller::downloadPackagesDao();
-    DownloadPackage *package = packageDao->create();
+    QSharedPointer<DownloadPackage> package = Qp::create<DownloadPackage>();
     package->setSourceUrl(url);
-    packageDao->insert(package);
+    Qp::update(package);
 
     return package;
 }
 
-void LinksController::downloadEpisode(Episode *episode)
+void LinksController::downloadEpisode(QSharedPointer<Episode> episode)
 {
 //    QUrl url = episode->downloadLinks();
 
 //    foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
 //        if(decrypter->canHandleUrl(url)) {
-//            DownloadPackage *package = createPackage(url);
+//            QSharedPointer<DownloadPackage> package = createPackage(url);
 //            decrypter->handlePackage(package);
 //            return;
 //        }
     //    }
 }
 
-void LinksController::downloadVideos(QList<VideoDownloadLink *> links)
+void LinksController::downloadVideos(QList<QSharedPointer<VideoDownloadLink> > links)
 {
-    foreach(VideoDownloadLink* link, links) {
+    foreach(QSharedPointer<VideoDownloadLink>  link, links) {
         QUrl url = link->url();
         foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
             if(decrypter->canHandleUrl(url)) {
-                DownloadPackage *package = createPackage(url);
+                QSharedPointer<DownloadPackage> package = createPackage(url);
                 package->setExtractFolder(link->extractFolder());
                 package->addVideoDownloadLink(link);
                 decrypter->handlePackage(package);

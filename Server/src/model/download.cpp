@@ -9,13 +9,12 @@ float Download::s_speedAlpha(0.1);
 
 Download::Download(QObject *parent) :
     QObject(parent),
-    m_id(0),
     m_redirectedUrl(QUrl()),
     m_destinationFolder(QString()),
     m_fileName(QString()),
     m_fileSize(-1),
     m_bytesDownloaded(-1),
-    m_package(nullptr),
+    m_package("package", this),
     m_enabled(true),
     m_extracting(false),
     m_speed(0),
@@ -27,12 +26,6 @@ Download::Download(QObject *parent) :
 
 Download::~Download()
 {
-    qDebug() << "~Download(" << m_id << ")=" << this;
-}
-
-int Download::id() const
-{
-    return m_id;
 }
 
 void Download::reset()
@@ -57,11 +50,6 @@ QUrl Download::url() const
 void Download::setUrl(const QUrl &url)
 {
     m_url = url;
-}
-
-void Download::setId(int id)
-{
-    m_id = id;
 }
 
 QUrl Download::redirectedUrl() const
@@ -105,14 +93,19 @@ void Download::setMessage(const QString &message)
     m_message = message;
 }
 
-DownloadPackage *Download::package() const
+QSharedPointer<DownloadPackage> Download::package() const
 {
-    return m_package;
+    return m_package.resolve();
 }
 
-void Download::setPackage(DownloadPackage *package)
+int Download::id() const
 {
-    m_package = package;
+    return Qp::primaryKey(Qp::sharedFrom(this));
+}
+
+void Download::setPackage(QSharedPointer<DownloadPackage> package)
+{
+    m_package.relate(package);
 }
 
 qint64 Download::fileSize() const
@@ -127,7 +120,7 @@ void Download::setFileSize(qint64 bytes)
 
 int Download::order() const
 {
-    return m_package->downloads().indexOf(const_cast<Download *const>(this));
+    return package()->downloads().indexOf(Qp::sharedFrom(this));
 }
 
 qint64 Download::bytesDownloaded() const

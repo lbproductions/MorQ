@@ -35,15 +35,15 @@ ChooseDownloadLinksDialog::~ChooseDownloadLinksDialog()
     delete ui;
 }
 
-void ChooseDownloadLinksDialog::setEpisodes(QList<Episode *> episodes)
+void ChooseDownloadLinksDialog::setEpisodes(QList<QSharedPointer<Episode> > episodes)
 {
     ui->comboBoxFormat->clear();
 
     QStringList formats;
     m_episodes = episodes;
 
-    foreach(Episode *episode, episodes) {
-        foreach(VideoDownloadLink *link, episode->downloadLinks()) {
+    foreach(QSharedPointer<Episode> episode, episodes) {
+        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
             //if(formats.contains(link->formatDescription()))
             if(formats.contains(link->name()))
                 continue;
@@ -81,8 +81,8 @@ void ChooseDownloadLinksDialog::addMirrorsBasedOnSelectedFormat()
 {
     ui->comboBoxMirror->clear();
 
-    foreach(Episode *episode, m_episodes) {
-        foreach(VideoDownloadLink *link, episode->downloadLinks()) {
+    foreach(QSharedPointer<Episode> episode, m_episodes) {
+        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
             //if(link->formatDescription() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
             if(link->name() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
                 continue;
@@ -107,15 +107,15 @@ void ChooseDownloadLinksDialog::finish()
 
         m_episodes.first()->season()->addFolder(targetFolder);
 
-        QPersistence::update(m_episodes.first()->season());
+        Qp::update(m_episodes.first()->season());
     }
     else{
         targetFolder = ui->comboBoxPath->currentText();
     }
 
-    QList<VideoDownloadLink*> links;
-    foreach(Episode *episode, m_episodes) {
-        foreach(VideoDownloadLink *link, episode->downloadLinks()) {
+    QList<QSharedPointer<VideoDownloadLink> > links;
+    foreach(QSharedPointer<Episode> episode, m_episodes) {
+        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
             //if(link->formatDescription() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
             if(link->name() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
                 links.append(link);

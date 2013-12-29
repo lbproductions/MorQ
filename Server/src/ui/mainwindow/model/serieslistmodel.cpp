@@ -4,24 +4,21 @@
 
 #include <QPixmap>
 
-SeriesListModel::SeriesListModel(QPersistenceAbstractDataAccessObject *dao, QObject *parent) :
-    ObjectListModel<Series>(parent),
-    m_dao(dao),
+SeriesListModel::SeriesListModel(QObject *parent) :
+    QpAbstractObjectListModel<Series>(parent),
     m_checkable(false)
 {
-    connect(m_dao, &SeriesDAO::objectInserted,
-            this, &SeriesListModel::objectInserted);
+}
 
-    connect(m_dao, &SeriesDAO::objectUpdated,
-            this, &SeriesListModel::objectUpdated);
-
-    connect(m_dao, &SeriesDAO::objectRemoved,
-            this, &SeriesListModel::objectRemoved);
+int SeriesListModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return 1;
 }
 
 Qt::ItemFlags SeriesListModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags f = ObjectListModel<Series>::flags(index);
+    Qt::ItemFlags f = QpAbstractObjectListModel<Series>::flags(index);
 
     if(isCheckable())
         f = f | Qt::ItemIsTristate;
@@ -34,7 +31,7 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
 
-    Series *series = objectByIndex(index);
+    QSharedPointer<Series> series = objectByIndex(index);
     switch(role) {
     case Qt::DisplayRole:
         return series->title();
@@ -47,7 +44,7 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         return series->primaryLanguageFlag();
     case RawDataRole:
-        return QVariant::fromValue<Series *>(series);
+        return QVariant::fromValue<QSharedPointer<Series> >(series);
     }
 
     return QVariant();
@@ -56,12 +53,12 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
 bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if(role == Qt::CheckStateRole) {
-        Series *series = objectByIndex(index);
+        QSharedPointer<Series> series = objectByIndex(index);
         Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
         if(checkState == Qt::Checked) {
             if(m_lastCheckedIndex.isValid()) {
-                Series *lastCheckedSeries = objectByIndex(m_lastCheckedIndex);
+                QSharedPointer<Series> lastCheckedSeries = objectByIndex(m_lastCheckedIndex);
 
                 if(lastCheckedSeries && lastCheckedSeries != series && lastCheckedSeries->checkState() == Qt::Checked) {
                     lastCheckedSeries->setCheckState(Qt::PartiallyChecked);
@@ -87,11 +84,6 @@ bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, i
     return false;
 }
 
-QList<Series *> SeriesListModel::objects() const
-{
-    return QPersistence::castList<Series>(m_dao->readAllObjects());
-}
-
 bool SeriesListModel::isCheckable() const
 {
     return m_checkable;
@@ -102,11 +94,11 @@ void SeriesListModel::setCheckable(bool checkable)
     m_checkable = checkable;
 }
 
-QList<Series *> SeriesListModel::partiallyCheckedSeries() const
+QList<QSharedPointer<Series> > SeriesListModel::seriesByCheckState(Qt::CheckState state) const
 {
-    QList<Series *> result;
-    foreach(Series *series, objects()) {
-        if(series->checkState() == Qt::PartiallyChecked) {
+    QList<QSharedPointer<Series> > result;
+    foreach(QSharedPointer<Series> series, objects()) {
+        if(series->checkState() == state) {
             result.append(series);
         }
     }
@@ -114,10 +106,10 @@ QList<Series *> SeriesListModel::partiallyCheckedSeries() const
 }
 
 
-Series *SeriesListModel::checkedSeries() const
+QSharedPointer<Series> SeriesListModel::checkedSeries() const
 {
     if(!m_lastCheckedIndex.isValid())
-        return nullptr;
+        return QSharedPointer<Series>();
 
     return objectByIndex(m_lastCheckedIndex);
 }

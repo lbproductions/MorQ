@@ -15,7 +15,7 @@ SeriesWidget::~SeriesWidget()
     delete ui;
 }
 
-void SeriesWidget::setSeries(Series *series)
+void SeriesWidget::setSeries(QSharedPointer<Series> series)
 {
     ui->labelActors->setText(series->actors().join(", "));
     ui->labelAiredFirst->setText(series->firstAired().toString(Qt::ISODate));

@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::enableActionsAccordingToDownloadSelection);
 
     // Init series page
-    m_seriesModel = new SeriesListModel(Controller::seriesDao(), this);
+    m_seriesModel = new SeriesListModel(this);
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeries->setModel(m_seriesModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
@@ -213,8 +213,8 @@ void MainWindow::on_actionDeleteDownload_triggered()
 
     QModelIndexList list = ui->treeViewDownloads->selectionModel()->selectedRows();
 
-    QList<Download *> selectedDownloads;
-    QList<DownloadPackage *> selectedPackages;
+    QList<QSharedPointer<Download> > selectedDownloads;
+    QList<QSharedPointer<DownloadPackage> > selectedPackages;
 
     foreach(QModelIndex index, list) {
         if(index.parent().isValid()) {
@@ -226,11 +226,11 @@ void MainWindow::on_actionDeleteDownload_triggered()
     }
 
 //    QString informativeText(tr("Packages:\n"));
-//    foreach(DownloadPackage *package, selectedPackages) {
+//    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
 //        informativeText += package->name() + "\n";
 //    }
 //    informativeText += tr("Downloads:\n");
-//    foreach(Download *dl, selectedDownloads) {
+//    foreach(QSharedPointer<Download> dl, selectedDownloads) {
 //        informativeText += dl->fileName() + "\n";
 //    }
 //    confirmDialog.setInformativeText(informativeText);
@@ -238,12 +238,12 @@ void MainWindow::on_actionDeleteDownload_triggered()
 //    if(result != QMessageBox::Yes)
 //        return;
 
-    foreach(Download *dl, selectedDownloads) {
+    foreach(QSharedPointer<Download> dl, selectedDownloads) {
         if(dl)
             Controller::downloads()->removeDownload(dl);
     }
 
-    foreach(DownloadPackage *package, selectedPackages) {
+    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
         if(package)
             Controller::downloads()->removePackage(package);
     }
@@ -254,8 +254,8 @@ void MainWindow::on_actionResetDownload_triggered()
     // TODO: confirmation
     QModelIndexList list = ui->treeViewDownloads->selectionModel()->selectedRows();
 
-    QList<Download *> selectedDownloads;
-    QList<DownloadPackage *> selectedPackages;
+    QList<QSharedPointer<Download> > selectedDownloads;
+    QList<QSharedPointer<DownloadPackage> > selectedPackages;
 
     foreach(QModelIndex index, list) {
         if(index.parent().isValid()) {
@@ -266,12 +266,12 @@ void MainWindow::on_actionResetDownload_triggered()
         }
     }
 
-    foreach(Download *dl, selectedDownloads) {
+    foreach(QSharedPointer<Download> dl, selectedDownloads) {
         if(dl)
             Controller::downloads()->resetDownload(dl);
     }
 
-    foreach(DownloadPackage *package, selectedPackages) {
+    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
         if(package)
             Controller::downloads()->resetPackage(package);
     }
@@ -290,7 +290,7 @@ void MainWindow::enableActionsAccordingToDownloadSelection()
 void MainWindow::on_actionExtract_triggered()
 {
     QModelIndexList list = ui->treeViewDownloads->selectionModel()->selectedRows();
-    QSet<DownloadPackage *> selectedPackages;
+    QSet<QSharedPointer<DownloadPackage> > selectedPackages;
 
     foreach(QModelIndex index, list) {
         if(index.parent().isValid()) {
@@ -301,7 +301,7 @@ void MainWindow::on_actionExtract_triggered()
         }
     }
 
-    foreach(DownloadPackage *package, selectedPackages) {
+    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
         if(package)
             Controller::extractor()->extractPackage(package);
     }
@@ -321,17 +321,13 @@ void MainWindow::on_actionAdd_show_triggered()
 
 void MainWindow::showSeasonsForSelectedSeries()
 {
-    m_episodesModel->setSeason(nullptr);
-
     QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
     if(list.isEmpty()) {
-        m_seasonsModel->setSeries(nullptr);
         return;
     }
 
-    Series *series = m_seriesModel->objectByIndex(list.first());
+    QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
     if(!series) {
-        m_seasonsModel->setSeries(nullptr);
         return;
     }
 
@@ -343,13 +339,11 @@ void MainWindow::showEpisodesForSelectedSeason()
     QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
 
     if(list.isEmpty()) {
-        m_episodesModel->setSeason(nullptr);
         return;
     }
 
-    Season *season = m_seasonsModel->objectByIndex(list.first());
+    QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
     if(!season) {
-        m_episodesModel->setSeason(nullptr);
         return;
     }
 
@@ -397,14 +391,14 @@ void MainWindow::on_actionAddDownload_triggered()
 {
     QWidget *focusWidget = QApplication::focusWidget();
 
-    QList<Episode *> episodes;
+    QList<QSharedPointer<Episode> > episodes;
 
     if(focusWidget == ui->treeViewEpisodes) {
         QModelIndexList list = ui->treeViewEpisodes->selectionModel()->selectedRows();
         if(list.isEmpty())
             return;
 
-        Episode *episode = m_episodesModel->objectByIndex(list.first());
+        QSharedPointer<Episode> episode = m_episodesModel->objectByIndex(list.first());
         if(!episode)
             return;
 
@@ -416,7 +410,7 @@ void MainWindow::on_actionAddDownload_triggered()
         if(list.isEmpty())
             return;
 
-        Season *season = m_seasonsModel->objectByIndex(list.first());
+        QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
         if(!season)
             return;
 
@@ -428,11 +422,11 @@ void MainWindow::on_actionAddDownload_triggered()
         if(list.isEmpty())
             return;
 
-        Series *series = m_seriesModel->objectByIndex(list.first());
+        QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
         if(!series)
             return;
 
-        foreach(Season *season, series->seasons()) {
+        foreach(QSharedPointer<Season> season, series->seasons()) {
             episodes.append(season->episodes());
         }
     }
@@ -458,7 +452,7 @@ void MainWindow::on_actionSearchDownloadLinks_triggered()
     if(list.isEmpty())
         return;
 
-    Series *series = m_seriesModel->objectByIndex(list.first());
+    QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
     SerienjunkiesProviderPlugin* plugin = static_cast<SerienjunkiesProviderPlugin*>(Controller::plugins()->downloadProviderPluginByName("serienjunkies.org"));
     plugin->searchAndSetDownloadsForSeries(series);
 }

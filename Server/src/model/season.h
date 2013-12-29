@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QPersistenceRelations.h>
 
 #include <QUrl>
 #include <QLocale>
@@ -14,19 +15,15 @@ class Episode;
 class Season : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(int number READ number WRITE setNumber)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString serienJunkiesTitle READ serienJunkiesTitle WRITE setSerienJunkiesTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
-    Q_PROPERTY(Series* series READ series WRITE setSeries)
+    Q_PROPERTY(QSharedPointer<Series>  series READ series WRITE setSeries)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
-    Q_PROPERTY(QList<Episode*> episodes READ episodes WRITE setEpisodes)
+    Q_PROPERTY(QList<QSharedPointer<Episode> > episodes READ episodes WRITE setEpisodes)
     Q_PROPERTY(QStringList folders READ folders WRITE setFolders)
 
-    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
-                "autoincremented=true;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:series",
                 "reverserelation=seasons;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episodes",
@@ -57,12 +54,12 @@ public:
 
     QSet<QLocale::Language> languages() const;
 
-    Series *series() const;
+    QSharedPointer<Series> series() const;
 
-    QList<Episode *> episodes() const;
-    Episode *episode(int number) const;
-    void addEpisode(Episode *episode);
-    void removeEpisode(Episode *episode);
+    QList<QSharedPointer<Episode> > episodes() const;
+    QSharedPointer<Episode> episode(int number) const;
+    void addEpisode(QSharedPointer<Episode> episode);
+    void removeEpisode(QSharedPointer<Episode> episode);
 
     QString tvdbLanguage() const;
 
@@ -72,17 +69,16 @@ public:
 
 private:
     friend class Series;
-    void setId(int id);
-    void setSeries(Series *series);
-    void setEpisodes(const QList<Episode *> &episodes);
+    void setSeries(QSharedPointer<Series> series);
+    void setEpisodes(const QList<QSharedPointer<Episode> > &episodes);
 
-    int m_id;
     int m_number;
     QString m_serienJunkiesTitle;
     QString m_title;
     QUrl m_serienJunkiesUrl;
-    Series *m_series;
-    QMap<int, Episode *> m_episodes;
+    QpWeakRelation<Series> m_series;
+    QpStrongRelation<Episode> m_episodes;
+    mutable QMap<int, QSharedPointer<Episode> > m_episodesByNumber;
     QLocale::Language m_primaryLanguage;
     QStringList m_folders;
 };

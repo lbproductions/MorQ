@@ -24,7 +24,7 @@ void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
                   index.data().toString(),
                   TITLE_OFFSET);
 
-    Series *series = index.data(SeriesListModel::RawDataRole).value<Series *>();
+    QSharedPointer<Series> series = index.data(SeriesListModel::RawDataRole).value<QSharedPointer<Series> >();
 
     QPoint flagOffset = boundingRect.topRight().toPoint() - option.rect.topLeft() + FLAG_OFFSET;
     foreach(QLocale::Language language, series->languages()) {

@@ -83,7 +83,7 @@ void TheTvdbInformationProvider::searchSeries(const QString &title) const
             this, &TheTvdbInformationProvider::parseSearchSeriesReply);
 }
 
-void TheTvdbInformationProvider::scrapeSeries(Series *series) const
+void TheTvdbInformationProvider::scrapeSeries(QSharedPointer<Series> series) const
 {
     ++m_activeRequestsCount;
     QUrl url(QString("http://thetvdb.com/api/%1/series/%2/%3.xml")
@@ -93,14 +93,14 @@ void TheTvdbInformationProvider::scrapeSeries(Series *series) const
     // TODO scrape additional languages
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
-    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<QSharedPointer<Series> >(series));
     reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(series->primaryLanguage()));
 
     connect(reply, &QNetworkReply::finished,
             this, &TheTvdbInformationProvider::parseScrapeSeriesReply);
 }
 
-void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(Series *series) const
+void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(QSharedPointer<Series> series) const
 {
     foreach(QLocale::Language language, series->languages()) {
         ++m_activeRequestsCount;
@@ -111,7 +111,7 @@ void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(Series *series) c
                  .arg(Series::tvdbLanguage(language)));
 
         QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
-        reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<Series *>(series));
+        reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_SERIES, QVariant::fromValue<QSharedPointer<Series> >(series));
         reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(language));
 
         connect(reply, &QNetworkReply::finished,
@@ -119,10 +119,10 @@ void TheTvdbInformationProvider::scrapeSeriesIncludingEpisodes(Series *series) c
     }
 }
 
-void TheTvdbInformationProvider::scrapeEpisode(Episode *episode) const
+void TheTvdbInformationProvider::scrapeEpisode(QSharedPointer<Episode> episode) const
 {
-    Season *season = episode->season();
-    Series *series = season->series();
+    QSharedPointer<Season> season = episode->season();
+    QSharedPointer<Series> series = season->series();
 
     ++m_activeRequestsCount;
     QUrl url(QString("http://thetvdb.com/api/%1/series/%2/default/%3/%4/%5.xml")
@@ -133,7 +133,7 @@ void TheTvdbInformationProvider::scrapeEpisode(Episode *episode) const
              .arg(episode->tvdbLanguage()));
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(url));
-    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE, QVariant::fromValue<Episode *>(episode));
+    reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE, QVariant::fromValue<QSharedPointer<Episode> >(episode));
     reply->setProperty(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE, QVariant::fromValue<int>(episode->primaryLanguage()));
 
     connect(reply, &QNetworkReply::finished,
@@ -152,7 +152,7 @@ void TheTvdbInformationProvider::parseSearchSeriesReply()
         if(token == QXmlStreamReader::StartElement) {
             QStringRef name = xml.name();
             if(name == TOKENNAME_SERIES) {
-                Series *series = QPersistence::create<Series>();
+                QSharedPointer<Series> series = Qp::create<Series>();
                 TheTvdbInformationProvider::parseSeries(xml, series);
                 InformationProviderPlugin::addResult(series);
             }
@@ -166,7 +166,7 @@ void TheTvdbInformationProvider::parseSearchSeriesReply()
 void TheTvdbInformationProvider::parseScrapeSeriesReply()
 {
     QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
-    Series *series = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_SERIES).value<Series *>();
+    QSharedPointer<Series> series = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_SERIES).value<QSharedPointer<Series> >();
     QLocale::Language language = static_cast<QLocale::Language>(reply->property(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE).toInt());
 
     if(!series) {
@@ -184,16 +184,16 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
             QStringRef name = xml.name();
             if(name == TOKENNAME_SERIES) {
                 TheTvdbInformationProvider::parseSeries(xml, series);
-                QPersistence::update(series);
+                Qp::update(series);
             }
             else if(name == TOKENNAME_EPISODE) {
-                Episode *episode = QPersistence::create<Episode>();
+                QSharedPointer<Episode> episode = Qp::create<Episode>();
                 TheTvdbInformationProvider::parseEpisode(xml, episode);
 
-                Season *season = series->season(episode->seasonNumber(), language);
+                QSharedPointer<Season> season = series->season(episode->seasonNumber(), language);
 
                 if(!season) {
-                    season = QPersistence::create<Season>();
+                    season = Qp::create<Season>();
                     season->setNumber(episode->seasonNumber());
                     season->setPrimaryLanguage(language);
 
@@ -202,19 +202,19 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
                     }
 
                     series->addSeason(season);
-                    QPersistence::insert(season);
+                    Qp::update(season);
                 }
 
-                Episode *originalEpisode = season->episode(episode->number());
+                QSharedPointer<Episode> originalEpisode = season->episode(episode->number());
 
                 if(originalEpisode) {
                     copyEpisode(episode, originalEpisode);
-                    QPersistence::update(originalEpisode);
-                    delete episode;
+                    Qp::update(originalEpisode);
+                    Qp::remove(episode);
                 }
                 else {
                     season->addEpisode(episode);
-                    QPersistence::insert(episode);
+                    Qp::update(episode);
                     InformationProviderPlugin::addNewEpisode(episode);
                 }
             }
@@ -228,7 +228,7 @@ void TheTvdbInformationProvider::parseScrapeSeriesReply()
 void TheTvdbInformationProvider::parseScrapeEpisodeReply()
 {
     QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
-    Episode *episode = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE).value<Episode *>();
+    QSharedPointer<Episode> episode = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE).value<QSharedPointer<Episode> >();
 
     if(!episode) {
         reply->deleteLater();
@@ -252,7 +252,7 @@ void TheTvdbInformationProvider::parseScrapeEpisodeReply()
     decreaseActiveRequestCountAndMaybeEmitFinished();
 }
 
-void TheTvdbInformationProvider::copySeries(Series *source, Series *target) const
+void TheTvdbInformationProvider::copySeries(QSharedPointer<Series> source, QSharedPointer<Series> target) const
 {
     target->setTvdbId(source->tvdbId());
     target->setTitle(source->title());
@@ -266,7 +266,7 @@ void TheTvdbInformationProvider::copySeries(Series *source, Series *target) cons
     // TODO: Add missing properties to series.
 }
 
-void TheTvdbInformationProvider::copyEpisode(Episode *source, Episode *target) const
+void TheTvdbInformationProvider::copyEpisode(QSharedPointer<Episode> source, QSharedPointer<Episode> target) const
 {
     target->setTitle(source->title());
 
@@ -287,7 +287,7 @@ void TheTvdbInformationProvider::copyEpisode(Episode *source, Episode *target) c
     target->setOverview(source->overview());
 }
 
-void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, Series *series)
+void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, QSharedPointer<Series> series)
 {
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
@@ -329,7 +329,7 @@ void TheTvdbInformationProvider::parseSeries(QXmlStreamReader &xml, Series *seri
     }
 }
 
-void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml, Episode *episode)
+void TheTvdbInformationProvider::parseEpisode(QXmlStreamReader &xml, QSharedPointer<Episode> episode)
 {
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();

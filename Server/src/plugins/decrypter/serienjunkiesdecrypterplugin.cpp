@@ -31,7 +31,7 @@ bool SerienJunkiesDecrypterPlugin::canHandleUrl(const QUrl &url) const
     return false;
 }
 
-void SerienJunkiesDecrypterPlugin::handlePackage(DownloadPackage *package)
+void SerienJunkiesDecrypterPlugin::handlePackage(QSharedPointer<DownloadPackage> package)
 {
     SerienJunkiesDecryptHandler *handler = new SerienJunkiesDecryptHandler(package, this);
     package->setName(package->sourceUrl().path().split('/').last());
@@ -41,7 +41,7 @@ void SerienJunkiesDecrypterPlugin::handlePackage(DownloadPackage *package)
 }
 
 
-SerienJunkiesDecryptHandler::SerienJunkiesDecryptHandler(DownloadPackage *package,
+SerienJunkiesDecryptHandler::SerienJunkiesDecryptHandler(QSharedPointer<DownloadPackage> package,
                                                          SerienJunkiesDecrypterPlugin *parent) :
     QObject(parent),
     m_package(package),
@@ -55,7 +55,7 @@ void SerienJunkiesDecryptHandler::getInformation()
 
     connect(reply, &QSerienJunkiesReply::error, [=]() {
         m_package->setMessage(reply->errorString());
-        QPersistence::update(m_package);
+        Qp::update(m_package);
     });
 
     connect(reply, &QSerienJunkiesReply::requiresCaptcha,
@@ -65,7 +65,7 @@ void SerienJunkiesDecryptHandler::getInformation()
             this, &SerienJunkiesDecryptHandler::replyFinished);
 }
 
-DownloadPackage *SerienJunkiesDecryptHandler::package() const
+QSharedPointer<DownloadPackage> SerienJunkiesDecryptHandler::package() const
 {
     return m_package;
 }
@@ -77,13 +77,13 @@ void SerienJunkiesDecryptHandler::requestCaptchaSolution()
     m_package->setName(reply->packageName());
     m_package->setCaptcha(reply->captcha());
 
-    connect(m_package, &DownloadPackage::captchaStringChanged, [=]() {
+    connect(m_package.data(), &DownloadPackage::captchaStringChanged, [=]() {
         QString solution = m_package->captchaString();
         if(!solution.isEmpty())
             reply->solveCaptcha(solution);
     });
 
-    QPersistence::update(m_package);
+    Qp::update(m_package);
 }
 
 void SerienJunkiesDecryptHandler::replyFinished()
@@ -92,11 +92,11 @@ void SerienJunkiesDecryptHandler::replyFinished()
     m_package->setCaptcha(QByteArray());
 
     foreach(const QUrl &url, reply->urls()) {
-        Download *download = Controller::links()->createDownload(url);
+        QSharedPointer<Download> download = Controller::links()->createDownload(url);
         m_package->addDownload(download);
         m_package->setMessage(QString());
-        QPersistence::update(download);
-        QPersistence::update(m_package);
+        Qp::update(download);
+        Qp::update(m_package);
     }
 
     emit finished();

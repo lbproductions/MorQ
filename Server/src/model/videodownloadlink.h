@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QPersistenceRelations.h>
 
 #include <QUrl>
 
@@ -17,12 +18,8 @@ class VideoDownloadLink : public QObject
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QString formatDescription READ formatDescription WRITE setFormatDescription)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
-    Q_PROPERTY(Episode* episode READ episode WRITE setEpisode)
+    Q_PROPERTY(QSharedPointer<Episode>  episode READ episode WRITE setEpisode)
     Q_PROPERTY(QString extractFolder READ extractFolder WRITE setExtractFolder)
-
-    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
-                "autoincremented=true;")
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episode",
                 "reverserelation=downloadLinks;")
@@ -48,12 +45,12 @@ public:
     QString extractFolder() const;
     void setExtractFolder(const QString &extractFolder);
 
-    Episode *episode() const;
+    QSharedPointer<Episode> episode() const;
 
 private:
     friend class Episode;
     void setId(int id);
-    void setEpisode(Episode *episode);
+    void setEpisode(QSharedPointer<Episode> episode);
 
     int m_id;
     QString m_name;
@@ -61,7 +58,7 @@ private:
     QUrl m_url;
     QString m_mirror;
     QString m_extractFolder;
-    Episode *m_episode;
+    QpWeakRelation<Episode> m_episode;
 };
 
 #endif // VIDEODOWNLOADLINK_H

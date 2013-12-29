@@ -26,7 +26,7 @@ QMAKE_CXXFLAGS  += $$QPERSISTENCE_COMMON_QMAKE_CXXFLAGS
 DEFINES         += "VERSION=\"$$VERSION\""
 LIBS            += -framework AppKit
 
-### QPersistence ###
+### Qp ###
 
 INCLUDEPATH     += $$QPERSISTENCE_INCLUDEPATH
 LIBS            += $$QPERSISTENCE_LIBS
@@ -88,12 +88,10 @@ HEADERS += \
     model/series.h \
     ui/mainwindow/model/episodeslistmodel.h \
     ui/dialogs/choosedownloadlinksdialog.h \
-    ui/mainwindow/model/objectlistmodel.h \
     plugins/informationProviders/informationproviderplugin.h \
     ui/mainwindow/noisygradientitemdelegate.h \
     ui/mainwindow/seasonslistitemdelegate.h \
     ui/mainwindow/episodeslistitemdelegate.h \
-    model/seriesdataaccessobject.h \
     ui/dialogs/rescancollectiondialog.h \
     plugins/scraper/filescraper.h \
     plugins/informationProviders/thetvdbinformationprovider.h \
@@ -136,12 +134,10 @@ SOURCES += main.cpp \
     model/season.cpp \
     ui/mainwindow/model/episodeslistmodel.cpp \
     ui/dialogs/choosedownloadlinksdialog.cpp \
-    ui/mainwindow/model/objectlistmodel.cpp \
     plugins/informationProviders/informationproviderplugin.cpp \
     ui/mainwindow/noisygradientitemdelegate.cpp \
     ui/mainwindow/seasonslistitemdelegate.cpp \
     ui/mainwindow/episodeslistitemdelegate.cpp \
-    model/seriesdataaccessobject.cpp \
     ui/dialogs/rescancollectiondialog.cpp \
     plugins/scraper/filescraper.cpp \
     plugins/informationProviders/thetvdbinformationprovider.cpp \

@@ -8,34 +8,20 @@
 
 Season::Season(QObject *parent) :
     QObject(parent),
-    m_id(-1),
     m_number(0),
-    m_series(nullptr),
+    m_series("series", this),
+    m_episodes("episodes", this),
     m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
 Season::~Season()
 {
-    qDebug() << "~Season(" << m_id << ")=" << this;
-
-    if(m_series) {
-        m_series->removeSeason(this);
-    }
-
-    foreach(Episode *episode, m_episodes.values()) {
-        episode->setSeason(nullptr);
-    }
 }
 
 int Season::id() const
 {
-    return m_id;
-}
-
-void Season::setId(int id)
-{
-    m_id = id;
+    return Qp::primaryKey(Qp::sharedFrom(this));
 }
 
 int Season::number() const
@@ -109,56 +95,58 @@ QPixmap Season::primaryLanguageFlag() const
     return Series::languageFlag(m_primaryLanguage);
 }
 
-Series *Season::series() const
+QSharedPointer<Series> Season::series() const
 {
-    return m_series;
+    return m_series.resolve();
 }
 
-void Season::setSeries(Series *series)
+void Season::setSeries(QSharedPointer<Series> series)
 {
-    m_series = series;
+    m_series.relate(series);
 }
 
-QList<Episode *> Season::episodes() const
+QList<QSharedPointer<Episode> > Season::episodes() const
 {
-    return m_episodes.values();
+    return m_episodes.resolveList();
 }
 
-Episode *Season::episode(int number) const
+QSharedPointer<Episode> Season::episode(int number) const
 {
-    return m_episodes.value(number);
-}
-
-void Season::addEpisode(Episode *episode)
-{
-    Q_ASSERT(!m_episodes.contains(episode->number()));
-
-    episode->setSeason(this);
-    m_episodes.insert(episode->number(), episode);
-}
-
-void Season::removeEpisode(Episode *episode)
-{
-    Q_ASSERT(m_episodes.contains(episode->number()));
-
-    episode->setSeason(nullptr);
-    m_episodes.remove(episode->number());
-}
-
-void Season::setEpisodes(const QList<Episode *> &episodes)
-{
-    m_episodes.clear();
-
-    foreach(Episode *episode, episodes) {
-        addEpisode(episode);
+    if(m_episodesByNumber.isEmpty()) {
+        foreach(QSharedPointer<Episode> episode, episodes()) {
+            m_episodesByNumber.insert(episode->number(), episode);
+        }
     }
+
+    return m_episodesByNumber.value(number);
+}
+
+void Season::addEpisode(QSharedPointer<Episode> episode)
+{
+    episode->setSeason(Qp::sharedFrom(this));
+    m_episodesByNumber.insert(episode->number(), episode);
+    m_episodes.relate(episode);
+}
+
+void Season::removeEpisode(QSharedPointer<Episode> episode)
+{
+    episode->setSeason(QSharedPointer<Season>());
+    m_episodesByNumber.remove(episode->number());
+    m_episodes.unrelate(episode);
+}
+
+void Season::setEpisodes(const QList<QSharedPointer<Episode> > &episodes)
+{
+    m_episodesByNumber.clear();
+    m_episodes.clear();
+    m_episodes.relate(episodes);
 }
 
 QSet<QLocale::Language> Season::languages() const
 {
     QSet<QLocale::Language> result;
     result.insert(m_primaryLanguage);
-    foreach(Episode *episode, m_episodes) {
+    foreach(QSharedPointer<Episode> episode, episodes()) {
         foreach(QLocale::Language lang, episode->languages()) {
             result.insert(lang);
         }

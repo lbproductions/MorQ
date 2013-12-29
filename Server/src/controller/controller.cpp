@@ -21,60 +21,28 @@
 #include <QSqlError>
 #include <QNetworkAccessManager>
 
-DownloadsDAO *Controller::s_downloadsDao = nullptr;
-DownloadPackagesDAO *Controller::s_downloadPackagesDao = nullptr;
-SeriesDAO *Controller::s_seriesDao = nullptr;
-SeasonsDAO *Controller::s_seasonDao = nullptr;
-EpisodesDAO *Controller::s_episodesDao = nullptr;
-VideoDownloadLinksDAO *Controller::s_videoDownloadLinksDao = nullptr;
-
-
 bool Controller::initialize()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/Users/niclasraabe/Dropbox/Public/morq.db");
+    db.setDatabaseName("/Users/niklaswulf/test.db");
     if(!db.open()) {
         qCritical() << db.lastError();
         return false;
     }
-    QPersistence::registerSetType<int>();
+    Qp::setDatabase(db);
 
-    static QObject guard;
-
-    // Download
-    s_downloadsDao = new DownloadsDAO(new QPersistencePersistentDataAccessObject<Download>(), &guard);
-    QPersistence::registerDataAccessObject<Download>(s_downloadsDao);
-
-
-    // DownloadPackage
-    s_downloadPackagesDao = new DownloadPackagesDAO(new QPersistencePersistentDataAccessObject<DownloadPackage>(), &guard);
-    QPersistence::registerDataAccessObject<DownloadPackage>(s_downloadPackagesDao);
-
-
-    // Series
-    s_seriesDao = new SeriesDAO(&guard);
-    QPersistence::registerDataAccessObject<Series>(s_seriesDao);
-
-
-    // Season
-    s_seasonDao = new SeasonsDAO(new QPersistencePersistentDataAccessObject<Season>(), &guard);
-    QPersistence::registerDataAccessObject<Season>(s_seasonDao);
-
-
-    // Episode
-    s_episodesDao = new EpisodesDAO(new QPersistencePersistentDataAccessObject<Episode>(), &guard);
-    QPersistence::registerDataAccessObject<Episode>(s_episodesDao);
-
-
-    // VideoDownloadLink
-    s_videoDownloadLinksDao = new VideoDownloadLinksDAO(new QPersistencePersistentDataAccessObject<VideoDownloadLink>(), &guard);
-    QPersistence::registerDataAccessObject<VideoDownloadLink>(s_videoDownloadLinksDao);
-
+    Qp::registerSetType<int>();
+    Qp::registerClass<Download>();
+    Qp::registerClass<DownloadPackage>();
+    Qp::registerClass<Series>();
+    Qp::registerClass<Season>();
+    Qp::registerClass<Episode>();
+    Qp::registerClass<VideoDownloadLink>();
 
     // Adjust database
-    QPersistenceDatabaseSchema databaseSchema;
-    //databaseSchema.createCleanSchema();
-    //databaseSchema.adjustSchema();
+    QpDatabaseSchema databaseSchema;
+        databaseSchema.createCleanSchema();
+//    databaseSchema.adjustSchema();
 
 
     // Call these methods, to once initialize each controller
@@ -96,37 +64,6 @@ DownloadController *Controller::downloads()
 
     return controller;
 }
-
-DownloadsDAO *Controller::downloadsDao()
-{
-    return s_downloadsDao;
-}
-
-DownloadPackagesDAO *Controller::downloadPackagesDao()
-{
-    return s_downloadPackagesDao;
-}
-
-SeriesDAO *Controller::seriesDao()
-{
-    return s_seriesDao;
-}
-
-SeasonsDAO *Controller::seasonsDao()
-{
-    return s_seasonDao;
-}
-
-EpisodesDAO *Controller::episodesDao()
-{
-    return s_episodesDao;
-}
-
-VideoDownloadLinksDAO *Controller::videoDownloadLinksDao()
-{
-    return s_videoDownloadLinksDao;
-}
-
 PluginController *Controller::plugins()
 {
     static QObject GUARD;

@@ -13,27 +13,27 @@ InformationProviderPlugin::~InformationProviderPlugin()
 {
 }
 
-QList<Series *> InformationProviderPlugin::seriesSearchResults() const
+QList<QSharedPointer<Series> > InformationProviderPlugin::seriesSearchResults() const
 {
     return m_results;
 }
 
-void InformationProviderPlugin::addResult(Series *series)
+void InformationProviderPlugin::addResult(QSharedPointer<Series> series)
 {
     series->setParent(this);
     m_results.append(series);
 }
 
-void InformationProviderPlugin::addResults(const QList<Series *> &series)
+void InformationProviderPlugin::addResults(const QList<QSharedPointer<Series> > &series)
 {
-    foreach(Series *s, series) {
+    foreach(QSharedPointer<Series> s, series) {
         s->setParent(this);
     }
 
     m_results.append(series);
 }
 
-void InformationProviderPlugin::addNewEpisode(Episode *episode)
+void InformationProviderPlugin::addNewEpisode(QSharedPointer<Episode> episode)
 {
     m_newEpisodes.append(episode);
 }

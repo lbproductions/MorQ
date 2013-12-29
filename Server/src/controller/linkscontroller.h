@@ -14,16 +14,16 @@ class LinksController : public QObject
 public:
     explicit LinksController(QObject *parent = 0);
 
-    Download *createDownload(const QUrl &url);
-    DownloadPackage *createPackage(const QUrl &url);
+    QSharedPointer<Download> createDownload(const QUrl &url);
+    QSharedPointer<DownloadPackage> createPackage(const QUrl &url);
 
-    void downloadEpisode(Episode *episode);
+    void downloadEpisode(QSharedPointer<Episode> episode);
 
-    void downloadVideos(QList<VideoDownloadLink*> links);
+    void downloadVideos(QList<QSharedPointer<VideoDownloadLink> > links);
 
 private slots:
     void clipboardChanged();
-    void packageFinished(DownloadPackage *package);
+    void packageFinished(QSharedPointer<DownloadPackage> package);
 
 };
 

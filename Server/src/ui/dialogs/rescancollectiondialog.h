@@ -12,8 +12,6 @@ class RescanCollectionDialog;
 class Scraper;
 class Series;
 class InformationProviderPlugin;
-template<class T>
-class QPersistenceSimpleDataAccessObject;
 class SeriesListModel;
 class QItemSelection;
 class Episode;
@@ -56,17 +54,16 @@ private:
     Scraper *m_scraper;
     Ui::RescanCollectionDialog *ui;
 
-    Series *m_currentSeries;
-    QList<Series *> m_newSeries;
+    QSharedPointer<Series> m_currentSeries;
+    QList<QSharedPointer<Series> > m_newSeries;
     InformationProviderPlugin *m_provider;
-    QList<Series *> m_scrapedSeries;
+    QList<QSharedPointer<Series> > m_scrapedSeries;
 
-    QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
     SeriesListModel *m_seriesListModel;
     int m_totalNewSeries;
 
-    QList<Episode *> m_newEpisodes;
-    Episode *m_currentEpisode;
+    QList<QSharedPointer<Episode> > m_newEpisodes;
+    QSharedPointer<Episode> m_currentEpisode;
     int m_totalNewEpisodes;
     int m_currentScrapingEpisode;
 };

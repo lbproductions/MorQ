@@ -2,6 +2,7 @@
 #define SERIENJUNKIESPROVIDERPLUGIN_H
 
 #include "downloadproviderplugin.h"
+#include "model/series.h"
 
 class QSerienJunkiesReply;
 
@@ -12,10 +13,10 @@ public:
     SerienjunkiesProviderPlugin(QObject *parent = 0);
 
     void searchSeries(const QString &seriesName);
-    bool canHandleSeries(Series *series) const;
-    void findMissingEpisodes(Series *series) const;
+    bool canHandleSeries(QSharedPointer<Series> series) const;
+    void findMissingEpisodes(QSharedPointer<Series> series) const;
 
-    void searchAndSetDownloadsForSeries(Series* series);
+    void searchAndSetDownloadsForSeries(QSharedPointer<Series>  series);
 
 private slots:
     void onSeriesFound(QList<DownloadProviderPlugin::SeriesData> series);
@@ -29,14 +30,14 @@ class SerienjunkiesSearchHandler : public QObject
     Q_OBJECT
 public:
     SerienjunkiesSearchHandler(QObject *parent);
-    void findMissingEpisodes(Series *series);
+    void findMissingEpisodes(QSharedPointer<Series> series);
 
 private slots:
     void searchSeasonsFinished();
     void searchEpisodesFinished();
 
 private:
-    Series *m_series;
+    QSharedPointer<Series> m_series;
     int m_seasonsNotFinishedCount;
 };
 
