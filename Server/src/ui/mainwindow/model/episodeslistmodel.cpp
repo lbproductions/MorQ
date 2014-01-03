@@ -9,7 +9,10 @@ EpisodesListModel::EpisodesListModel(QObject *parent) :
 
 void EpisodesListModel::setSeason(QSharedPointer<Season> season)
 {
-    setObjects(season->episodes());
+    if(!season)
+        setObjects(QList<QSharedPointer<Episode> >());
+    else
+        setObjects(season->episodes());
 }
 
 int EpisodesListModel::columnCount(const QModelIndex &) const

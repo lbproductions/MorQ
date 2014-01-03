@@ -20,7 +20,7 @@ include($$QUUNRAR_PATH/QuunRar.pri)
 TARGET          = MorQServer
 VERSION         = 0.0.0
 TEMPLATE        = app
-QT              += sql widgets network xml
+QT              += sql widgets network xml concurrent
 CONFIG          += c++11
 QMAKE_CXXFLAGS  += $$QPERSISTENCE_COMMON_QMAKE_CXXFLAGS
 DEFINES         += "VERSION=\"$$VERSION\""
@@ -88,7 +88,6 @@ HEADERS += \
     model/series.h \
     ui/mainwindow/model/episodeslistmodel.h \
     ui/dialogs/choosedownloadlinksdialog.h \
-    plugins/informationProviders/informationproviderplugin.h \
     ui/mainwindow/noisygradientitemdelegate.h \
     ui/mainwindow/seasonslistitemdelegate.h \
     ui/mainwindow/episodeslistitemdelegate.h \
@@ -101,7 +100,12 @@ HEADERS += \
     plugins/renamer/renamerplugin.h \
     plugins/renamer/classicrenamerandmoverplugin.h \
     plugins/scraper/scraper.h \
-    plugins/scraper/newseriesscraper.h
+    plugins/scraper/newseriesscraper.h \
+    controller/episodedownloadcontroller.h \
+    controller/scrapercontroller.h \
+    misc/tools.h \
+    plugins/plugins.h \
+    plugins/informationProviders/informationprovider.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -134,7 +138,6 @@ SOURCES += main.cpp \
     model/season.cpp \
     ui/mainwindow/model/episodeslistmodel.cpp \
     ui/dialogs/choosedownloadlinksdialog.cpp \
-    plugins/informationProviders/informationproviderplugin.cpp \
     ui/mainwindow/noisygradientitemdelegate.cpp \
     ui/mainwindow/seasonslistitemdelegate.cpp \
     ui/mainwindow/episodeslistitemdelegate.cpp \
@@ -147,7 +150,12 @@ SOURCES += main.cpp \
     plugins/renamer/renamerplugin.cpp \
     plugins/renamer/classicrenamerandmoverplugin.cpp \
     plugins/scraper/scraper.cpp \
-    plugins/scraper/newseriesscraper.cpp
+    plugins/scraper/newseriesscraper.cpp \
+    controller/episodedownloadcontroller.cpp \
+    controller/scrapercontroller.cpp \
+    misc/tools.cpp \
+    plugins/plugins.cpp \
+    plugins/informationProviders/informationprovider.cpp
     #controller/filestorage.cpp
 
 FORMS += \

@@ -4,6 +4,7 @@
 #include "plugincontroller.h"
 #include "linkscontroller.h"
 #include "extractioncontroller.h"
+#include "plugins/plugins.h"
 
 #include "model/download.h"
 #include "model/downloadpackage.h"
@@ -50,6 +51,8 @@ bool Controller::initialize()
     links();
     downloads();
     extractor();
+
+    Plugins::init();
 
     return true;
 }

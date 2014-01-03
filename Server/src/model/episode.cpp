@@ -43,8 +43,6 @@ int Episode::seasonNumber() const
 
 void Episode::setSeasonNumber(int number)
 {
-    Q_ASSERT_X(!season(), Q_FUNC_INFO, "You may not set the episode's season number, once it has a season");
-
     m_seasonNumber = number;
 }
 
@@ -73,6 +71,7 @@ void Episode::setSeason(QSharedPointer<Season> season)
 
 QList<QSharedPointer<VideoDownloadLink> > Episode::downloadLinks() const
 {
+    return QList<QSharedPointer<VideoDownloadLink> >();
     return m_downloadLinks.resolveList();
 }
 

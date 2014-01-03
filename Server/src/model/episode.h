@@ -19,7 +19,7 @@ class Episode : public QObject
     Q_PROPERTY(QString videoFile READ videoFile WRITE setVideoFile)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
-    Q_PROPERTY(QList<QSharedPointer<VideoDownloadLink> > downloadLinks READ downloadLinks WRITE setDownloadLinks)
+//    Q_PROPERTY(QList<QSharedPointer<VideoDownloadLink> > downloadLinks READ downloadLinks WRITE setDownloadLinks)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
 

@@ -15,7 +15,10 @@ int SeasonsListModel::columnCount(const QModelIndex &) const
 
 void SeasonsListModel::setSeries(QSharedPointer<Series> series)
 {
-    setObjects(series->seasons());
+    if(!series)
+        setObjects(QList<QSharedPointer<Season> >());
+    else
+        setObjects(series->seasons());
 }
 
 

@@ -180,7 +180,6 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
     if(!season) {
         season = Qp::create<Season>();
         season->setNumber(result.seasonNumber);
-        season->setPrimaryLanguage(result.language);
         series->addSeason(season);
         Qp::update(season);
         m_newSeasons.append(season);

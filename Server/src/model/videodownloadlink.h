@@ -18,7 +18,7 @@ class VideoDownloadLink : public QObject
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QString formatDescription READ formatDescription WRITE setFormatDescription)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
-    Q_PROPERTY(QSharedPointer<Episode>  episode READ episode WRITE setEpisode)
+//    Q_PROPERTY(QSharedPointer<Episode>  episode READ episode WRITE setEpisode)
     Q_PROPERTY(QString extractFolder READ extractFolder WRITE setExtractFolder)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episode",

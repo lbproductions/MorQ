@@ -1,6 +1,7 @@
 #include "series.h"
 
 #include "season.h"
+#include "preferences.h"
 
 #include <QDebug>
 #include <QPixmapCache>
@@ -17,11 +18,11 @@ QSharedPointer<Series> Series::forTitle(const QString &title)
 
 Series::Series(QObject *parent) :
     QObject(parent),
-    m_primaryLanguage(QLocale::AnyLanguage),
     m_tvdbId(-1),
     m_seasons("seasons", this),
     m_checkState(Qt::Unchecked)
 {
+    m_languages.append(Qp::castList<int>(Preferences::languages()));
 }
 
 Series::~Series()
@@ -148,47 +149,20 @@ void Series::setPosterUrls(const QStringList &urls)
     m_posterUrls = urls;
 }
 
-QList<QSharedPointer<Season> > Series::seasons(QLocale::Language language) const
+QList<QSharedPointer<Season> > Series::seasons() const
 {
-    if(language == QLocale::AnyLanguage)
-        return m_seasons.resolveList();
-
-    QList<QSharedPointer<Season> > result;
-    foreach(QSharedPointer<Season> season, seasons()) {
-        if(season->primaryLanguage() == language) {
-            result.append(season);
-        }
-    }
-    return result;
+    return m_seasons.resolveList();
 }
 
-QSharedPointer<Season> Series::season(int number, QLocale::Language language) const
+QSharedPointer<Season> Series::season(int number) const
 {
-    QList<QSharedPointer<Season> > seasons = seasonsByNumber().values(number);
-
-    if(seasons.isEmpty())
-        return QSharedPointer<Season>();
-
-    QLocale::Language lang = language;
-    if(lang == QLocale::AnyLanguage)
-        lang = m_primaryLanguage;
-
-    foreach(QSharedPointer<Season> season, seasons) {
-        if(season->primaryLanguage() == lang) {
-            return season;
-        }
-    }
-
-    if(lang == QLocale::AnyLanguage)
-        return seasons.first();
-
-    return QSharedPointer<Season>();
+    return seasonsByNumber().value(number);
 }
 
 void Series::removeSeason(QSharedPointer<Season> season)
 {
     season->setSeries(QSharedPointer<Series>());
-    m_seasonsByNumber.remove(season->number(), season);
+    m_seasonsByNumber.remove(season->number());
     m_seasons.unrelate(season);
 }
 
@@ -208,26 +182,15 @@ QList<QSharedPointer<Episode> > Series::episodes() const
     return result;
 }
 
-QLocale::Language Series::primaryLanguage() const
+QList<QLocale::Language> Series::languages() const
 {
-    return m_primaryLanguage;
-}
+    QList<QLocale::Language> result;
+    result.append(Qp::castList<QLocale::Language>(m_languages));
 
-void Series::setPrimaryLanguage(QLocale::Language language)
-{
-    m_primaryLanguage = language;
-}
-
-QSet<QLocale::Language> Series::languages() const
-{
-    QSet<QLocale::Language> result;
-    result.insert(m_primaryLanguage);
-    foreach(int lang, m_additionalLanguages) {
-        result.insert(static_cast<QLocale::Language>(lang));
-    }
     foreach(QSharedPointer<Season> season, seasons()) {
         foreach(QLocale::Language lang, season->languages()) {
-            result.insert(lang);
+            if(!result.contains(lang))
+                result.append(lang);
         }
     }
 
@@ -236,12 +199,15 @@ QSet<QLocale::Language> Series::languages() const
 
 void Series::addLanguage(QLocale::Language language)
 {
-    m_additionalLanguages.insert(language);
+    if(!m_languages.contains(language))
+        m_languages.append(static_cast<int>(language));
 }
 
-QPixmap Series::primaryLanguageFlag() const
+void Series::addLanguages(QList<QLocale::Language> languages)
 {
-    return Series::languageFlag(m_primaryLanguage);
+    foreach(auto l, languages) {
+        addLanguage(l);
+    }
 }
 
 QPixmap Series::languageFlag(QLocale::Language language)
@@ -264,7 +230,7 @@ QPixmap Series::languageFlag(QLocale::Language language)
 QString Series::tvdbLanguage(QLocale::Language language)
 {
     if(language == QLocale::AnyLanguage)
-        return "en";
+        return "?";
 
     QString lang = QLocale(language).name();
     return lang.left(lang.lastIndexOf('_'));
@@ -277,17 +243,17 @@ void Series::setSeasons(const QList<QSharedPointer<Season> > &seasons)
     m_seasons.relate(seasons);
 }
 
-void Series::setAdditionalLanguages(const QSet<int> &languages)
+void Series::_setLanguages(const QList<int> &languages)
 {
-    m_additionalLanguages = languages;
+    m_languages = languages;
 }
 
-QSet<int> Series::additionalLanguages() const
+QList<int> Series::_languages() const
 {
-    return m_additionalLanguages;
+    return m_languages;
 }
 
-QMultiMap<int, QSharedPointer<Season> > Series::seasonsByNumber() const
+QMap<int, QSharedPointer<Season> > Series::seasonsByNumber() const
 {
     if(m_seasonsByNumber.isEmpty()) {
         foreach(QSharedPointer<Season> season, seasons()) {

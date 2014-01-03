@@ -42,7 +42,7 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
     case SeasonCountRole:
         return series->seasons().size();
     case Qt::DecorationRole:
-        return series->primaryLanguageFlag();
+        return Series::languageFlag(series->languages().first());
     case RawDataRole:
         return QVariant::fromValue<QSharedPointer<Series> >(series);
     }

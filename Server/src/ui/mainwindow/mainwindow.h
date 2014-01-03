@@ -51,7 +51,6 @@ private slots:
 
     void on_actionRescan_collection_triggered();
 
-    void on_actionSearchDownloadLinks_triggered();
 
 private:
     static MainWindow *s_instance;

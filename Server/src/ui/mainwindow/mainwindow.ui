@@ -155,6 +155,9 @@ border-bottom: 1px solid rgb(77,77,77);
             <property name="text">
              <string>TV Shows</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -276,6 +279,9 @@ background-color: #fff;
                <number>1</number>
               </property>
               <widget class="QTreeView" name="treeViewSeries">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -293,6 +299,9 @@ background-color: #fff;
                </property>
               </widget>
               <widget class="QTreeView" name="treeViewSeasons">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -310,6 +319,9 @@ background-color: #fff;
                </property>
               </widget>
               <widget class="QTreeView" name="treeViewEpisodes">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -397,7 +409,7 @@ background-color: #fff;
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Downloads</string>
@@ -460,6 +472,9 @@ background-color: #fff;
   </action>
   <action name="actionTV_Shows">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">

@@ -9,7 +9,6 @@
 #include "model/serieslistmodel.h"
 #include "model/seasonslistmodel.h"
 #include "model/episodeslistmodel.h"
-
 #include "ui/dialogs/newserieswizard.h"
 #include "ui/dialogs/choosedownloadlinksdialog.h"
 #include "ui/dialogs/rescancollectiondialog.h"
@@ -18,6 +17,7 @@
 #include "controller/downloadcontroller.h"
 #include "controller/extractioncontroller.h"
 #include "controller/plugincontroller.h"
+#include "controller/scrapercontroller.h"
 #include "plugins/downloadProviders/downloadproviderplugin.h"
 #include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
 
@@ -78,25 +78,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeries->setModel(m_seriesModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
-
-    ui->treeViewSeries->setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction* action = new QAction(tr("Search for download links"), this);
-    ui->treeViewSeries->addAction(action);
-    connect(action, SIGNAL(triggered()), this, SLOT(on_actionSearchDownloadLinks_triggered()));
+    ui->treeViewSeries->addAction(ui->actionAddDownload);
 
     m_seasonsModel = new SeasonsListModel(this);
+    m_seasonsModel->setSeries(QSharedPointer<Series>()); // calling this disables updates from the global signals
     ui->treeViewSeasons->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeasons->setModel(m_seasonsModel);
     ui->treeViewSeasons->setItemDelegate(new SeasonsListItemDelegate(ui->treeViewSeasons, this));
+    ui->treeViewSeasons->addAction(ui->actionAddDownload);
 
     m_episodesModel = new EpisodesListModel(this);
+    m_episodesModel->setSeason(QSharedPointer<Season>()); // calling this disables updates from the global signals
     ui->treeViewEpisodes->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewEpisodes->setModel(m_episodesModel);
     ui->treeViewEpisodes->setItemDelegate(new EpisodesListItemDelegate(ui->treeViewEpisodes, this));
+    ui->treeViewEpisodes->addAction(ui->actionAddDownload);
 
     connect(ui->treeViewSeries->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::showSeasonsForSelectedSeries);
-
     connect(ui->treeViewSeasons->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::showEpisodesForSelectedSeason);
 
@@ -114,7 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreGeometry(settings.value(WINDOWGEOMETRY, "").toByteArray());
     restoreState(settings.value(WINDOWSTATE, "").toByteArray());
     ui->treeViewDownloads->header()->restoreState(settings.value(DOWNLOADSHEADERSTATE, "").toByteArray());
-//    ui->splitter_2->restoreState(settings.value(SERIESPAGESPLITTERSTATE, "").toByteArray());
+    //    ui->splitter_2->restoreState(settings.value(SERIESPAGESPLITTERSTATE, "").toByteArray());
 
     connect(Controller::downloads(), &DownloadController::statusChanged,
             this, &MainWindow::enableActionsAccordingToDownloadStatus);
@@ -204,11 +203,11 @@ void MainWindow::enableActionsAccordingToDownloadStatus()
 void MainWindow::on_actionDeleteDownload_triggered()
 {
     // TODO: confirmation
-//    QMessageBox confirmDialog(this);
-//    confirmDialog.setText(tr("Do you really want to remove the selected downloads?"));
-//    confirmDialog.setWindowTitle(tr("Confirm remove"));
-//    confirmDialog.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-//    confirmDialog.setDefaultButton(QMessageBox::Yes);
+    //    QMessageBox confirmDialog(this);
+    //    confirmDialog.setText(tr("Do you really want to remove the selected downloads?"));
+    //    confirmDialog.setWindowTitle(tr("Confirm remove"));
+    //    confirmDialog.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    //    confirmDialog.setDefaultButton(QMessageBox::Yes);
 
 
     QModelIndexList list = ui->treeViewDownloads->selectionModel()->selectedRows();
@@ -225,18 +224,18 @@ void MainWindow::on_actionDeleteDownload_triggered()
         }
     }
 
-//    QString informativeText(tr("Packages:\n"));
-//    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
-//        informativeText += package->name() + "\n";
-//    }
-//    informativeText += tr("Downloads:\n");
-//    foreach(QSharedPointer<Download> dl, selectedDownloads) {
-//        informativeText += dl->fileName() + "\n";
-//    }
-//    confirmDialog.setInformativeText(informativeText);
-//    int result = confirmDialog.exec();
-//    if(result != QMessageBox::Yes)
-//        return;
+    //    QString informativeText(tr("Packages:\n"));
+    //    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
+    //        informativeText += package->name() + "\n";
+    //    }
+    //    informativeText += tr("Downloads:\n");
+    //    foreach(QSharedPointer<Download> dl, selectedDownloads) {
+    //        informativeText += dl->fileName() + "\n";
+    //    }
+    //    confirmDialog.setInformativeText(informativeText);
+    //    int result = confirmDialog.exec();
+    //    if(result != QMessageBox::Yes)
+    //        return;
 
     foreach(QSharedPointer<Download> dl, selectedDownloads) {
         if(dl)
@@ -314,9 +313,9 @@ void MainWindow::on_actionAdd_show_triggered()
     NewSeriesWizard wizard(this);
     wizard.exec();
 
-    RescanCollectionDialog dialog(new NewSeriesScraper(wizard.seriesTitle(),this), this);
-    dialog.scan();
-    dialog.exec();
+    //    RescanCollectionDialog dialog(new NewSeriesScraper(wizard.seriesTitle(),this), this);
+    //    dialog.scan();
+    //    dialog.exec();
 }
 
 void MainWindow::showSeasonsForSelectedSeries()
@@ -332,6 +331,8 @@ void MainWindow::showSeasonsForSelectedSeries()
     }
 
     m_seasonsModel->setSeries(series);
+    ui->treeViewSeasons->selectionModel()->select(m_seasonsModel->index(0),
+                                                  QItemSelectionModel::Select);
 }
 
 void MainWindow::showEpisodesForSelectedSeason()
@@ -339,14 +340,11 @@ void MainWindow::showEpisodesForSelectedSeason()
     QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
 
     if(list.isEmpty()) {
+        m_episodesModel->setSeason(QSharedPointer<Season>());
         return;
     }
 
     QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
-    if(!season) {
-        return;
-    }
-
     m_episodesModel->setSeason(season);
 }
 
@@ -441,18 +439,13 @@ void MainWindow::on_actionAddDownload_triggered()
 
 void MainWindow::on_actionRescan_collection_triggered()
 {
-    RescanCollectionDialog dialog(new FileScraper(this), this);
-    dialog.scan();
-    dialog.exec();
-}
+    ScraperController *scraperController = new ScraperController(this);
+    scraperController->scanSeriesLocationsForNewSeries();
 
-void MainWindow::on_actionSearchDownloadLinks_triggered()
-{
-    QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
-    if(list.isEmpty())
-        return;
+    connect(scraperController, &ScraperController::foundNewSeries,
+            scraperController, &ScraperController::scrapeMissingTvdbInformation);
 
-    QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
-    SerienjunkiesProviderPlugin* plugin = static_cast<SerienjunkiesProviderPlugin*>(Controller::plugins()->downloadProviderPluginByName("serienjunkies.org"));
-    plugin->searchAndSetDownloadsForSeries(series);
+    //    RescanCollectionDialog dialog(new FileScraper(this), this);
+    //    dialog.scan();
+    //    dialog.exec();
 }

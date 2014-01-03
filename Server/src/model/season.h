@@ -20,7 +20,6 @@ class Season : public QObject
     Q_PROPERTY(QString serienJunkiesTitle READ serienJunkiesTitle WRITE setSerienJunkiesTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
     Q_PROPERTY(QSharedPointer<Series>  series READ series WRITE setSeries)
-    Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QList<QSharedPointer<Episode> > episodes READ episodes WRITE setEpisodes)
     Q_PROPERTY(QStringList folders READ folders WRITE setFolders)
 
@@ -47,11 +46,6 @@ public:
     QUrl serienJunkiesUrl() const;
     void setSerienJunkiesUrl(const QUrl &serienJunkiesUrl);
 
-    QLocale::Language primaryLanguage() const;
-    void setPrimaryLanguage(QLocale::Language language);
-
-    QPixmap primaryLanguageFlag() const;
-
     QSet<QLocale::Language> languages() const;
 
     QSharedPointer<Series> series() const;
@@ -60,8 +54,6 @@ public:
     QSharedPointer<Episode> episode(int number) const;
     void addEpisode(QSharedPointer<Episode> episode);
     void removeEpisode(QSharedPointer<Episode> episode);
-
-    QString tvdbLanguage() const;
 
     QStringList folders() const;
     void setFolders(const QStringList &folders);
@@ -79,7 +71,6 @@ private:
     QpWeakRelation<Series> m_series;
     QpStrongRelation<Episode> m_episodes;
     mutable QMap<int, QSharedPointer<Episode> > m_episodesByNumber;
-    QLocale::Language m_primaryLanguage;
     QStringList m_folders;
 };
 
