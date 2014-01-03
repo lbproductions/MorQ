@@ -10,7 +10,7 @@
 #include <model/episode.h>
 #include <model/season.h>
 #include <model/downloadpackage.h>
-#include <model/videodownloadlink.h>
+#include <model/onlineresource.h>
 #include <model/download.h>
 
 #include "preferences.h"
@@ -100,13 +100,13 @@ void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(QSharedPoint
         // TODO: Choose correct file if there are more than one video-file e.g. sampler
     }
     qDebug() << videoFiles;
-    QSharedPointer<Episode>  episode = package->videoDownloadLinks().first()->episode();
+//    QSharedPointer<Episode>  episode = package->videoDownloadLinks().first()->episode();
 
-    episode->setVideoFile(videoFiles.first());
+//    episode->setVideoFile(videoFiles.first());
 
-    renameEpisodes(QList<QSharedPointer<Episode> >() << episode);
+//    renameEpisodes(QList<QSharedPointer<Episode> >() << episode);
 
-    removeDir(package->extractFolder() + "/" + extractSubFolder);
+//    removeDir(package->extractFolder() + "/" + extractSubFolder);
 }
 
 QString ClassicRenamerAndMoverPlugin::numberToString(int number)

@@ -5,8 +5,8 @@
 #include "plugins/hoster/premiumizemeplugin.h"
 #include "plugins/decrypter/decrypterplugin.h"
 #include "plugins/decrypter/serienjunkiesdecrypterplugin.h"
-#include "plugins/downloadProviders/downloadproviderplugin.h"
-#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
+#include "plugins/downloadProviders/downloadprovider.h"
+#include "plugins/downloadProviders/serienjunkiesprovider.h"
 #include "plugins/renamer/renamerplugin.h"
 #include "plugins/renamer/classicrenamerandmoverplugin.h"
 
@@ -16,7 +16,6 @@ PluginController::PluginController(QObject *parent) :
 {
     createHosterPlugins();
     createDecrypterPlugins();
-    createDownloadProviderPlugins();
     createRenamerPlugins();
 }
 
@@ -30,25 +29,9 @@ QList<DecrypterPlugin *> PluginController::decrypterPlugins() const
     return m_decrypterPlugins;
 }
 
-QList<DownloadProviderPlugin *> PluginController::downloadProviderPlugins() const
-{
-    return m_downloadProviderPlugins;
-}
-
 QList<RenamerPlugin *> PluginController::renamerPlugins() const
 {
     return m_renamerPlugins;
-}
-
-DownloadProviderPlugin *PluginController::downloadProviderPluginByName(QString name) const
-{
-    foreach(DownloadProviderPlugin* plugin, m_downloadProviderPlugins) {
-        if(plugin->name() == name) {
-            return plugin;
-        }
-    }
-
-    return nullptr;
 }
 
 void PluginController::registerHoster(HosterPlugin *hoster)
@@ -61,10 +44,6 @@ void PluginController::registerDecrypter(DecrypterPlugin *decrypter)
     m_decrypterPlugins.append(decrypter);
 }
 
-void PluginController::registerDownloadProvider(DownloadProviderPlugin *provider)
-{
-    m_downloadProviderPlugins.append(provider);
-}
 
 void PluginController::registerRenamerPlugin(RenamerPlugin *renamer)
 {
@@ -86,12 +65,6 @@ void PluginController::createDecrypterPlugins()
 {
     SerienJunkiesDecrypterPlugin *plugin = new SerienJunkiesDecrypterPlugin(this);
     registerDecrypter(plugin);
-}
-
-void PluginController::createDownloadProviderPlugins()
-{
-    DownloadProviderPlugin *provider = new SerienjunkiesProviderPlugin(this);
-    registerDownloadProvider(provider);
 }
 
 void PluginController::createRenamerPlugins()

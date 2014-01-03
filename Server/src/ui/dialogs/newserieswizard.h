@@ -1,52 +1,52 @@
-#ifndef NEWSERIESWIZARD_H
-#define NEWSERIESWIZARD_H
+//#ifndef NEWSERIESWIZARD_H
+//#define NEWSERIESWIZARD_H
 
-#include <QWizard>
+//#include <QWizard>
 
-#include <QTimer>
+//#include <QTimer>
 
-#include "plugins/downloadProviders/downloadproviderplugin.h"
+//#include "plugins/downloadProviders/downloadprovider.h"
 
-namespace Ui {
-class NewSeriesWizard;
-}
+//namespace Ui {
+//class NewSeriesWizard;
+//}
 
-class QCompleter;
-class DownloadProviderPlugin;
+//class QCompleter;
+//class DownloadProvider;
 
-class NewSeriesWizard : public QWizard
-{
-    Q_OBJECT
+//class NewSeriesWizard : public QWizard
+//{
+//    Q_OBJECT
     
-public:
-    explicit NewSeriesWizard(QWidget *parent = 0);
-    ~NewSeriesWizard();
+//public:
+//    explicit NewSeriesWizard(QWidget *parent = 0);
+//    ~NewSeriesWizard();
 
-    QString seriesTitle();
+//    QString seriesTitle();
 
-private slots:
-    void on_comboBoxProvider_currentIndexChanged(int index);
+//private slots:
+//    void on_comboBoxProvider_currentIndexChanged(int index);
 
-    void on_lineEditName_textEdited(const QString &text);
+//    void on_lineEditName_textEdited(const QString &text);
 
-    void complete(QList<DownloadProviderPlugin::SeriesData> series);
-    void timeout();
+//    void complete(QList<DownloadProvider::SeriesData> series);
+//    void timeout();
 
-    void finish();
+//    void finish();
 
-    void on_comboBoxLocation_currentIndexChanged(const QString &arg1);
+//    void on_comboBoxLocation_currentIndexChanged(const QString &arg1);
 
-private:
-    Ui::NewSeriesWizard *ui;
+//private:
+//    Ui::NewSeriesWizard *ui;
 
-    DownloadProviderPlugin *m_currentDownloadProvider;
-    DownloadProviderPlugin::SeriesData m_currentSeries;
-    QCompleter *m_completer;
-    int m_currentSearchId;
-    QList<DownloadProviderPlugin::SeriesData> m_mostRecentResults;
-    QTimer m_timer;
+//    DownloadProvider *m_currentDownloadProvider;
+//    DownloadProvider::SeriesData m_currentSeries;
+//    QCompleter *m_completer;
+//    int m_currentSearchId;
+//    QList<DownloadProvider::SeriesData> m_mostRecentResults;
+//    QTimer m_timer;
 
-    void setSeries(DownloadProviderPlugin::SeriesData series);
-};
+//    void setSeries(DownloadProvider::SeriesData series);
+//};
 
-#endif // NEWSERIESWIZARD_H
+//#endif // NEWSERIESWIZARD_H

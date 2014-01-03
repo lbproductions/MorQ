@@ -1,11 +1,12 @@
 #include "episodeslistitemdelegate.h"
 
 #include "model/episodeslistmodel.h"
+#include "model/onlineresource.h"
 
 #include <QPainter>
 
 static const QPoint TITLE_OFFSET(8,8);
-static const int HEIGHT = 128;
+static const int HEIGHT = 64;
 
 EpisodesListItemDelegate::EpisodesListItemDelegate(QAbstractItemView *view, QObject *parent) :
     NoisyGradientItemDelegate(view, parent)
@@ -29,16 +30,19 @@ void EpisodesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 
     NoisyGradientItemDelegate::paint(painter, option, index);
 
+    QSharedPointer<Episode> episode = index.data(EpisodesListModel::RawDataRole).value<QSharedPointer<Episode> >();
+
     drawTitleText(painter, option,
                   index.data().toString(),
                   TITLE_OFFSET);
 
-    drawText(painter, option,
-             tr("%1")
-             .arg(index.data(EpisodesListModel::TitleRole).toString()),
-             QPoint(12,32),
-             Qt::TextWordWrap
-             );
+    if(!episode->downloadLinks().isEmpty()) {
+        drawText(painter, option,
+                 tr("Download available"),
+                 QPoint(12,32),
+                 Qt::TextWordWrap
+                 );
+    }
 
     COLOR_TITLE_NORMAL = original;
     COLOR_TITLE_NORMAL_SHADOW = originalShadow;

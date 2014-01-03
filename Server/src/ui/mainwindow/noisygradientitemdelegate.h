@@ -19,6 +19,7 @@ public:
     static const QColor COLOR_TEXT_SELECTED;
     static const bool TITLE_BOLD;
     static const int TEXT_FOOT_DISTANCE;
+    static const int TEXT_RIGHT_DISTANCE;
 
     // Background
     static const QColor COLOR_LINE_TOP1_NORMAL;

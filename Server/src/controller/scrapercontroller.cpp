@@ -2,7 +2,7 @@
 
 #include "plugins/scraper/filescraper.h"
 #include "plugins/informationProviders/thetvdbinformationprovider.h"
-#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
+#include "plugins/downloadProviders/serienjunkiesprovider.h"
 #include "preferences.h"
 #include "misc/tools.h"
 #include "model/episode.h"
@@ -12,7 +12,7 @@ ScraperController::ScraperController(QObject *parent) :
 {
 }
 
-void ScraperController::scanSeriesLocationsForNewSeries()
+void ScraperController::scrapeLocal()
 {
     Qp::startBulkDatabaseQueries();
     FileScraper *scraper = new FileScraper(this);
@@ -24,11 +24,11 @@ void ScraperController::scanSeriesLocationsForNewSeries()
 void ScraperController::onFileScraperFinish()
 {
     FileScraper *scraper = static_cast<FileScraper *>(sender());
+    scraper->deleteLater();
 
     Qp::commitBulkDatabaseQueries();
 
-    if(!scraper->newSeries().isEmpty())
-        emit foundNewSeries();
+    emit finishedLocalScrape();
 }
 
 
@@ -36,25 +36,30 @@ void ScraperController::scrapeMissingTvdbInformation()
 {
     QList<QSharedPointer<Series> > series = Qp::readAll<Series>();
 
+    InformationProvider *informationProvider = Plugins::informationProvider(TheTvdbInformationProvider::Name);
+
+    connect(informationProvider, &InformationProvider::finishedAllTasks,
+            this, &ScraperController::finishedTvdbScrape);
+
     foreach(QSharedPointer<Series> s , series) {
         if(s->tvdbId() < 0) {
-            InformationProvider *informationProvider = Plugins::informationProvider(TheTvdbInformationProvider::Name);
-
-
             InformationProviderTask *task = informationProvider->searchSeries(s->title(), s);
 
             connect(task, &InformationProviderTask::finished,
                     this, &ScraperController::interpretTvdbSearchResults);
+            connect(task, &DownloadProviderTask::error,
+                    task, &QObject::deleteLater); // TODO: handle InformationTask::error
         }
     }
 }
 
 void ScraperController::interpretTvdbSearchResults()
 {
-    InformationProviderTask *task = static_cast<InformationProviderTask *>(sender());
+    QScopedPointer<InformationProviderTask, QScopedPointerObjectDeleteLater<InformationProviderTask> >
+            task(static_cast<InformationProviderTask *>(sender()));
 
     QSharedPointer<Series> s = task->series();
-    QSharedPointer<Series> result = findCorrectResult(s, task->resultSeries());
+    QSharedPointer<Series> result = inferBestMatchingSeries(s, task->resultSeries());
 
     if(result) {
         task->provider()->saveSeriesResult(result, s);
@@ -64,9 +69,10 @@ void ScraperController::interpretTvdbSearchResults()
         }
 
         InformationProviderTask *nextTask = task->provider()->scrapeSeries(s);
-
         connect(nextTask, &InformationProviderTask::finished,
                 nextTask, &QObject::deleteLater);
+        connect(nextTask, &DownloadProviderTask::error,
+                nextTask, &QObject::deleteLater); // TODO: handle InformationTask::error
     }
     else {
         // TODO: Allow manual searching or setting of tvdbids
@@ -75,12 +81,10 @@ void ScraperController::interpretTvdbSearchResults()
             Qp::remove(r);
         }
     }
-
-    task->deleteLater();
 }
 
-QSharedPointer<Series> ScraperController::findCorrectResult(QSharedPointer<Series> series,
-                                                            QList<QSharedPointer<Series> > results)
+QSharedPointer<Series> ScraperController::inferBestMatchingSeries(QSharedPointer<Series> series,
+                                                          QList<QSharedPointer<Series> > results)
 {
     QList<QSharedPointer<Series> > bestResults;
     int bestDistance = std::numeric_limits<int>::max();
@@ -109,12 +113,12 @@ QSharedPointer<Series> ScraperController::findCorrectResult(QSharedPointer<Serie
     if(bestResults.isEmpty())
         return QSharedPointer<Series>();
 
-    // TODO: Allow manual searching or setting of tvdbids
     if(bestResults.size() > 1)
         qDebug() << "Ambiguous TVDB entries: " << bestResults;
 
     if(bestDistance > 0) {
-
+        qDebug() << "No matching TVDB entry: " << series->title();
+        return QSharedPointer<Series>();
     }
 
     return bestResults.first();
@@ -122,23 +126,20 @@ QSharedPointer<Series> ScraperController::findCorrectResult(QSharedPointer<Serie
 
 void ScraperController::scrapeSerienjunkiesUrls()
 {
+    DownloadProvider *downloadProvider = Plugins::downloadProvider(SerienjunkiesProvider::Name);
 
-    QList<QSharedPointer<Series> > series = Qp::readAll<Series>();
+    foreach(QSharedPointer<Episode> e, Qp::readAll<Episode>()) {
+        if(!e->videoFile().isEmpty())
+            continue;
 
-    foreach(QSharedPointer<Series> s , series) {
-        if(!s->serienJunkiesUrl().isValid()) {
-            SerienjunkiesProviderPlugin *provider = new SerienjunkiesProviderPlugin(this);
+        if(!e->downloadLinks().isEmpty())
+            continue;
 
-            connect(provider, &SerienjunkiesProviderPlugin::foundSeries,
-                    this, &ScraperController::interpretSerienjunkiesSearchResults);
+        DownloadProviderTask *task = downloadProvider->findDownloadLinks(e);
 
-            provider->searchSeries(s->title());
-        }
+        connect(task, &DownloadProviderTask::finished,
+                task, &QObject::deleteLater);
+        connect(task, &DownloadProviderTask::error,
+                task, &QObject::deleteLater);
     }
-}
-
-
-void ScraperController::interpretSerienjunkiesSearchResults(QList<DownloadProviderPlugin::SeriesData> series)
-{
-
 }

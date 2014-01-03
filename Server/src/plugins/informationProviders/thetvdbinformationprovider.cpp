@@ -77,7 +77,7 @@ TheTvdbInformationProvider::TheTvdbInformationProvider(QObject *parent) :
 InformationProviderTask *TheTvdbInformationProvider::searchSeries(const QString &title, QSharedPointer<Series> series)
 {
     TheTvdbInformationProviderTask *task = new TheTvdbInformationProviderTask(this);
-    task->setSeries(series);
+    task->setSeries(series); // have to set this from here, because we only pass the title into searchSeries()
     task->searchSeries(title);
     return task;
 }
@@ -85,7 +85,6 @@ InformationProviderTask *TheTvdbInformationProvider::searchSeries(const QString 
 InformationProviderTask *TheTvdbInformationProvider::scrapeSeries(QSharedPointer<Series> series)
 {
     TheTvdbInformationProviderTask *task = new TheTvdbInformationProviderTask(this);
-    task->setSeries(series);
     task->scrapeSeries(series);
     return task;
 }
@@ -153,19 +152,17 @@ void TheTvdbInformationProviderTask::searchSeries(const QString &title)
         connect(reply, &QNetworkReply::finished,
                 this, &TheTvdbInformationProviderTask::parseSearchSeriesReply);
 
-        connect(reply, ERRORSIGNAL, [=]{
-            this->setErrorMessage(reply->errorString());
-            reply->deleteLater();
-            decreaseActiveRequestCountAndMaybeEmitFinished();
-        });
+        connect(reply, ERRORSIGNAL,
+                this, &TheTvdbInformationProviderTask::handleNetworkError);
     }
 }
 
 void TheTvdbInformationProviderTask::parseSearchSeriesReply()
 {
-    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+    QScopedPointer<QNetworkReply, QScopedPointerObjectDeleteLater<QNetworkReply> >
+            reply(static_cast<QNetworkReply *>(sender()));
 
-    QXmlStreamReader xml(reply);
+    QXmlStreamReader xml(reply.data());
 
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
@@ -188,12 +185,12 @@ void TheTvdbInformationProviderTask::parseSearchSeriesReply()
         }
     }
 
-    reply->deleteLater();
     decreaseActiveRequestCountAndMaybeEmitFinished();
 }
 
 void TheTvdbInformationProviderTask::scrapeSeries(QSharedPointer<Series> series)
 {
+    setSeries(series);
     foreach(QLocale::Language language, series->languages()) {
         ++m_activeRequestsCount;
 
@@ -209,27 +206,24 @@ void TheTvdbInformationProviderTask::scrapeSeries(QSharedPointer<Series> series)
         connect(reply, &QNetworkReply::finished,
                 this, &TheTvdbInformationProviderTask::parseScrapeSeriesReply);
 
-        connect(reply, ERRORSIGNAL, [=]{
-            this->setErrorMessage(reply->errorString());
-            reply->deleteLater();
-            decreaseActiveRequestCountAndMaybeEmitFinished();
-        });
+        connect(reply, ERRORSIGNAL,
+                this, &TheTvdbInformationProviderTask::handleNetworkError);
     }
 }
 
 void TheTvdbInformationProviderTask::parseScrapeSeriesReply()
 {
-    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+    QScopedPointer<QNetworkReply, QScopedPointerObjectDeleteLater<QNetworkReply> >
+            reply(static_cast<QNetworkReply *>(sender()));
     QSharedPointer<Series> series = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_SERIES).value<QSharedPointer<Series> >();
     QLocale::Language language = static_cast<QLocale::Language>(reply->property(QNETWORKREPLY_DYNAMICPROPERTY_LANGUAGE).toInt());
 
     if(!series) {
-        reply->deleteLater();
         decreaseActiveRequestCountAndMaybeEmitFinished();
         return;
     }
 
-    QXmlStreamReader xml(reply);
+    QXmlStreamReader xml(reply.data());
 
     Qp::startBulkDatabaseQueries();
     while(!xml.atEnd()) {
@@ -277,7 +271,14 @@ void TheTvdbInformationProviderTask::parseScrapeSeriesReply()
     }
 
     Qp::commitBulkDatabaseQueries();
-    reply->deleteLater();
+    decreaseActiveRequestCountAndMaybeEmitFinished();
+}
+
+void TheTvdbInformationProviderTask::handleNetworkError()
+{
+    QScopedPointer<QNetworkReply, QScopedPointerObjectDeleteLater<QNetworkReply> >
+            reply(static_cast<QNetworkReply *>(sender()));
+    setErrorMessage(reply->errorString());
     decreaseActiveRequestCountAndMaybeEmitFinished();
 }
 
@@ -301,25 +302,22 @@ void TheTvdbInformationProviderTask::scrapeEpisode(QSharedPointer<Episode> episo
     connect(reply, &QNetworkReply::finished,
             this, &TheTvdbInformationProviderTask::parseScrapeEpisodeReply);
 
-    connect(reply, ERRORSIGNAL, [=]{
-        this->setErrorMessage(reply->errorString());
-        reply->deleteLater();
-        decreaseActiveRequestCountAndMaybeEmitFinished();
-    });
+    connect(reply, ERRORSIGNAL ,
+            this, &TheTvdbInformationProviderTask::handleNetworkError);
 }
 
 void TheTvdbInformationProviderTask::parseScrapeEpisodeReply()
 {
-    QNetworkReply *reply = static_cast<QNetworkReply *>(sender());
+    QScopedPointer<QNetworkReply, QScopedPointerObjectDeleteLater<QNetworkReply> >
+            reply(static_cast<QNetworkReply *>(sender()));
     QSharedPointer<Episode> episode = reply->property(QNETWORKREPLY_DYNAMICPROPERTY_EPISODE).value<QSharedPointer<Episode> >();
 
     if(!episode) {
-        reply->deleteLater();
         decreaseActiveRequestCountAndMaybeEmitFinished();
         return;
     }
 
-    QXmlStreamReader xml(reply);
+    QXmlStreamReader xml(reply.data());
 
     while(!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
@@ -331,7 +329,6 @@ void TheTvdbInformationProviderTask::parseScrapeEpisodeReply()
         }
     }
 
-    reply->deleteLater();
     decreaseActiveRequestCountAndMaybeEmitFinished();
 }
 

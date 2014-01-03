@@ -11,7 +11,6 @@
 #include <QUrl>
 
 class Download;
-class VideoDownloadLink;
 
 class DownloadPackage : public QObject
 {
@@ -20,7 +19,6 @@ class DownloadPackage : public QObject
     Q_PROPERTY(QString message READ message WRITE setMessage)
     Q_PROPERTY(QList<QSharedPointer<Download> > downloads READ downloads WRITE setDownloads)
     Q_PROPERTY(QUrl sourceUrl READ sourceUrl WRITE setSourceUrl)
-    Q_PROPERTY(QList<QSharedPointer<VideoDownloadLink> > videoDownloadLinks READ videoDownloadLinks WRITE setVideoDownloadLinks)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloads",
                 "reverserelation=package;")
@@ -43,10 +41,6 @@ public:
     QList<QSharedPointer<Download> > downloads() const;
     void addDownload(QSharedPointer<Download> download);
     void removeDownload(QSharedPointer<Download> download);
-
-    QList<QSharedPointer<VideoDownloadLink> > videoDownloadLinks() const;
-    void addVideoDownloadLink(QSharedPointer<VideoDownloadLink> download);
-
 
     QByteArray captcha() const;
     void setCaptcha(const QByteArray &captcha);
@@ -90,7 +84,6 @@ private slots:
 
 private:
     void setDownloads(const QList<QSharedPointer<Download> > downloads);
-    void setVideoDownloadLinks(const QList<QSharedPointer<VideoDownloadLink> > downloads);
 
     void calculateSpeed() const;
     QList<QSharedPointer<Download> > differentDownloads() const;
@@ -98,7 +91,6 @@ private:
     QString m_name;
     QString m_message;
     QpStrongRelation<Download> m_downloads;
-    QpWeakRelation<VideoDownloadLink> m_videoDownloadLinks;
     QUrl m_sourceUrl;
     QByteArray m_captcha;
     QString m_captchaString;

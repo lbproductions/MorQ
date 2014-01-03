@@ -33,6 +33,8 @@ private slots:
     void parseScrapeEpisodeReply();
     void parseScrapeSeriesReply();
 
+    void handleNetworkError();
+
 private:
     friend class TheTvdbInformationProvider;
     TheTvdbInformationProviderTask(TheTvdbInformationProvider *parent);

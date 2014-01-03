@@ -7,8 +7,9 @@
 static const int HEIGHT = 64;
 static const QPoint TITLE_OFFSET(12,12);
 static const QPoint NEXT_EPISODE_OFFSET(12,32);
-static const QPoint SEASON_EPISODE_COUNT_OFFSET(-12,12);
-static const QPoint FLAG_OFFSET(10,3); // relative to title ending
+static const QPoint SEASON_EPISODE_COUNT_OFFSET(0,12);
+static const QPoint FLAG_OFFSET(12,3); // relative to title ending
+static const int FLAT_MARGIN = 2; // Gap between flags
 
 SeriesListItemDelegate::SeriesListItemDelegate(QAbstractItemView *view, QObject *parent) :
     NoisyGradientItemDelegate(view, parent)
@@ -32,7 +33,7 @@ void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
         drawPixmap(painter, option,
                    pm,
                    flagOffset);
-        flagOffset.setX(flagOffset.x() + pm.width() + 2);
+        flagOffset.setX(flagOffset.x() + pm.width() + FLAT_MARGIN);
     }
     drawText(painter, option,
              tr("Next episode in %1 days").arg("?"),

@@ -120,6 +120,9 @@ void Download::setFileSize(qint64 bytes)
 
 int Download::order() const
 {
+    if(!package())
+        return 0;
+
     return package()->downloads().indexOf(Qp::sharedFrom(this));
 }
 

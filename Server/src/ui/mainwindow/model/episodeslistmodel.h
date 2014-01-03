@@ -16,7 +16,8 @@ public:
     enum Role{
         TitleRole = Qt::UserRole + 1,
         VideoPathRole,
-        DownloadLinkRole
+        DownloadLinkRole,
+        RawDataRole
     };
     
     void setSeason(QSharedPointer<Season> season);

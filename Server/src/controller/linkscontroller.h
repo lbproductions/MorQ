@@ -6,7 +6,7 @@
 class Download;
 class DownloadPackage;
 class Episode;
-class VideoDownloadLink;
+class OnlineResource;
 
 class LinksController : public QObject
 {
@@ -19,7 +19,7 @@ public:
 
     void downloadEpisode(QSharedPointer<Episode> episode);
 
-    void downloadVideos(QList<QSharedPointer<VideoDownloadLink> > links);
+    void downloadVideos(QList<QSharedPointer<OnlineResource> > links);
 
 private slots:
     void clipboardChanged();

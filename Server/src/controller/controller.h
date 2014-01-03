@@ -13,7 +13,7 @@ class ExtractionController;
 class Series;
 class Season;
 class Episode;
-class VideoDownloadLink;
+class OnlineResource;
 
 class Controller
 {

@@ -11,7 +11,7 @@
 #include "model/series.h"
 #include "model/season.h"
 #include "model/episode.h"
-#include "model/videodownloadlink.h"
+#include "model/onlineresource.h"
 
 #include <QPersistenceDatabaseSchema.h>
 #include <QPersistencePersistentDataAccessObject.h>
@@ -25,7 +25,7 @@
 bool Controller::initialize()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/Users/niklaswulf/test.db");
+    db.setDatabaseName("/Users/niklaswulf/.morq.sqlitedb");
     if(!db.open()) {
         qCritical() << db.lastError();
         return false;
@@ -38,11 +38,11 @@ bool Controller::initialize()
     Qp::registerClass<Series>();
     Qp::registerClass<Season>();
     Qp::registerClass<Episode>();
-    Qp::registerClass<VideoDownloadLink>();
+    Qp::registerClass<OnlineResource>();
 
     // Adjust database
     QpDatabaseSchema databaseSchema;
-        databaseSchema.createCleanSchema();
+    databaseSchema.createCleanSchema();
 //    databaseSchema.adjustSchema();
 
 

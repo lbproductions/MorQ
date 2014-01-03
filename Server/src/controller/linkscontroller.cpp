@@ -10,7 +10,7 @@
 #include "model/download.h"
 #include "model/downloadpackage.h"
 #include "model/episode.h"
-#include "model/videodownloadlink.h"
+#include "model/onlineresource.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -110,15 +110,15 @@ void LinksController::downloadEpisode(QSharedPointer<Episode> episode)
     //    }
 }
 
-void LinksController::downloadVideos(QList<QSharedPointer<VideoDownloadLink> > links)
+void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > links)
 {
-    foreach(QSharedPointer<VideoDownloadLink>  link, links) {
+    foreach(QSharedPointer<OnlineResource>  link, links) {
         QUrl url = link->url();
         foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
             if(decrypter->canHandleUrl(url)) {
                 QSharedPointer<DownloadPackage> package = createPackage(url);
                 package->setExtractFolder(link->extractFolder());
-                package->addVideoDownloadLink(link);
+//                package->addDownload(link);
                 decrypter->handlePackage(package);
                 return;
             }

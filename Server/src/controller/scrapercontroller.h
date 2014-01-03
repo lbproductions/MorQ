@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "model/series.h"
-#include "plugins/downloadProviders/downloadproviderplugin.h"
+#include "plugins/downloadProviders/downloadprovider.h"
 
 class ScraperController : public QObject
 {
@@ -12,21 +12,23 @@ class ScraperController : public QObject
 public:
     explicit ScraperController(QObject *parent = 0);
 
+    static QSharedPointer<Series> inferBestMatchingSeries(QSharedPointer<Series> series, QList<QSharedPointer<Series> > results);
+
 public slots:
-    void scanSeriesLocationsForNewSeries();
+    void scrapeLocal();
     void scrapeMissingTvdbInformation();
     void scrapeSerienjunkiesUrls();
 
 signals:
-    void foundNewSeries();
+    void finishedLocalScrape();
+    void finishedTvdbScrape();
 
 private slots:
     void onFileScraperFinish();
     void interpretTvdbSearchResults();
-    void interpretSerienjunkiesSearchResults(QList<DownloadProviderPlugin::SeriesData> series);
+//    void interpretSerienjunkiesSearchResults(QList<DownloadProvider::SeriesData> series);
 
 private:
-    QSharedPointer<Series> findCorrectResult(QSharedPointer<Series> series, QList<QSharedPointer<Series> > results);
 
 };
 

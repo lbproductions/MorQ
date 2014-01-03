@@ -3,7 +3,7 @@
 
 //#include <QDialog>
 
-//#include "plugins/downloadProviders/downloadproviderplugin.h"
+//#include "plugins/downloadProviders/downloadprovider.h"
 
 //namespace Ui {
 //class RescanCollectionDialog;

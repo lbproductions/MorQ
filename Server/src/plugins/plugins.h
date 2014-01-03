@@ -4,6 +4,7 @@
 #include <QObject>
 
 class InformationProvider;
+class DownloadProvider;
 
 class Plugin : public QObject
 {
@@ -14,8 +15,17 @@ public:
 
     QString name() const;
 
+signals:
+    void finishedAllTasks();
+
+private slots:
+    friend class PluginTask;
+    void increaseTaskCount();
+    void decreaseTaskCount();
+
 private:
     QString m_name;
+    int m_taskCount;
 };
 
 class PluginTask : public QObject
@@ -47,12 +57,15 @@ class Plugins {
 public:
     static InformationProvider *informationProvider(const QString &name);
     static QList<InformationProvider *> informationProviders();
+    static DownloadProvider *downloadProvider(const QString &name);
+    static QList<DownloadProvider *> downloadProviders();
     static void registerPlugin(Plugin *plugin);
     static void init();
 
 private:
     static QList<Plugin *> s_plugins;
     static QHash<QString, InformationProvider *> s_informationProviders;
+    static QHash<QString, DownloadProvider *> s_downloadProviders;
 };
 
 #endif // PLUGIN_H

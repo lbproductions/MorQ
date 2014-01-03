@@ -4,7 +4,7 @@
 #include "model/episode.h"
 #include "model/series.h"
 #include "model/season.h"
-#include "model/videodownloadlink.h"
+#include "model/onlineresource.h"
 
 #include "controller/controller.h"
 #include "controller/linkscontroller.h"
@@ -43,7 +43,7 @@ void ChooseDownloadLinksDialog::setEpisodes(QList<QSharedPointer<Episode> > epis
     m_episodes = episodes;
 
     foreach(QSharedPointer<Episode> episode, episodes) {
-        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
+        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
             //if(formats.contains(link->formatDescription()))
             if(formats.contains(link->name()))
                 continue;
@@ -82,7 +82,7 @@ void ChooseDownloadLinksDialog::addMirrorsBasedOnSelectedFormat()
     ui->comboBoxMirror->clear();
 
     foreach(QSharedPointer<Episode> episode, m_episodes) {
-        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
+        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
             //if(link->formatDescription() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
             if(link->name() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
                 continue;
@@ -113,9 +113,9 @@ void ChooseDownloadLinksDialog::finish()
         targetFolder = ui->comboBoxPath->currentText();
     }
 
-    QList<QSharedPointer<VideoDownloadLink> > links;
+    QList<QSharedPointer<OnlineResource> > links;
     foreach(QSharedPointer<Episode> episode, m_episodes) {
-        foreach(QSharedPointer<VideoDownloadLink> link, episode->downloadLinks()) {
+        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
             //if(link->formatDescription() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
             if(link->name() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
                 links.append(link);

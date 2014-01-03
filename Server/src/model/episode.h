@@ -7,7 +7,7 @@
 #include <QPersistenceRelations.h>
 #include <QLocale>
 
-class VideoDownloadLink;
+class OnlineResource;
 class Season;
 
 class Episode : public QObject
@@ -19,7 +19,7 @@ class Episode : public QObject
     Q_PROPERTY(QString videoFile READ videoFile WRITE setVideoFile)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
-//    Q_PROPERTY(QList<QSharedPointer<VideoDownloadLink> > downloadLinks READ downloadLinks WRITE setDownloadLinks)
+    Q_PROPERTY(QList<QSharedPointer<OnlineResource> > downloadLinks READ downloadLinks WRITE setDownloadLinks)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
 
@@ -43,10 +43,10 @@ public:
 
     QSharedPointer<Season> season() const;
 
-    QList<QSharedPointer<VideoDownloadLink> > downloadLinks() const;
-    QList<QSharedPointer<VideoDownloadLink> > downloadLinks(const QString &formatDescription, const QString &mirror) const;
-    void addDownloadLink(QSharedPointer<VideoDownloadLink> link);
-    void removeDownloadLink(QSharedPointer<VideoDownloadLink> link);
+    QList<QSharedPointer<OnlineResource> > downloadLinks() const;
+    QList<QSharedPointer<OnlineResource> > downloadLinks(const QString &formatDescription, const QString &mirror) const;
+    void addDownloadLink(QSharedPointer<OnlineResource> link);
+    void removeDownloadLink(QSharedPointer<OnlineResource> link);
 
     QString videoFile() const;
     void setVideoFile(const QString &fileName);
@@ -74,11 +74,11 @@ public:
 private:
     friend class Season;
     void setSeason(QSharedPointer<Season> season);
-    void setDownloadLinks(const QList<QSharedPointer<VideoDownloadLink> > &links);
+    void setDownloadLinks(const QList<QSharedPointer<OnlineResource> > &links);
 
     int m_number;
     int m_seasonNumber;
-    QpStrongRelation<VideoDownloadLink> m_downloadLinks;
+    QpStrongRelation<OnlineResource> m_downloadLinks;
     QString m_serienJunkiesTitle;
     QpWeakRelation<Season> m_season;
     QString m_videoFile;

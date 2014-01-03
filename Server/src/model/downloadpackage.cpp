@@ -1,7 +1,7 @@
 #include "downloadpackage.h"
 
 #include "download.h"
-#include "videodownloadlink.h"
+#include "onlineresource.h"
 
 #include <QTime>
 #include <QDebug>
@@ -11,7 +11,6 @@ float DownloadPackage::s_speedAlpha(0.1);
 DownloadPackage::DownloadPackage(QObject *parent) :
     QObject(parent),
     m_downloads("downloads", this),
-    m_videoDownloadLinks("videoDownloadLinks", this),
     m_bytesExtracted(-1),
     m_extractedFilesSize(-1),
     m_speed(0),
@@ -80,11 +79,6 @@ void DownloadPackage::removeDownload(QSharedPointer<Download> download)
     m_downloads.unrelate(download);
 }
 
-QList<QSharedPointer<VideoDownloadLink> > DownloadPackage::videoDownloadLinks() const
-{
-    return m_videoDownloadLinks.resolveList();
-}
-
 QByteArray DownloadPackage::captcha() const
 {
     return m_captcha;
@@ -118,11 +112,6 @@ void DownloadPackage::setDownloads(const QList<QSharedPointer<Download> > downlo
     }
 
     m_downloads.relate(downloads);
-}
-
-void DownloadPackage::setVideoDownloadLinks(const QList<QSharedPointer<VideoDownloadLink> > downloads)
-{
-    m_videoDownloadLinks.relate(downloads);
 }
 
 qint64 DownloadPackage::totalFileSize() const
@@ -334,8 +323,3 @@ void DownloadPackage::setExtractFolder(const QString &extractFolder)
     m_extractFolder = extractFolder;
 }
 
-
-void DownloadPackage::addVideoDownloadLink(QSharedPointer<VideoDownloadLink> download)
-{
-    m_videoDownloadLinks.relate(download);
-}

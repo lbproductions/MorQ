@@ -46,6 +46,8 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     case DownloadLinkRole:
         return QString("%1")
                 .arg(links);
+    case RawDataRole:
+        return QVariant::fromValue<QSharedPointer<Episode> >(episode);
     }
 
     return QVariant();

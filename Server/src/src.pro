@@ -75,14 +75,11 @@ HEADERS += \
     ui/mainwindow/downloadsitemdelegate.h \
     controller/extractioncontroller.h \
     ui/dialogs/newserieswizard.h \
-    plugins/downloadProviders/downloadproviderplugin.h \
-    plugins/downloadProviders/serienjunkiesproviderplugin.h \
     ui/mainwindow/model/serieslistmodel.h \
     ui/mainwindow/serieslistitemdelegate.h \
     ui/mainwindow/model/seasonslistmodel.h \
     model/download.h \
     model/downloadpackage.h \
-    model/videodownloadlink.h \
     model/episode.h \
     model/season.h \
     model/series.h \
@@ -105,7 +102,10 @@ HEADERS += \
     controller/scrapercontroller.h \
     misc/tools.h \
     plugins/plugins.h \
-    plugins/informationProviders/informationprovider.h
+    plugins/informationProviders/informationprovider.h \
+    plugins/downloadProviders/downloadprovider.h \
+    plugins/downloadProviders/serienjunkiesprovider.h \
+    model/onlineresource.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -125,14 +125,11 @@ SOURCES += main.cpp \
     ui/mainwindow/downloadsitemdelegate.cpp \
     controller/extractioncontroller.cpp \
     ui/dialogs/newserieswizard.cpp \
-    plugins/downloadProviders/downloadproviderplugin.cpp \
-    plugins/downloadProviders/serienjunkiesproviderplugin.cpp \
     ui/mainwindow/model/serieslistmodel.cpp \
     ui/mainwindow/serieslistitemdelegate.cpp \
     ui/mainwindow/model/seasonslistmodel.cpp \
     model/download.cpp \
     model/downloadpackage.cpp \
-    model/videodownloadlink.cpp \
     model/series.cpp \
     model/episode.cpp \
     model/season.cpp \
@@ -155,7 +152,10 @@ SOURCES += main.cpp \
     controller/scrapercontroller.cpp \
     misc/tools.cpp \
     plugins/plugins.cpp \
-    plugins/informationProviders/informationprovider.cpp
+    plugins/informationProviders/informationprovider.cpp \
+    plugins/downloadProviders/downloadprovider.cpp \
+    plugins/downloadProviders/serienjunkiesprovider.cpp \
+    model/onlineresource.cpp
     #controller/filestorage.cpp
 
 FORMS += \

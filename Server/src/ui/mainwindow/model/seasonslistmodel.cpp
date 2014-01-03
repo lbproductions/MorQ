@@ -31,6 +31,8 @@ QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
     switch(role) {
     case Qt::DisplayRole:
         return season->title();
+    case RawDataRole:
+        return QVariant::fromValue<QSharedPointer<Season> >(season);
     }
 
     return QVariant();

@@ -18,8 +18,8 @@
 #include "controller/extractioncontroller.h"
 #include "controller/plugincontroller.h"
 #include "controller/scrapercontroller.h"
-#include "plugins/downloadProviders/downloadproviderplugin.h"
-#include "plugins/downloadProviders/serienjunkiesproviderplugin.h"
+#include "plugins/downloadProviders/downloadprovider.h"
+#include "plugins/downloadProviders/serienjunkiesprovider.h"
 
 #include "plugins/scraper/filescraper.h"
 #include "plugins/scraper/newseriesscraper.h"
@@ -36,6 +36,7 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QApplication>
+#include <QScrollBar>
 
 static const QString WINDOWGEOMETRY("ui/mainwindow/geometry");
 static const QString WINDOWSTATE("ui/mainwindow/state");
@@ -310,8 +311,8 @@ void MainWindow::on_actionAdd_show_triggered()
 {
     ui->actionTV_Shows->trigger();
 
-    NewSeriesWizard wizard(this);
-    wizard.exec();
+//    NewSeriesWizard wizard(this);
+//    wizard.exec();
 
     //    RescanCollectionDialog dialog(new NewSeriesScraper(wizard.seriesTitle(),this), this);
     //    dialog.scan();
@@ -440,12 +441,11 @@ void MainWindow::on_actionAddDownload_triggered()
 void MainWindow::on_actionRescan_collection_triggered()
 {
     ScraperController *scraperController = new ScraperController(this);
-    scraperController->scanSeriesLocationsForNewSeries();
+    scraperController->scrapeLocal();
 
-    connect(scraperController, &ScraperController::foundNewSeries,
+    connect(scraperController, &ScraperController::finishedLocalScrape,
             scraperController, &ScraperController::scrapeMissingTvdbInformation);
 
-    //    RescanCollectionDialog dialog(new FileScraper(this), this);
-    //    dialog.scan();
-    //    dialog.exec();
+    connect(scraperController, &ScraperController::finishedTvdbScrape,
+            scraperController, &ScraperController::scrapeSerienjunkiesUrls);
 }

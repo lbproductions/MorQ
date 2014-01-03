@@ -12,6 +12,10 @@ class SeasonsListModel : public QpAbstractObjectListModel<Season>
 {
     Q_OBJECT
 public:
+    enum Role {
+        RawDataRole = Qt::UserRole + 1
+    };
+
     explicit SeasonsListModel(QObject *parent = 0);
 
     void setSeries(QSharedPointer<Series> series);
