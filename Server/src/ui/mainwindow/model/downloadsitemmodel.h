@@ -1,7 +1,7 @@
 #ifndef DOWNLOADSITEMMODEL_H
 #define DOWNLOADSITEMMODEL_H
 
-#include <QAbstractItemModel>
+#include <QStandardItemModel>
 
 namespace QDataSuite {
 class AbstractDataAccessObject;
@@ -10,7 +10,7 @@ class AbstractDataAccessObject;
 class Download;
 class DownloadPackage;
 
-class DownloadsItemModel : public QAbstractItemModel
+class DownloadsItemModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
@@ -34,12 +34,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    bool hasChildren(const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
     QSharedPointer<Download> downloadByIndex(const QModelIndex &index) const;
     QSharedPointer<DownloadPackage> packageByIndex(const QModelIndex &index) const;
@@ -54,18 +49,14 @@ private slots:
     void removeDownload(QSharedPointer<QObject> object);
 
 private:
-    QHash<QSharedPointer<DownloadPackage> , int> m_packageRows;
-    QMap<QSharedPointer<Download> , int> m_downloadRows;
-
-    void _insertPackage(QSharedPointer<DownloadPackage> package);
-    void _insertDownload(QSharedPointer<Download> download);
-    void _removeDownload(QSharedPointer<Download> download);
-
     QString humanReadableSize(qint64 bytes) const;
+    QHash<QSharedPointer<DownloadPackage> , int> m_packageRows;
+    QHash<QSharedPointer<Download>, QStandardItem *> m_downloadItems;
+
+    QSharedPointer<Download> downloadByItem(QStandardItem *item) const;
+    QSharedPointer<DownloadPackage> packageByItem(QStandardItem *item) const;
 
     mutable QHash<QString, QIcon> m_icons;
-
-    QModelIndex indexForPackage(QSharedPointer<DownloadPackage> package) const;
 };
 
 #endif // DOWNLOADSITEMMODEL_H

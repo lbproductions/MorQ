@@ -85,8 +85,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_seasonsModel = new SeasonsListModel(this);
     m_seasonsModel->setSeries(QSharedPointer<Series>()); // calling this disables updates from the global signals
+    m_seasonsProxyModel = new SeasonSortFilterProxyModel(this);
+    m_seasonsProxyModel->setSourceModel(m_seasonsModel);
     ui->treeViewSeasons->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->treeViewSeasons->setModel(m_seasonsModel);
+    ui->treeViewSeasons->setModel(m_seasonsProxyModel);
     ui->treeViewSeasons->setItemDelegate(new SeasonsListItemDelegate(ui->treeViewSeasons, this));
     ui->treeViewSeasons->addAction(ui->actionAddDownload);
     ui->treeViewSeasons->addAction(ui->actionShow_in_Finder);
@@ -283,12 +285,39 @@ void MainWindow::on_actionResetDownload_triggered()
 
 void MainWindow::enableActionsAccordingToDownloadSelection()
 {
-    bool sel = !ui->treeViewDownloads->selectionModel()->selectedRows().isEmpty()
+    QModelIndexList list = ui->treeViewDownloads->selectionModel()->selectedRows();
+
+    bool sel = !list.isEmpty()
             && ui->centralStackedWidget->currentWidget() == ui->pageDownloads;
 
     ui->actionDeleteDownload->setEnabled(sel);
     ui->actionResetDownload->setEnabled(sel);
     ui->actionExtract->setEnabled(sel);
+
+    QSet<QSharedPointer<DownloadPackage> > selectedPackages;
+    foreach(QModelIndex index, list) {
+        if(index.parent().isValid()) {
+            selectedPackages.insert(m_downloadsModel->downloadByIndex(index)->package());
+        }
+        else if(!index.parent().isValid()) {
+            selectedPackages.insert(m_downloadsModel->packageByIndex(index));
+        }
+    }
+    bool enableExtract = false;
+    foreach(QSharedPointer<DownloadPackage> package, selectedPackages) {
+        if(package->isDownloadFinished())
+            enableExtract = true;
+    }
+    ui->actionExtract->setEnabled(enableExtract);
+
+    bool downloadsAvailable = false;
+    foreach(QSharedPointer<DownloadPackage> p, Qp::readAll<DownloadPackage>()) {
+        if(!p->isDownloadFinished())
+            downloadsAvailable = true;
+    }
+
+    bool running = Controller::downloads()->isDownloadRunning();
+    ui->actionStart->setEnabled(downloadsAvailable && !running);
 }
 
 void MainWindow::on_actionExtract_triggered()
@@ -336,7 +365,7 @@ void MainWindow::showSeasonsForSelectedSeries()
     }
 
     m_seasonsModel->setSeries(series);
-    ui->treeViewSeasons->selectionModel()->select(m_seasonsModel->index(0),
+    ui->treeViewSeasons->selectionModel()->select(m_seasonsProxyModel->index(0,0),
                                                   QItemSelectionModel::Select);
 }
 
@@ -349,7 +378,7 @@ void MainWindow::showEpisodesForSelectedSeason()
         return;
     }
 
-    QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
+    QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
     m_episodesModel->setSeason(season);
 }
 
@@ -383,7 +412,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             ui->actionAddDownload->setEnabled(false); // TODO implement and enable downloading of seasons
             ui->actionAddDownload->setText(tr("Download season..."));
 
-            QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
+            QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
             ui->actionShow_in_Finder->setEnabled(season && !season->folders().isEmpty());
         }
         return;
@@ -425,7 +454,7 @@ void MainWindow::on_actionAddDownload_triggered()
         if(list.isEmpty())
             return;
 
-        QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
+        QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
         if(!season)
             return;
 
@@ -488,7 +517,7 @@ void MainWindow::on_actionShow_in_Finder_triggered()
         if(list.isEmpty())
             return;
 
-        QSharedPointer<Season> season = m_seasonsModel->objectByIndex(list.first());
+        QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
         if(!season || season->folders().isEmpty())
             return;
 

@@ -1,6 +1,8 @@
 #ifndef SEASONSLISTMODEL_H
 #define SEASONSLISTMODEL_H
 
+#include <QSortFilterProxyModel>
+
 #include "objectlistmodel.h"
 #include "abstractobjectlistmodel.h"
 
@@ -25,6 +27,22 @@ public:
 
 private:
     QSharedPointer<Series> m_series;
+};
+
+class SeasonSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    explicit SeasonSortFilterProxyModel(QObject *parent = 0);
+
+    SeasonsListModel *sourceModel() const;
+
+    QSharedPointer<Season> objectByIndex(const QModelIndex &index) const;
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 };
 
 #endif // SEASONSLISTMODEL_H

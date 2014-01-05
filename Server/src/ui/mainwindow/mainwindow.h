@@ -15,6 +15,7 @@ class DownloadsItemModel;
 class SeriesListModel;
 class SeasonsListModel;
 class EpisodesListModel;
+class SeasonSortFilterProxyModel;
 
 class MainWindow : public QMainWindow
 {
@@ -63,6 +64,7 @@ private:
     DownloadsItemModel *m_downloadsModel;
     SeriesListModel *m_seriesModel;
     SeasonsListModel *m_seasonsModel;
+    SeasonSortFilterProxyModel *m_seasonsProxyModel;
     EpisodesListModel *m_episodesModel;
 };
 

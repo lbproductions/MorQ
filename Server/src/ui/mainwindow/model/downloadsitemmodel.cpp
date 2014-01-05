@@ -13,7 +13,7 @@
 #include <QTemporaryFile>
 
 DownloadsItemModel::DownloadsItemModel(QObject *parent) :
-    QAbstractItemModel(parent)
+    QStandardItemModel(parent)
 {
     connect(Qp::dataAccessObject<Download>(), &QpDaoBase::objectCreated,
             this, &DownloadsItemModel::insertDownload);
@@ -32,6 +32,9 @@ DownloadsItemModel::DownloadsItemModel(QObject *parent) :
     foreach(QSharedPointer<DownloadPackage> object, Qp::readAll<DownloadPackage>()) {
         insertPackage(object);
     }
+
+    setColumnCount(columnCount());
+    invisibleRootItem()->setColumnCount(columnCount());
 }
 
 DownloadsItemModel::~DownloadsItemModel()
@@ -66,7 +69,10 @@ QVariant DownloadsItemModel::data(const QModelIndex &index, int role) const
         if(!package)
             return QVariant();
 
-        if(role == Qt::DisplayRole) {
+        if(role == Qt::UserRole + 1) {
+            return QVariant::fromValue<QSharedPointer<DownloadPackage> >(package);
+        }
+        else if(role == Qt::DisplayRole) {
             switch(index.column()) {
             case NameColumn:
                 return package->name();
@@ -139,7 +145,10 @@ QVariant DownloadsItemModel::data(const QModelIndex &index, int role) const
     else if(!index.parent().parent().isValid()) {
         QSharedPointer<Download> dl = downloadByIndex(index);
 
-        if(role == Qt::DisplayRole) {
+        if(role == Qt::UserRole + 1) {
+            return QVariant::fromValue<QSharedPointer<Download> >(dl);
+        }
+        else if(role == Qt::DisplayRole) {
             switch(index.column()) {
             case NameColumn:
                 return dl->fileName();
@@ -253,97 +262,37 @@ QVariant DownloadsItemModel::headerData(int section, Qt::Orientation orientation
     return QVariant();
 }
 
-int DownloadsItemModel::rowCount(const QModelIndex &parent) const
-{
-    if(!parent.isValid())
-        return Qp::count<DownloadPackage>();
-
-    QSharedPointer<DownloadPackage> package = packageByIndex(parent);
-    if(!package)
-        return 0;
-
-    return package->downloads().size();
-}
-
 int DownloadsItemModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
     return 11;
 }
 
-bool DownloadsItemModel::hasChildren(const QModelIndex &parent) const
-{
-    if(!parent.isValid())
-        return true;
-
-    QSharedPointer<DownloadPackage> package = packageByIndex(parent);
-    if(!package)
-        return false;
-
-    return !package->downloads().isEmpty();
-}
-
-QModelIndex DownloadsItemModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if(!hasIndex(row, column, parent))
-        return QModelIndex();
-
-    if(parent.isValid()) {
-        QSharedPointer<DownloadPackage> package = packageByIndex(parent);
-        return createIndex(row, column, Qp::primaryKey(package->downloads().at(row)));
-    }
-
-    QSharedPointer<DownloadPackage> package = Qp::readAll<DownloadPackage>().at(row);
-    return createIndex(row, column, Qp::primaryKey(package));
-}
-
-QModelIndex DownloadsItemModel::parent(const QModelIndex &child) const
-{
-    if(!child.isValid())
-        return QModelIndex();
-
-    QSharedPointer<DownloadPackage> package = packageByIndex(child);
-    if(package)
-        return QModelIndex();
-
-    QSharedPointer<Download> download = downloadByIndex(child);
-    if(!download)
-        return QModelIndex();
-
-    package = download->package();
-    if(!package || !m_packageRows.contains(package))
-        return QModelIndex();
-
-    return createIndex(m_packageRows.value(package), 0, Qp::primaryKey(package));
-}
-
 QSharedPointer<Download> DownloadsItemModel::downloadByIndex(const QModelIndex &index) const
 {
-    return Qp::read<Download>(index.internalId());
+    return downloadByItem(invisibleRootItem()->child(index.parent().row())->child(index.row()));
 }
 
 QSharedPointer<DownloadPackage> DownloadsItemModel::packageByIndex(const QModelIndex &index) const
 {
-    return Qp::read<DownloadPackage>(index.internalId());
+    return packageByItem(invisibleRootItem()->child(index.row()));
 }
 
 void DownloadsItemModel::insertPackage(QSharedPointer<QObject> object)
 {
     QSharedPointer<DownloadPackage> package = qSharedPointerCast<DownloadPackage>(object);
-    int count = Qp::count<DownloadPackage>();
-    beginInsertRows(QModelIndex(), count, count);
+    int count = rowCount();
+    m_packageRows.insert(package, count);
 
-    _insertPackage(package);
-
-    endInsertRows();
-}
-
-void DownloadsItemModel::_insertPackage(QSharedPointer<DownloadPackage> package)
-{
-    m_packageRows.insert(package, Qp::count<DownloadPackage>());
+    QStandardItem *item = new QStandardItem(package->name());
+    item->setData(QVariant::fromValue<QSharedPointer<DownloadPackage> >(package));
+    item->setColumnCount(columnCount());
+    invisibleRootItem()->appendRow(item);
 
     foreach(QSharedPointer<Download> dl, package->downloads()) {
-        _insertDownload(dl);
+        QStandardItem *child = new QStandardItem(dl->fileName());
+        child->setData(QVariant::fromValue<QSharedPointer<Download> >(dl));
+        item->appendRow(child);
     }
 }
 
@@ -357,11 +306,6 @@ void DownloadsItemModel::updatePackage(QSharedPointer<QObject> object)
     int i = m_packageRows[package];
     emit dataChanged(index(i, 0),
                      index(i, columnCount()));
-
-    foreach(QSharedPointer<Download> dl, package->downloads()) {
-        _removeDownload(dl);
-        _insertDownload(dl);
-    }
 }
 
 void DownloadsItemModel::removePackage(QSharedPointer<QObject> object)
@@ -371,9 +315,9 @@ void DownloadsItemModel::removePackage(QSharedPointer<QObject> object)
     if(!m_packageRows.contains(package))
         return;
 
-    int index = m_packageRows[package];
+    int row = m_packageRows[package];
 
-    beginRemoveRows(QModelIndex(), index, index);
+    invisibleRootItem()->removeRow(row);
 
     int i = 0;
     foreach(QSharedPointer<DownloadPackage> p, Qp::readAll<DownloadPackage>()) {
@@ -381,11 +325,6 @@ void DownloadsItemModel::removePackage(QSharedPointer<QObject> object)
         m_packageRows.insert(p, i);
         ++i;
     }
-
-    foreach(QSharedPointer<Download> dl, package->downloads()) {
-        _removeDownload(dl);
-    }
-    endRemoveRows();
 }
 
 void DownloadsItemModel::insertDownload(QSharedPointer<QObject> object)
@@ -394,65 +333,42 @@ void DownloadsItemModel::insertDownload(QSharedPointer<QObject> object)
     if(!download || !download->package())
         return;
 
-    QModelIndex parent = indexForPackage(download->package());
-    int index = download->order();
+    QStandardItem *packageItem = invisibleRootItem()->child(m_packageRows[download->package()]);
 
-    beginInsertRows(parent, index, index);
-
-    _insertDownload(download);
-
-    endInsertRows();
-}
-
-void DownloadsItemModel::_insertDownload(QSharedPointer<Download> download)
-{
-    m_downloadRows.insert(download, download->order());
+    QStandardItem *child = new QStandardItem(download->fileName());
+    child->setColumnCount(columnCount());
+    child->setData(QVariant::fromValue<QSharedPointer<Download> >(download));
+    m_downloadItems.insert(download, child);
+    packageItem->appendRow(child);
 }
 
 void DownloadsItemModel::updateDownload(QSharedPointer<QObject> object)
 {
     QSharedPointer<Download> download = qSharedPointerCast<Download>(object);
-    QModelIndex parent = indexForPackage(download->package());
+    if(!download->package())
+        return;
 
-    if(!m_downloadRows.contains(download)) {
-        int index = download->order();
-        beginInsertRows(parent, index, index);
-        _insertDownload(download);
-        endInsertRows();
+    if(!m_downloadItems.contains(download)) {
+        insertDownload(download);
     }
     else {
-        int i = m_downloadRows[download];
+        int parentRow = m_packageRows[download->package()];
+        QModelIndex parent = index(parentRow, 0);
 
-        emit dataChanged(index(i, 0, parent),
-                         index(i, columnCount(), parent));
+        int row = download->order();
+        emit dataChanged(index(row, 0, parent),
+                         index(row, columnCount(), parent));
     }
 }
 
 void DownloadsItemModel::removeDownload(QSharedPointer<QObject> object)
 {
     QSharedPointer<Download> download = qSharedPointerCast<Download>(object);
-    QModelIndex parent = indexForPackage(download->package());
-    int i = m_downloadRows[download];
+    QStandardItem *packageItem = invisibleRootItem()->child(m_packageRows[download->package()]);
 
-    beginRemoveRows(parent, i, i);
-
-    _removeDownload(download);
-
-    endRemoveRows();
+    packageItem->removeRow(download->order());
+    m_downloadItems.remove(download);
 }
-
-void DownloadsItemModel::_removeDownload(QSharedPointer<Download> download)
-{
-    int i = 0;
-    foreach(QSharedPointer<Download> dl, download->package()->downloads()) {
-        m_downloadRows.remove(dl);
-        if(dl != download) {
-            m_downloadRows.insert(dl, i);
-            ++i;
-        }
-    }
-}
-
 
 QString DownloadsItemModel::humanReadableSize(qint64 bytes) const
 {
@@ -502,10 +418,12 @@ QString DownloadsItemModel::humanReadableSize(qint64 bytes) const
     return QString("%1 %2").arg(QString::number(result,'f',2)).arg(unit);
 }
 
-QModelIndex DownloadsItemModel::indexForPackage(QSharedPointer<DownloadPackage> package) const
+QSharedPointer<Download> DownloadsItemModel::downloadByItem(QStandardItem *item) const
 {
-    if(!package)
-        return QModelIndex();
+    return item->data().value<QSharedPointer<Download> >();
+}
 
-    return createIndex(m_packageRows.value(package), 0, Qp::primaryKey(package));
+QSharedPointer<DownloadPackage> DownloadsItemModel::packageByItem(QStandardItem *item) const
+{
+    return item->data().value<QSharedPointer<DownloadPackage> >();
 }

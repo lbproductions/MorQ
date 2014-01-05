@@ -37,3 +37,38 @@ QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
 
     return QVariant();
 }
+
+
+SeasonSortFilterProxyModel::SeasonSortFilterProxyModel(QObject *parent) :
+    QSortFilterProxyModel(parent)
+{
+}
+
+SeasonsListModel *SeasonSortFilterProxyModel::sourceModel() const
+{
+    return static_cast<SeasonsListModel *>(QSortFilterProxyModel::sourceModel());
+}
+
+QSharedPointer<Season> SeasonSortFilterProxyModel::objectByIndex(const QModelIndex &index) const
+{
+    QModelIndex i = mapToSource(index);
+    return sourceModel()->objectByIndex(i);
+}
+
+bool SeasonSortFilterProxyModel::filterAcceptsRow(int /*source_row*/, const QModelIndex &/*source_parent*/) const
+{
+    return true;
+}
+
+bool SeasonSortFilterProxyModel::filterAcceptsColumn(int /*source_column*/, const QModelIndex &/*source_parent*/) const
+{
+    return true;
+}
+
+bool SeasonSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    QSharedPointer<Season> s1 = sourceModel()->objectByIndex(left);
+    QSharedPointer<Season> s2 = sourceModel()->objectByIndex(right);
+
+    return s1->number() > s2->number();
+}

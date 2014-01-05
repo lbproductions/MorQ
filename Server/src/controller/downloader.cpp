@@ -274,10 +274,13 @@ void Downloader::_readAvailableBytes()
     if(!data->file) {
         data->file = new QFile(data->destinationFolder + QDir::separator() + data->fileName);
         if(data->file->exists()) {
-            setErrorString(QString("File exists '%1'.")
-                           .arg(data->file->fileName()));
-            abortDownload();
-            return;
+            if(!data->file->remove()) {
+                setErrorString(QString("Could not remove existing file '%1': %2")
+                               .arg(data->file->fileName())
+                               .arg(data->file->errorString()));
+                abortDownload();
+                return;
+            }
         }
 
         if(!data->file->open(QIODevice::WriteOnly)) {
