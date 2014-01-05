@@ -299,3 +299,8 @@ void PreferencesWindow::on_pushButtonDown_clicked()
     ui->listWidgetLanguages->setCurrentRow(currentIndex+1);
     saveLanguages();
 }
+
+void PreferencesWindow::on_actionClose_triggered()
+{
+    close();
+}

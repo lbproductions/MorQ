@@ -286,6 +286,23 @@
    <addaction name="actionSeries"/>
    <addaction name="actionTheTVDB"/>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>590</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionClose"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
   <action name="actionPremuimizeMe">
    <property name="checkable">
     <bool>true</bool>
@@ -328,6 +345,14 @@
    </property>
    <property name="text">
     <string>TheTVDB</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

@@ -326,7 +326,7 @@ background-color: #fff;
                 <enum>QFrame::NoFrame</enum>
                </property>
                <property name="verticalScrollMode">
-                <enum>QAbstractItemView::ScrollPerPixel</enum>
+                <enum>QAbstractItemView::ScrollPerItem</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
@@ -515,6 +515,11 @@ background-color: #fff;
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionShow_in_Finder">
+   <property name="text">
+    <string>Show in Finder</string>
    </property>
   </action>
  </widget>

@@ -51,6 +51,8 @@ private slots:
 
     void on_actionRescan_collection_triggered();
 
+    void on_actionShow_in_Finder_triggered();
+
 private:
     static MainWindow *s_instance;
     explicit MainWindow(QWidget *parent = 0);
