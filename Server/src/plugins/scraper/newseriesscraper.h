@@ -12,9 +12,9 @@ public:
 
     void scan();
 
-    QList<Series*> newSeries();
+    QList<QSharedPointer<Series> > newSeries();
 
-    QList<Episode*> newEpisodes();
+    QList<QSharedPointer<Episode> > newEpisodes();
 
 private:
     QString m_title;

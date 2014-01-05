@@ -2,24 +2,29 @@
 #define SEASONSLISTMODEL_H
 
 #include "objectlistmodel.h"
+#include "abstractobjectlistmodel.h"
 
 #include "model/season.h"
 
 class Series;
 
-class SeasonsListModel : public ObjectListModel<Season>
+class SeasonsListModel : public QpAbstractObjectListModel<Season>
 {
     Q_OBJECT
 public:
+    enum Role {
+        RawDataRole = Qt::UserRole + 1
+    };
+
     explicit SeasonsListModel(QObject *parent = 0);
 
-    void setSeries(Series *series);
+    void setSeries(QSharedPointer<Series> series);
 
+    int columnCount(const QModelIndex &) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
-    QList<Season *> objects() const Q_DECL_OVERRIDE;
 
 private:
-    Series *m_series;
+    QSharedPointer<Series> m_series;
 };
 
 #endif // SEASONSLISTMODEL_H

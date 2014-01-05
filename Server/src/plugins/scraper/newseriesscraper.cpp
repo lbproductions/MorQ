@@ -16,20 +16,20 @@ void NewSeriesScraper::scan()
     emit finished();
 }
 
-QList<Series *> NewSeriesScraper::newSeries()
+QList<QSharedPointer<Series> > NewSeriesScraper::newSeries()
 {
-    Series *series = Controller::seriesDao()->byTitle(m_title);
+    QSharedPointer<Series> series = Series::forTitle(m_title);
 
     if(!series) {
-        series = QPersistence::create<Series>();
+        series = Qp::create<Series>();
         series->setTitle(m_title);
-        QPersistence::insert(series);
+        Qp::update(series);
     }
 
-    return QList<Series *>() << series;
+    return QList<QSharedPointer<Series> >() << series;
 }
 
-QList<Episode *> NewSeriesScraper::newEpisodes()
+QList<QSharedPointer<Episode> > NewSeriesScraper::newEpisodes()
 {
-    return QList<Episode *>();
+    return QList<QSharedPointer<Episode> >();
 }

@@ -1,74 +1,73 @@
-#ifndef RESCANCOLLECTIONDIALOG_H
-#define RESCANCOLLECTIONDIALOG_H
+//#ifndef RESCANCOLLECTIONDIALOG_H
+//#define RESCANCOLLECTIONDIALOG_H
 
-#include <QDialog>
+//#include <QDialog>
 
-#include "plugins/downloadProviders/downloadproviderplugin.h"
+//#include "plugins/downloadProviders/downloadprovider.h"
 
-namespace Ui {
-class RescanCollectionDialog;
-}
+//namespace Ui {
+//class RescanCollectionDialog;
+//}
 
-class Scraper;
-class Series;
-class InformationProviderPlugin;
-template<class T>
-class QPersistenceSimpleDataAccessObject;
-class SeriesListModel;
-class QItemSelection;
-class Episode;
+//class Scraper;
+//class Series;
+//class InformationProvider;
+//class SeriesListModel;
+//class QItemSelection;
+//class Episode;
 
-class RescanCollectionDialog : public QDialog
-{
-    Q_OBJECT
+//class RescanCollectionDialog : public QDialog
+//{
+//    Q_OBJECT
     
-public:
-    explicit RescanCollectionDialog(Scraper *scraper, QWidget *parent = 0);
-    ~RescanCollectionDialog();
+//public:
+//    explicit RescanCollectionDialog(Scraper *scraper, QWidget *parent = 0);
+//    ~RescanCollectionDialog();
     
-    void scan();
+//    void scan();
 
-private slots:
-    void checkForNewSeries();
-    void confirmNextNewSeries();
+//private slots:
+//    void checkForNewSeries();
+//    void confirmNextNewSeries();
 
-    void search();
-    void displaySearchResults();
-    void showSelectedSeries();
+//    void search();
+//    void displaySearchResults();
+//    void showSelectedSeries();
 
-    void saveTvdbResultAndContinueToNextSeries();
-    void ignoreCurrentFolderAndContinueToNextSeries();
-    void continueToNextSeriesOrStartScraping();
-    void skipCurrentSeries();
-    void cleanupTvdbResultsPage();
-    void enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState);
+//    void saveTvdbResultAndContinueToSerienjunkiesSearch();
+//    void ignoreCurrentFolderAndContinueToNextSeries();
+//    void continueToNextSeriesOrStartScraping();
+//    void skipCurrentSeries();
+//    void clear();
+//    void enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState);
 
-    void searchDownlaodsAtSerienjunkies();
-    void downloadsFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);
+//    void searchDownlaodsAtSerienjunkies();
+//    void seriesFoundAtSerienjunkies(QList<DownloadProviderPlugin::SeriesData> series);
+//    void enableContinueButtonBasedOnSerienJunkiesURL();
+//    void saveSerienjunkiesUrlAndContinueToNextSeries();
 
-    void scrape();
-    void scrapeNextSeries();
-    void scrapeNextEpisode();
+//    void scrape();
+//    void scrapeNextSeries();
+//    void scrapeNextEpisode();
 
-    void finish();
+//    void finish();
 
-private:
-    Scraper *m_scraper;
-    Ui::RescanCollectionDialog *ui;
+//private:
+//    Scraper *m_scraper;
+//    Ui::RescanCollectionDialog *ui;
 
-    Series *m_currentSeries;
-    QList<Series *> m_newSeries;
-    InformationProviderPlugin *m_provider;
-    QList<Series *> m_scrapedSeries;
+//    QSharedPointer<Series> m_currentSeries;
+//    QList<QSharedPointer<Series> > m_newSeries;
+//    InformationProvider *m_provider;
+//    QList<QSharedPointer<Series> > m_scrapedSeries;
 
-    QPersistenceSimpleDataAccessObject<Series> *m_seriesDao;
-    SeriesListModel *m_seriesListModel;
-    int m_totalNewSeries;
+//    SeriesListModel *m_seriesListModel;
+//    int m_totalNewSeries;
 
-    QList<Episode *> m_newEpisodes;
-    Episode *m_currentEpisode;
-    int m_totalNewEpisodes;
-    int m_currentScrapingEpisode;
-};
+//    QList<QSharedPointer<Episode> > m_newEpisodes;
+//    QSharedPointer<Episode> m_currentEpisode;
+//    int m_totalNewEpisodes;
+//    int m_currentScrapingEpisode;
+//};
 
-#endif // RESCANCOLLECTIONDIALOG_H
+//#endif // RESCANCOLLECTIONDIALOG_H

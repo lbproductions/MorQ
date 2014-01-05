@@ -1,6 +1,6 @@
 #include "objectlistmodel.h"
 
-ObjectListModelBase::ObjectListModelBase(QObject *parent) :
+QpAbstractObjectListModelBase::QpAbstractObjectListModelBase(QObject *parent) :
     QAbstractListModel(parent)
 {
 }

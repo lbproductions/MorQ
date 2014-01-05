@@ -48,11 +48,11 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         progressBarOption.maximum = 100;
 
         if(!index.parent().isValid()) {
-            DownloadPackage *package = static_cast<DownloadPackage *>(index.internalPointer());
+            QSharedPointer<DownloadPackage> package = Qp::read<DownloadPackage>(index.internalId());
             progress = package->progress() * 100;
         }
         else {
-            Download *download = static_cast<Download *>(index.internalPointer());
+            QSharedPointer<Download> download = Qp::read<Download>(index.internalId());
             progress = download->downloadProgress() * 100;
 
             // Show indetermined progressbar
@@ -99,7 +99,7 @@ void DownloadsItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
     Q_UNUSED(model);
 
     CaptchaWidget *widget = static_cast<CaptchaWidget *>(editor);
-    DownloadPackage *package = static_cast<DownloadPackage *>(index.internalPointer());
+    QSharedPointer<DownloadPackage> package = Qp::read<DownloadPackage>(index.internalId());
     package->setCaptchaString(widget->text());
 }
 
@@ -120,7 +120,7 @@ void DownloadsItemDelegate::initStyleOption(QStyleOptionViewItem *option, const 
 {
     QStyledItemDelegate::initStyleOption(option, index);
     if(index.parent().isValid()) {
-        Download *download = static_cast<Download *>(index.internalPointer());
+        QSharedPointer<Download> download = Qp::read<Download>(index.internalId());
         if(!download->isEnabled()) {
             option->state = option->state & ~QStyle::State_Enabled;
         }

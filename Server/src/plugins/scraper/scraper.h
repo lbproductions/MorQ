@@ -14,9 +14,9 @@ public:
 
     virtual void scan() = 0;
 
-    virtual QList<Series*> newSeries() = 0;
+    virtual QList<QSharedPointer<Series> > newSeries() = 0;
 
-    virtual QList<Episode*> newEpisodes() = 0;
+    virtual QList<QSharedPointer<Episode> > newEpisodes() = 0;
     
 signals:
     void finished();

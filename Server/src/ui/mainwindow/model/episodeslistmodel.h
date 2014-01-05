@@ -7,7 +7,7 @@
 
 class Season;
 
-class EpisodesListModel : public ObjectListModel<Episode>
+class EpisodesListModel : public QpAbstractObjectListModel<Episode>
 {
     Q_OBJECT
 public:
@@ -16,16 +16,14 @@ public:
     enum Role{
         TitleRole = Qt::UserRole + 1,
         VideoPathRole,
-        DownloadLinkRole
+        DownloadLinkRole,
+        RawDataRole
     };
     
-    void setSeason(Season *season);
+    void setSeason(QSharedPointer<Season> season);
 
+    int columnCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
-    QList<Episode *> objects() const Q_DECL_OVERRIDE;
-
-private:
-    Season *m_season;
 };
 
 #endif // EPISODESLISTMODEL_H

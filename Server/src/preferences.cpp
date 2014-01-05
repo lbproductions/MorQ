@@ -118,6 +118,11 @@ QList<QLocale::Language> Preferences::languages()
     foreach(QString string, list) {
         result.append(static_cast<QLocale::Language>(string.toInt()));
     }
+
+    if(result.isEmpty()) {
+        result.append(QLocale::English);
+    }
+
     return result;
 }
 

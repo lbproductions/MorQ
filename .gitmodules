@@ -4,6 +4,3 @@
 [submodule "lib/QuunRar"]
 	path = lib/QuunRar
 	url = git@github.com:Kampfgnom/QuunRar.git
-[submodule "lib/QPersistence"]
-	path = lib/QPersistence
-	url = git@github.com:Kampfgnom/QPersistence.git

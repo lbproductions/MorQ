@@ -33,20 +33,20 @@ bool PremuimizeMePlugin::canHandleUrl(const QUrl &url) const
     return false;
 }
 
-void PremuimizeMePlugin::getDownloadInformation(Download *download)
+void PremuimizeMePlugin::getDownloadInformation(QSharedPointer<Download> download)
 {
     PremiumizeMeDownloadHandler *h = new PremiumizeMeDownloadHandler(download, this);
     h->getDownloadInformation();
 }
 
-Downloader *PremuimizeMePlugin::handleDownload(Download *download)
+Downloader *PremuimizeMePlugin::handleDownload(QSharedPointer<Download> download)
 {
     PremiumizeMeDownloadHandler *h = new PremiumizeMeDownloadHandler(download, this);
     h->download();
     return h->downloader();
 }
 
-PremiumizeMeDownloadHandler::PremiumizeMeDownloadHandler(Download *download, PremuimizeMePlugin *parent) :
+PremiumizeMeDownloadHandler::PremiumizeMeDownloadHandler(QSharedPointer<Download> download, PremuimizeMePlugin *parent) :
     QObject(parent),
     m_download(download),
     m_plugin(parent),
@@ -56,7 +56,7 @@ PremiumizeMeDownloadHandler::PremiumizeMeDownloadHandler(Download *download, Pre
         m_download->setFileName(m_downloader->fileName());
         m_download->setMessage(m_downloader->errorString());
         m_download->setEnabled(false);
-        QPersistence::update(m_download);
+        Qp::update(m_download);
 
         this->deleteLater();
     });
@@ -83,7 +83,7 @@ QNetworkReply *PremiumizeMeDownloadHandler::getDownloadInformationReply()
     getLinkUrl.setQuery(query);
 
     m_download->setMessage("Generating url...");
-    QPersistence::update(m_download);
+    Qp::update(m_download);
 
     QNetworkReply *reply = Controller::networkAccessManager()->get(QNetworkRequest(getLinkUrl));
 
@@ -117,7 +117,7 @@ void PremiumizeMeDownloadHandler::download()
 
     connect(this, &PremiumizeMeDownloadHandler::downloadInformationReady, [=]() {
         m_download->setDestinationFolder(Preferences::downloadFolder());
-        QPersistence::update(m_download);
+        Qp::update(m_download);
 
         m_downloader->setDestinationFolder(m_download->destinationFolder());
         m_downloader->startDownload();
@@ -125,10 +125,10 @@ void PremiumizeMeDownloadHandler::download()
 
     auto connection = QObject::connect(&s_timer, &QTimer::timeout, [=]() {
         m_download->setBytesDownloaded(m_downloader->bytesWritten());
-        QPersistence::update(m_download);
+        Qp::update(m_download);
     });
 
-    QObject::connect(m_download, &QObject::destroyed, [=]() {
+    QObject::connect(m_download.data(), &QObject::destroyed, [=]() {
         disconnect(connection);
     });
 
@@ -142,7 +142,7 @@ void PremiumizeMeDownloadHandler::download()
 
     QObject::connect(m_downloader, &Downloader::finished, [=]() {
         m_download->setBytesDownloaded(m_downloader->bytesWritten());
-        QPersistence::update(m_download);
+        Qp::update(m_download);
         this->deleteLater();
     });
 }
@@ -171,7 +171,7 @@ void PremiumizeMeDownloadHandler::generateLinkReplyFinished()
 
     m_download->setRedirectedUrl(QUrl(downloadUrl));
     m_download->setMessage("Getting file information...");
-    QPersistence::update(m_download);
+    Qp::update(m_download);
 
     m_downloader->setUrl(m_download->redirectedUrl());
     m_downloader->getMetaData();
@@ -181,7 +181,7 @@ void PremiumizeMeDownloadHandler::generateLinkReplyFinished()
         m_download->setFileName(m_downloader->fileName());
         m_download->setFileSize(m_downloader->fileSize());
         m_download->setMessage("");
-        QPersistence::update(m_download);
+        Qp::update(m_download);
 
         emit downloadInformationReady();
     });

@@ -17,7 +17,7 @@ public:
     explicit ExtractionController(QObject *parent = 0);
     ~ExtractionController();
     
-    void extractPackage(DownloadPackage *package);
+    void extractPackage(QSharedPointer<DownloadPackage> package);
 
 private slots:
     void extractFinishedPackage();
@@ -31,12 +31,12 @@ private slots:
     void downloadDestroyed();
 
 signals:
-    void extractionFinished(DownloadPackage *package);
+    void extractionFinished(QSharedPointer<DownloadPackage> package);
 
 private:
     QHash<QuunRarJob *, QElapsedTimer *> m_timers;
-    QHash<DownloadPackage *, Download *> m_currentExtractingDownloads;
-    QHash<QuunRarJob *, DownloadPackage *> m_runningExtractions;
+    QHash<QSharedPointer<DownloadPackage> , QSharedPointer<Download> > m_currentExtractingDownloads;
+    QHash<QuunRarJob *, QSharedPointer<DownloadPackage> > m_runningExtractions;
     QList<QuunRarJob *> m_jobs;
 
     void quitAndRemoveJob(QuunRarJob *job);

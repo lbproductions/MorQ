@@ -17,7 +17,7 @@ public:
     explicit SeriesWidget(QWidget *parent = 0);
     ~SeriesWidget();
     
-    void setSeries(Series *series);
+    void setSeries(QSharedPointer<Series> series);
 
 private:
     Ui::SeriesWidget *ui;

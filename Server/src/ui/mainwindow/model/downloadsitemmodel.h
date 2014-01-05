@@ -41,31 +41,31 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
-    Download *downloadByIndex(const QModelIndex &index) const;
-    DownloadPackage *packageByIndex(const QModelIndex &index) const;
+    QSharedPointer<Download> downloadByIndex(const QModelIndex &index) const;
+    QSharedPointer<DownloadPackage> packageByIndex(const QModelIndex &index) const;
 
 private slots:
-    void insertPackage(QObject *object);
-    void updatePackage(QObject *object);
-    void removePackage(QObject *object);
+    void insertPackage(QSharedPointer<QObject> object);
+    void updatePackage(QSharedPointer<QObject> object);
+    void removePackage(QSharedPointer<QObject> object);
 
-    void insertDownload(QObject *object);
-    void updateDownload(QObject *object);
-    void removeDownload(QObject *object);
+    void insertDownload(QSharedPointer<QObject> object);
+    void updateDownload(QSharedPointer<QObject> object);
+    void removeDownload(QSharedPointer<QObject> object);
 
 private:
-    QHash<DownloadPackage *, int> m_packageRows;
-    QMap<Download *, int> m_downloadRows;
+    QHash<QSharedPointer<DownloadPackage> , int> m_packageRows;
+    QMap<QSharedPointer<Download> , int> m_downloadRows;
 
-    void _insertPackage(DownloadPackage *package);
-    void _insertDownload(Download *download);
-    void _removeDownload(Download *download);
+    void _insertPackage(QSharedPointer<DownloadPackage> package);
+    void _insertDownload(QSharedPointer<Download> download);
+    void _removeDownload(QSharedPointer<Download> download);
 
     QString humanReadableSize(qint64 bytes) const;
 
     mutable QHash<QString, QIcon> m_icons;
 
-    QModelIndex indexForPackage(DownloadPackage *package) const;
+    QModelIndex indexForPackage(QSharedPointer<DownloadPackage> package) const;
 };
 
 #endif // DOWNLOADSITEMMODEL_H

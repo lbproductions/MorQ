@@ -155,6 +155,9 @@ border-bottom: 1px solid rgb(77,77,77);
             <property name="text">
              <string>TV Shows</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -276,6 +279,9 @@ background-color: #fff;
                <number>1</number>
               </property>
               <widget class="QTreeView" name="treeViewSeries">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -293,6 +299,9 @@ background-color: #fff;
                </property>
               </widget>
               <widget class="QTreeView" name="treeViewSeasons">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -310,8 +319,14 @@ background-color: #fff;
                </property>
               </widget>
               <widget class="QTreeView" name="treeViewEpisodes">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ActionsContextMenu</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="verticalScrollMode">
+                <enum>QAbstractItemView::ScrollPerItem</enum>
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
@@ -397,7 +412,7 @@ background-color: #fff;
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Downloads</string>
@@ -462,6 +477,9 @@ background-color: #fff;
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>TV Shows</string>
    </property>
@@ -484,6 +502,9 @@ background-color: #fff;
    <property name="text">
     <string>Download</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionRescan_collection">
    <property name="text">
@@ -494,6 +515,11 @@ background-color: #fff;
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionShow_in_Finder">
+   <property name="text">
+    <string>Show in Finder</string>
    </property>
   </action>
  </widget>

@@ -15,17 +15,18 @@
 ExtractionController::ExtractionController(QObject *parent) :
     QObject(parent)
 {
-    foreach(DownloadPackage *package, QPersistence::readAll<DownloadPackage>()) {
-        connect(package, &DownloadPackage::downloadFinished,
+    foreach(QSharedPointer<DownloadPackage> package, Qp::readAll<DownloadPackage>()) {
+        connect(package.data(), &DownloadPackage::downloadFinished,
                 this, &ExtractionController::extractFinishedPackage);
     }
 
-    connect(Controller::downloadPackagesDao(), &QPersistenceAbstractDataAccessObject::objectInserted, [=](QObject *obj) {
-        DownloadPackage *package = qobject_cast<DownloadPackage *>(obj);
+    connect(Qp::dataAccessObject<DownloadPackage>(), &QpDaoBase::objectCreated,
+            [=](QSharedPointer<QObject> obj) {
+        QSharedPointer<DownloadPackage> package = qSharedPointerCast<DownloadPackage>(obj);
         if(!package)
             return;
 
-        connect(package, &DownloadPackage::downloadFinished,
+        connect(package.data(), &DownloadPackage::downloadFinished,
                 this, &ExtractionController::extractFinishedPackage);
     });
 }
@@ -41,7 +42,7 @@ ExtractionController::~ExtractionController()
     }
 }
 
-void ExtractionController::extractPackage(DownloadPackage *package)
+void ExtractionController::extractPackage(QSharedPointer<DownloadPackage> package)
 {
     if(package->downloads().isEmpty())
         return;
@@ -49,12 +50,12 @@ void ExtractionController::extractPackage(DownloadPackage *package)
 //    if(!package->isDownloadFinished())
 //        return;
 
-    QList<Download *> dls = package->downloads();
-    qSort(dls.begin(), dls.end(), [](Download *dl1, Download *dl2) {
+    QList<QSharedPointer<Download> > dls = package->downloads();
+    qSort(dls.begin(), dls.end(), [](QSharedPointer<Download> dl1, QSharedPointer<Download> dl2) {
         return dl1->fileName() < dl2->fileName();
     });
 
-    Download *dl = dls.first();
+    QSharedPointer<Download> dl = dls.first();
 
     if(dl->destinationFolder().isEmpty())
         dl->setDestinationFolder(Preferences::downloadFolder());
@@ -64,7 +65,7 @@ void ExtractionController::extractPackage(DownloadPackage *package)
     rar->setPassword("serienjunkies.org");
     if(!rar->open()) {
         package->setMessage(QLatin1String("Extraction failed: ") + rar->errorString());
-        QPersistence::update(package);
+        Qp::update(package);
         return;
     }
 
@@ -78,7 +79,7 @@ void ExtractionController::extractPackage(DownloadPackage *package)
     m_jobs.append(job);
     m_runningExtractions.insert(job, package);
     m_currentExtractingDownloads.insert(package, dl);
-    QPersistence::update(package);
+    Qp::update(package);
 
     // Must not use lambdas, because the signals come from a different thread!
     connect(job, &QuunRarJob::dataProcessed,
@@ -96,17 +97,17 @@ void ExtractionController::extractPackage(DownloadPackage *package)
     connect(job, &QuunRarJob::error,
             this, &ExtractionController::error);
 
-    connect(dl, &QObject::destroyed,
+    connect(dl.data(), &QObject::destroyed,
             this, &ExtractionController::downloadDestroyed);
 
-    connect(package, &QObject::destroyed, [=]() {
+    connect(package.data(), &QObject::destroyed, [=]() {
         quitAndRemoveJob(job);
     });
 }
 
 void ExtractionController::extractFinishedPackage()
 {
-    DownloadPackage *package = qobject_cast<DownloadPackage *>(sender());
+    QSharedPointer<DownloadPackage> package = Qp::sharedFrom(qobject_cast<DownloadPackage *>(sender()));
     if(!package)
         return;
 
@@ -124,19 +125,19 @@ void ExtractionController::bytesProcessed()
         return;
     timer->restart();
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(!package) {
         quitAndRemoveJob(job);
         return;
     }
 
     package->setBytesExtracted(job->processedData());
-    QPersistence::update(package);
+    Qp::update(package);
 
-    Download *dl = m_currentExtractingDownloads.value(package);
+    QSharedPointer<Download> dl = m_currentExtractingDownloads.value(package);
     if(dl) {
         dl->setExtracting(true);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 }
 
@@ -144,17 +145,17 @@ void ExtractionController::volumeChanged(const QString &volumeName)
 {
     QuunRarJob *job = static_cast<QuunRarJob *>(sender());
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(!package) {
         quitAndRemoveJob(job);
         return;
     }
 
-    Download *dl = m_currentExtractingDownloads.value(package);
+    QSharedPointer<Download> dl = m_currentExtractingDownloads.value(package);
     if(dl) {
-        disconnect(dl, 0, this, 0);
+        disconnect(dl.data(), 0, this, 0);
         dl->setExtracting(false);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 
     QFileInfo info(volumeName);
@@ -162,13 +163,13 @@ void ExtractionController::volumeChanged(const QString &volumeName)
 
     foreach(dl, package->downloads()) {
         if(dl->fileName() == fileName) {
-            connect(dl, &QObject::destroyed,
+            connect(dl.data(), &QObject::destroyed,
                     this, &ExtractionController::downloadDestroyed);
 
             dl->setExtracting(true);
             m_currentExtractingDownloads.remove(package);
             m_currentExtractingDownloads.insert(package, dl);
-            QPersistence::update(dl);
+            Qp::update(dl);
             break;
         }
     }
@@ -178,22 +179,22 @@ void ExtractionController::finished()
 {
     QuunRarJob *job = static_cast<QuunRarJob *>(sender());
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(!package) {
         quitAndRemoveJob(job);
         return;
     }
 
-    Download *dl = m_currentExtractingDownloads.value(package);
+    QSharedPointer<Download> dl = m_currentExtractingDownloads.value(package);
     if(dl) {
         dl->setExtracting(false);
         m_currentExtractingDownloads.remove(package);
-        QPersistence::update(dl);
+        Qp::update(dl);
     }
 
     package->setBytesExtracted(job->processedData());
     package->setMessage(tr("Extract OK"));
-    QPersistence::update(package);
+    Qp::update(package);
 
     quitAndRemoveJob(job);
 }
@@ -202,21 +203,21 @@ void ExtractionController::currentFileChanged(const QString &fileName)
 {
     QuunRarJob *job = static_cast<QuunRarJob *>(sender());
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(!package) {
         quitAndRemoveJob(job);
         return;
     }
 
     package->setMessage(tr("Extracting %1").arg(fileName));
-    QPersistence::update(package);
+    Qp::update(package);
 }
 
 void ExtractionController::error()
 {
     QuunRarJob *job = static_cast<QuunRarJob *>(sender());
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(!package) {
         quitAndRemoveJob(job);
         return;
@@ -240,7 +241,7 @@ void ExtractionController::quitAndRemoveJob(QuunRarJob *job)
         m_timers.remove(job);
     }
 
-    DownloadPackage *package = m_runningExtractions.value(job);
+    QSharedPointer<DownloadPackage> package = m_runningExtractions.value(job);
     if(package) {
         if(m_currentExtractingDownloads.contains(package)) {
             m_currentExtractingDownloads.remove(package);

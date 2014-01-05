@@ -12,10 +12,10 @@ public:
     explicit RenamerPlugin(QObject *parent = 0);
 
 public slots:
-    virtual void renameEpisodes(QList<Episode*> episodes) = 0;
+    virtual void renameEpisodes(QList<QSharedPointer<Episode> > episodes) = 0;
     
 signals:
-    void finishedRenaming(Episode *episode);
+    void finishedRenaming(QSharedPointer<Episode> episode);
     
 public slots:
     

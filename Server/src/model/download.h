@@ -4,30 +4,27 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QPersistenceRelations.h>
 
 #include <QElapsedTimer>
 #include <QUrl>
 #include <QTime>
 
-class DownloadPackage;
+#include "downloadpackage.h"
 
 class Download : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
     Q_PROPERTY(QUrl redirectedUrl READ redirectedUrl WRITE setRedirectedUrl)
     Q_PROPERTY(QString destinationFolder READ destinationFolder WRITE setDestinationFolder)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
     Q_PROPERTY(QString message READ message WRITE setMessage)
-    Q_PROPERTY(DownloadPackage* package READ package WRITE setPackage)
+    Q_PROPERTY(QSharedPointer<DownloadPackage> package READ package WRITE setPackage)
     Q_PROPERTY(int fileSize READ fileSize WRITE setFileSize)
     Q_PROPERTY(int bytesDownloaded READ bytesDownloaded WRITE setBytesDownloaded)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
-    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
-                "autoincremented=true;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:package",
                 "reverserelation=downloads;")
 
@@ -37,11 +34,10 @@ public:
 
     void reset();
 
-    DownloadPackage *package() const;
-
-    int order() const;
+    QSharedPointer<DownloadPackage> package() const;
 
     int id() const;
+    int order() const;
 
     QUrl url() const;
     void setUrl(const QUrl &redirectedUrl);
@@ -82,14 +78,12 @@ signals:
     void enabled(bool);
 
 private:
+
+    void setPackage(QSharedPointer<DownloadPackage> package);
+
     friend class DownloadPackage;
-
-    void setId(int id);
-    void setPackage(DownloadPackage *package);
-
     void calculateSpeed() const;
 
-    int m_id;
     QUrl m_url;
     QUrl m_redirectedUrl;
     QString m_destinationFolder;
@@ -97,7 +91,7 @@ private:
     qint64 m_fileSize;
     qint64 m_bytesDownloaded;
     QString m_message;
-    DownloadPackage *m_package;
+    QpWeakRelation<DownloadPackage> m_package;
     bool m_enabled;
     bool m_extracting;
 
@@ -110,6 +104,6 @@ private:
     static float s_speedAlpha;
 };
 
-Q_DECLARE_METATYPE(Download *)
+Q_DECLARE_METATYPE(QSharedPointer<Download> )
 
 #endif // DOWNLOAD_H

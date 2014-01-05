@@ -3,16 +3,22 @@
 #include "model/series.h"
 
 SeasonsListModel::SeasonsListModel(QObject *parent) :
-    ObjectListModel<Season>(parent),
+    QpAbstractObjectListModel<Season>(parent),
     m_series(nullptr)
 {
 }
 
-void SeasonsListModel::setSeries(Series *series)
+int SeasonsListModel::columnCount(const QModelIndex &) const
 {
-    beginResetModel();
-    m_series = series;
-    endResetModel();
+    return 1;
+}
+
+void SeasonsListModel::setSeries(QSharedPointer<Series> series)
+{
+    if(!series)
+        setObjects(QList<QSharedPointer<Season> >());
+    else
+        setObjects(series->seasons());
 }
 
 
@@ -21,20 +27,13 @@ QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
 
-    Season *season = objectByIndex(index);
+    QSharedPointer<Season> season = objectByIndex(index);
     switch(role) {
     case Qt::DisplayRole:
         return season->title();
+    case RawDataRole:
+        return QVariant::fromValue<QSharedPointer<Season> >(season);
     }
 
     return QVariant();
-}
-
-
-QList<Season *> SeasonsListModel::objects() const
-{
-    if(!m_series)
-        return QList<Season *>();
-
-    return m_series->seasons();
 }

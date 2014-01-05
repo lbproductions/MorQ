@@ -3,16 +3,21 @@
 #include "model/season.h"
 
 EpisodesListModel::EpisodesListModel(QObject *parent) :
-    ObjectListModel<Episode>(parent),
-    m_season(nullptr)
+    QpAbstractObjectListModel<Episode>(parent)
 {
 }
 
-void EpisodesListModel::setSeason(Season *season)
+void EpisodesListModel::setSeason(QSharedPointer<Season> season)
 {
-    beginResetModel();
-    m_season = season;
-    endResetModel();
+    if(!season)
+        setObjects(QList<QSharedPointer<Episode> >());
+    else
+        setObjects(season->episodes());
+}
+
+int EpisodesListModel::columnCount(const QModelIndex &) const
+{
+    return 1;
 }
 
 QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
@@ -20,7 +25,7 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
 
-    Episode *episode = objectByIndex(index);
+    QSharedPointer<Episode> episode = objectByIndex(index);
 
     QString links = "";
     if(episode->downloadLinks().size() > 0) {
@@ -41,15 +46,9 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
     case DownloadLinkRole:
         return QString("%1")
                 .arg(links);
+    case RawDataRole:
+        return QVariant::fromValue<QSharedPointer<Episode> >(episode);
     }
 
     return QVariant();
-}
-
-QList<Episode *> EpisodesListModel::objects() const
-{
-    if(!m_season)
-        return QList<Episode *>();
-
-    return m_season->episodes();
 }

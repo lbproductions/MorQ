@@ -65,6 +65,8 @@ private slots:
 
     void on_pushButtonDown_clicked();
 
+    void on_actionClose_triggered();
+
 private:
     Ui::PreferencesWindow *ui;
 

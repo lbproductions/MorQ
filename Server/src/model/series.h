@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QPersistenceRelations.h>
 
 #include <QUrl>
 #include <QDate>
@@ -15,13 +16,10 @@ class Episode;
 class Series : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QUrl serienJunkiesUrl READ serienJunkiesUrl WRITE setSerienJunkiesUrl)
-    Q_PROPERTY(QList<Season*> seasons READ seasons WRITE setSeasons)
-    Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
-    Q_PROPERTY(QSet<int> additionalLanguages READ additionalLanguages WRITE setAdditionalLanguages)
-
+    Q_PROPERTY(QList<QSharedPointer<Season> > seasons READ seasons WRITE setSeasons)
+    Q_PROPERTY(QList<int> languages READ _languages WRITE _setLanguages)
     Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QString imdbId READ imdbId WRITE setImdbId)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
@@ -30,36 +28,30 @@ class Series : public QObject
     Q_PROPERTY(QStringList actors READ actors WRITE setActors)
     Q_PROPERTY(QStringList bannerUrls READ bannerUrls WRITE setBannerUrls)
     Q_PROPERTY(QStringList posterUrls READ posterUrls WRITE setPosterUrls)
-
     Q_PROPERTY(QStringList folders READ folders WRITE setFolders)
 
-    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
-                "autoincremented=true;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:seasons",
                 "reverserelation=series;")
 
 public:
+    static QSharedPointer<Series> forTitle(const QString &title);
+
     explicit Series(QObject *parent = 0);
     ~Series();
     
     // General
     int id() const;
 
-    QList<Season *> seasons(QLocale::Language language = QLocale::AnyLanguage) const;
-    Season *season(int number, QLocale::Language language = QLocale::AnyLanguage) const;
-    void removeSeason(Season *season);
-    void addSeason(Season *season);
+    QList<QSharedPointer<Season> > seasons() const;
+    QSharedPointer<Season> season(int number) const;
+    void removeSeason(QSharedPointer<Season> season);
+    void addSeason(QSharedPointer<Season> season);
 
-    QList<Episode *> episodes() const;
+    QList<QSharedPointer<Episode> > episodes() const;
 
-    QLocale::Language primaryLanguage() const;
-    void setPrimaryLanguage(QLocale::Language language);
-
-    QSet<QLocale::Language> languages() const;
+    QList<QLocale::Language> languages() const;
     void addLanguage(QLocale::Language language);
-
-    QPixmap primaryLanguageFlag() const;
+    void addLanguages(QList<QLocale::Language> languages);
 
     static QPixmap languageFlag(QLocale::Language language);
     static QString tvdbLanguage(QLocale::Language language);
@@ -111,17 +103,17 @@ signals:
     void checkStateChanged(Qt::CheckState oldState, Qt::CheckState newState);
 
 private:
-    void setId(int id);
-    void setSeasons(const QList<Season *> &seasons);
-    void setAdditionalLanguages(const QSet<int> &additionalLanguages);
-    QSet<int> additionalLanguages() const;
+    void setSeasons(const QList<QSharedPointer<Season> > &seasons);
+    QList<int> _languages() const;
+    void _setLanguages(const QList<int> &languages);
+    QMap<int, QSharedPointer<Season> > seasonsByNumber() const;
 
-    int m_id;
-    QLocale::Language m_primaryLanguage;
+    mutable QList<int> m_languages;
     int m_tvdbId;
     QString m_title;
     QUrl m_serienJunkiesUrl;
-    QMultiMap<int, Season *> m_seasons;
+    QpStrongRelation<Season> m_seasons;
+    mutable QMap<int, QSharedPointer<Season> > m_seasonsByNumber;
     QString m_imdbId;
     QString m_overview;
     QDate m_firstAired;
@@ -130,7 +122,6 @@ private:
     QStringList m_bannerUrls;
     QStringList m_posterUrls;
     Qt::CheckState m_checkState;
-    QSet<int> m_additionalLanguages;
     QStringList m_folders;
 };
 

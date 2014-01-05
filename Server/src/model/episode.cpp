@@ -2,41 +2,28 @@
 
 #include "series.h"
 #include "season.h"
-#include "videodownloadlink.h"
+#include "onlineresource.h"
 
 #include <QDebug>
 #include <QPixmap>
 
 Episode::Episode(QObject *parent) :
     QObject(parent),
-    m_id(-1),
     m_number(-1),
     m_seasonNumber(-1),
-    m_season(nullptr),
+    m_downloadLinks("downloadLinks", this),
+    m_season("season", this),
     m_primaryLanguage(QLocale::AnyLanguage)
 {
 }
 
 Episode::~Episode()
 {
-    qDebug() << "~Episode(" << m_id << ")=" << this;
-
-    if(m_season) {
-        m_season->removeEpisode(this);
-    }
-    foreach(VideoDownloadLink *link, m_downloadLinks) {
-        link->setEpisode(nullptr);
-    }
 }
 
 int Episode::id() const
 {
-    return m_id;
-}
-
-void Episode::setId(int id)
-{
-    m_id = id;
+    return Qp::primaryKey(Qp::sharedFrom(this));
 }
 
 int Episode::number() const
@@ -56,8 +43,6 @@ int Episode::seasonNumber() const
 
 void Episode::setSeasonNumber(int number)
 {
-    Q_ASSERT_X(!m_season, Q_FUNC_INFO, "You may not set the episode's season number, once it has a season");
-
     m_seasonNumber = number;
 }
 
@@ -71,28 +56,28 @@ void Episode::setSerienJunkiesTitle(const QString &title)
     m_serienJunkiesTitle = title;
 }
 
-Season *Episode::season() const
+QSharedPointer<Season> Episode::season() const
 {
-    return m_season;
+    return m_season.resolve();
 }
 
-void Episode::setSeason(Season *season)
+void Episode::setSeason(QSharedPointer<Season> season)
 {
     if(season)
         m_seasonNumber = season->number();
 
-    m_season = season;
+    m_season.relate(season);
 }
 
-QList<VideoDownloadLink *> Episode::downloadLinks() const
+QList<QSharedPointer<OnlineResource> > Episode::downloadLinks() const
 {
-    return m_downloadLinks;
+    return m_downloadLinks.resolveList();
 }
 
-QList<VideoDownloadLink *> Episode::downloadLinks(const QString &formatDescription, const QString &mirror) const
+QList<QSharedPointer<OnlineResource> > Episode::downloadLinks(const QString &formatDescription, const QString &mirror) const
 {
-    QList<VideoDownloadLink *> list;
-    foreach(VideoDownloadLink *link, m_downloadLinks) {
+    QList<QSharedPointer<OnlineResource> > list;
+    foreach(QSharedPointer<OnlineResource> link, downloadLinks()) {
         if(link->formatDescription() == formatDescription && link->mirror() == mirror) {
             list.append(link);
         }
@@ -100,29 +85,22 @@ QList<VideoDownloadLink *> Episode::downloadLinks(const QString &formatDescripti
     return list;
 }
 
-void Episode::addDownloadLink(VideoDownloadLink *link)
+void Episode::addDownloadLink(QSharedPointer<OnlineResource> link)
 {
-    Q_ASSERT(!m_downloadLinks.contains(link));
-
-    link->setEpisode(this);
-    m_downloadLinks.append(link);
+    link->setEpisode(Qp::sharedFrom(this));
+    m_downloadLinks.relate(link);
 }
 
-void Episode::removeDownloadLink(VideoDownloadLink *link)
+void Episode::removeDownloadLink(QSharedPointer<OnlineResource> link)
 {
-    Q_ASSERT(!m_downloadLinks.contains(link));
-
-    link->setEpisode(nullptr);
-    m_downloadLinks.removeAll(link);
+    link->setEpisode(QSharedPointer<Episode>());
+    m_downloadLinks.unrelate(link);
 }
 
-void Episode::setDownloadLinks(const QList<VideoDownloadLink *> &links)
+void Episode::setDownloadLinks(const QList<QSharedPointer<OnlineResource> > &links)
 {
     m_downloadLinks.clear();
-
-    foreach(VideoDownloadLink *link, links){
-        addDownloadLink(link);
-    }
+    m_downloadLinks.relate(links);
 }
 
 QString Episode::videoFile() const

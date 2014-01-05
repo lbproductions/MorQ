@@ -4,27 +4,22 @@
 #include <QObject>
 
 #include <QPersistence.h>
+#include <QPersistenceRelations.h>
 
 #include <QElapsedTimer>
 #include <QTime>
 #include <QUrl>
 
 class Download;
-class VideoDownloadLink;
 
 class DownloadPackage : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QString message READ message WRITE setMessage)
-    Q_PROPERTY(QList<Download*> downloads READ downloads WRITE setDownloads)
+    Q_PROPERTY(QList<QSharedPointer<Download> > downloads READ downloads WRITE setDownloads)
     Q_PROPERTY(QUrl sourceUrl READ sourceUrl WRITE setSourceUrl)
-    //Q_PROPERTY(QList<VideoDownloadLink*> videoDownloadLinks READ videoDownloadLinks WRITE setVideoDownloadLinks)
 
-    Q_CLASSINFO(QPERSISTENCE_PRIMARYKEY, "id")
-    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:id",
-                "autoincremented=true;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloads",
                 "reverserelation=package;")
 
@@ -43,13 +38,9 @@ public:
     QUrl sourceUrl() const;
     void setSourceUrl(const QUrl& url);
 
-    QList<Download *> downloads() const;
-    void addDownload(Download *download);
-    void removeDownload(Download *download);
-
-    QList<VideoDownloadLink *> videoDownloadLinks() const;
-    void addVideoDownloadLink(VideoDownloadLink *download);
-
+    QList<QSharedPointer<Download> > downloads() const;
+    void addDownload(QSharedPointer<Download> download);
+    void removeDownload(QSharedPointer<Download> download);
 
     QByteArray captcha() const;
     void setCaptcha(const QByteArray &captcha);
@@ -92,17 +83,14 @@ private slots:
     void maybeEmitDownloadFinished();
 
 private:
-    void setId(int id);
-    void setDownloads(const QList<Download *> downloads);
-    void setVideoDownloadLinks(const QList<VideoDownloadLink *> downloads);
+    void setDownloads(const QList<QSharedPointer<Download> > downloads);
 
     void calculateSpeed() const;
+    QList<QSharedPointer<Download> > differentDownloads() const;
 
-    qint64 m_id;
     QString m_name;
     QString m_message;
-    QList<Download *> m_downloads;
-    QList<VideoDownloadLink*> m_videoDownloadLinks;
+    QpStrongRelation<Download> m_downloads;
     QUrl m_sourceUrl;
     QByteArray m_captcha;
     QString m_captchaString;
@@ -121,6 +109,6 @@ private:
     QString m_extractFolder;
 };
 
-Q_DECLARE_METATYPE(DownloadPackage *)
+Q_DECLARE_METATYPE(QSharedPointer<DownloadPackage> )
 
 #endif // DOWNLOADPACKAGE_H

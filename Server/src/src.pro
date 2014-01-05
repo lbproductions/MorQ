@@ -20,13 +20,13 @@ include($$QUUNRAR_PATH/QuunRar.pri)
 TARGET          = MorQServer
 VERSION         = 0.0.0
 TEMPLATE        = app
-QT              += sql widgets network xml
+QT              += sql widgets network xml concurrent
 CONFIG          += c++11
 QMAKE_CXXFLAGS  += $$QPERSISTENCE_COMMON_QMAKE_CXXFLAGS
 DEFINES         += "VERSION=\"$$VERSION\""
 LIBS            += -framework AppKit
 
-### QPersistence ###
+### Qp ###
 
 INCLUDEPATH     += $$QPERSISTENCE_INCLUDEPATH
 LIBS            += $$QPERSISTENCE_LIBS
@@ -75,25 +75,19 @@ HEADERS += \
     ui/mainwindow/downloadsitemdelegate.h \
     controller/extractioncontroller.h \
     ui/dialogs/newserieswizard.h \
-    plugins/downloadProviders/downloadproviderplugin.h \
-    plugins/downloadProviders/serienjunkiesproviderplugin.h \
     ui/mainwindow/model/serieslistmodel.h \
     ui/mainwindow/serieslistitemdelegate.h \
     ui/mainwindow/model/seasonslistmodel.h \
     model/download.h \
     model/downloadpackage.h \
-    model/videodownloadlink.h \
     model/episode.h \
     model/season.h \
     model/series.h \
     ui/mainwindow/model/episodeslistmodel.h \
     ui/dialogs/choosedownloadlinksdialog.h \
-    ui/mainwindow/model/objectlistmodel.h \
-    plugins/informationProviders/informationproviderplugin.h \
     ui/mainwindow/noisygradientitemdelegate.h \
     ui/mainwindow/seasonslistitemdelegate.h \
     ui/mainwindow/episodeslistitemdelegate.h \
-    model/seriesdataaccessobject.h \
     ui/dialogs/rescancollectiondialog.h \
     plugins/scraper/filescraper.h \
     plugins/informationProviders/thetvdbinformationprovider.h \
@@ -103,7 +97,15 @@ HEADERS += \
     plugins/renamer/renamerplugin.h \
     plugins/renamer/classicrenamerandmoverplugin.h \
     plugins/scraper/scraper.h \
-    plugins/scraper/newseriesscraper.h
+    plugins/scraper/newseriesscraper.h \
+    controller/episodedownloadcontroller.h \
+    controller/scrapercontroller.h \
+    misc/tools.h \
+    plugins/plugins.h \
+    plugins/informationProviders/informationprovider.h \
+    plugins/downloadProviders/downloadprovider.h \
+    plugins/downloadProviders/serienjunkiesprovider.h \
+    model/onlineresource.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -123,25 +125,19 @@ SOURCES += main.cpp \
     ui/mainwindow/downloadsitemdelegate.cpp \
     controller/extractioncontroller.cpp \
     ui/dialogs/newserieswizard.cpp \
-    plugins/downloadProviders/downloadproviderplugin.cpp \
-    plugins/downloadProviders/serienjunkiesproviderplugin.cpp \
     ui/mainwindow/model/serieslistmodel.cpp \
     ui/mainwindow/serieslistitemdelegate.cpp \
     ui/mainwindow/model/seasonslistmodel.cpp \
     model/download.cpp \
     model/downloadpackage.cpp \
-    model/videodownloadlink.cpp \
     model/series.cpp \
     model/episode.cpp \
     model/season.cpp \
     ui/mainwindow/model/episodeslistmodel.cpp \
     ui/dialogs/choosedownloadlinksdialog.cpp \
-    ui/mainwindow/model/objectlistmodel.cpp \
-    plugins/informationProviders/informationproviderplugin.cpp \
     ui/mainwindow/noisygradientitemdelegate.cpp \
     ui/mainwindow/seasonslistitemdelegate.cpp \
     ui/mainwindow/episodeslistitemdelegate.cpp \
-    model/seriesdataaccessobject.cpp \
     ui/dialogs/rescancollectiondialog.cpp \
     plugins/scraper/filescraper.cpp \
     plugins/informationProviders/thetvdbinformationprovider.cpp \
@@ -151,7 +147,15 @@ SOURCES += main.cpp \
     plugins/renamer/renamerplugin.cpp \
     plugins/renamer/classicrenamerandmoverplugin.cpp \
     plugins/scraper/scraper.cpp \
-    plugins/scraper/newseriesscraper.cpp
+    plugins/scraper/newseriesscraper.cpp \
+    controller/episodedownloadcontroller.cpp \
+    controller/scrapercontroller.cpp \
+    misc/tools.cpp \
+    plugins/plugins.cpp \
+    plugins/informationProviders/informationprovider.cpp \
+    plugins/downloadProviders/downloadprovider.cpp \
+    plugins/downloadProviders/serienjunkiesprovider.cpp \
+    model/onlineresource.cpp
     #controller/filestorage.cpp
 
 FORMS += \

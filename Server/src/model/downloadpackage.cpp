@@ -1,6 +1,7 @@
 #include "downloadpackage.h"
 
 #include "download.h"
+#include "onlineresource.h"
 
 #include <QTime>
 #include <QDebug>
@@ -9,7 +10,7 @@ float DownloadPackage::s_speedAlpha(0.1);
 
 DownloadPackage::DownloadPackage(QObject *parent) :
     QObject(parent),
-    m_id(0),
+    m_downloads("downloads", this),
     m_bytesExtracted(-1),
     m_extractedFilesSize(-1),
     m_speed(0),
@@ -21,17 +22,11 @@ DownloadPackage::DownloadPackage(QObject *parent) :
 
 DownloadPackage::~DownloadPackage()
 {
-    qDebug() << "~DownloadPackage(" << m_id << ")=" << this;
 }
 
 int DownloadPackage::id() const
 {
-    return m_id;
-}
-
-void DownloadPackage::setId(int id)
-{
-    m_id = id;
+    return Qp::primaryKey(Qp::sharedFrom(this));
 }
 
 QString DownloadPackage::name() const
@@ -64,40 +59,24 @@ void DownloadPackage::setSourceUrl(const QUrl &url)
     m_sourceUrl = url;
 }
 
-QList<Download *> DownloadPackage::downloads() const
+QList<QSharedPointer<Download> > DownloadPackage::downloads() const
 {
-    return m_downloads;
+    return m_downloads.resolveList();
 }
 
-void DownloadPackage::addDownload(Download *download)
+void DownloadPackage::addDownload(QSharedPointer<Download> download)
 {
-    if(m_downloads.contains(download))
-        return;
-
-    connect(download, &Download::destroyed, [=]() {
-        m_downloads.removeAll(download);
-        disconnect(download, 0, this, 0);
-    });
-
-    connect(download, &Download::downloadFinished,
+    connect(download.data(), &Download::downloadFinished,
             this, &DownloadPackage::maybeEmitDownloadFinished);
-    download->setPackage(this);
-    m_downloads.append(download);
+    download->setPackage(Qp::sharedFrom(this));
+    m_downloads.relate(download);
 }
 
-void DownloadPackage::removeDownload(Download *download)
+void DownloadPackage::removeDownload(QSharedPointer<Download> download)
 {
-    if(!m_downloads.contains(download))
-        return;
-
-    disconnect(download, 0, this, 0);
-    download->setPackage(nullptr);
-    m_downloads.removeAll(download);
-}
-
-QList<VideoDownloadLink *> DownloadPackage::videoDownloadLinks() const
-{
-    return m_videoDownloadLinks;
+    disconnect(download.data(), 0, this, 0);
+    download->setPackage(QSharedPointer<DownloadPackage>());
+    m_downloads.unrelate(download);
 }
 
 QByteArray DownloadPackage::captcha() const
@@ -121,32 +100,24 @@ void DownloadPackage::setCaptchaString(const QString &string)
     emit captchaStringChanged();
 }
 
-void DownloadPackage::setDownloads(const QList<Download *> downloads)
+void DownloadPackage::setDownloads(const QList<QSharedPointer<Download> > downloads)
 {
-    foreach(Download *download, m_downloads){
-        disconnect(download, 0, this, 0);
+    foreach(QSharedPointer<Download> download, this->downloads()){
+        disconnect(download.data(), 0, this, 0);
     }
-    foreach(Download *download, downloads){
-        connect(download, &Download::downloadFinished,
+
+    foreach(QSharedPointer<Download> download, downloads){
+        connect(download.data(), &Download::downloadFinished,
                 this, &DownloadPackage::maybeEmitDownloadFinished);
-        connect(download, &Download::destroyed, [=]() {
-            m_downloads.removeAll(download);
-            disconnect(download, 0, this, 0);
-        });
     }
 
-    m_downloads = downloads;
-}
-
-void DownloadPackage::setVideoDownloadLinks(const QList<VideoDownloadLink *> downloads)
-{
-    m_videoDownloadLinks = downloads;
+    m_downloads.relate(downloads);
 }
 
 qint64 DownloadPackage::totalFileSize() const
 {
     qint64 total = 0;
-    foreach(Download *dl, downloads()) {
+    foreach(QSharedPointer<Download> dl, differentDownloads()) {
         total += dl->fileSize();
     }
 
@@ -156,7 +127,7 @@ qint64 DownloadPackage::totalFileSize() const
 qint64 DownloadPackage::bytesDownloaded() const
 {
     qint64 total = 0;
-    foreach(Download *dl, downloads()) {
+    foreach(QSharedPointer<Download> dl, differentDownloads()) {
         total += dl->bytesDownloaded();
     }
 
@@ -296,11 +267,24 @@ void DownloadPackage::calculateSpeed() const
         m_eta = m_eta.addSecs(int(bytesLeft / m_weightedSpeed));
 
         QTime maxDownloadEta = QTime();
-        foreach(Download *dl, m_downloads) {
+        foreach(QSharedPointer<Download> dl, downloads()) {
             maxDownloadEta = qMax(dl->eta(), maxDownloadEta);
         }
         m_eta = qMax(maxDownloadEta, m_eta);
     }
+}
+
+QList<QSharedPointer<Download> > DownloadPackage::differentDownloads() const
+{
+    QList<QSharedPointer<Download> > differentFiles;
+    QStringList fileNames;
+    foreach(QSharedPointer<Download>  dl, downloads()) {
+        if(!fileNames.contains(dl->fileName())) {
+            differentFiles.append(dl);
+            fileNames.append(dl->fileName());
+        }
+    }
+    return differentFiles;
 }
 
 qint64 DownloadPackage::speed() const
@@ -339,8 +323,3 @@ void DownloadPackage::setExtractFolder(const QString &extractFolder)
     m_extractFolder = extractFolder;
 }
 
-
-void DownloadPackage::addVideoDownloadLink(VideoDownloadLink *download)
-{
-    m_videoDownloadLinks.append(download);
-}

@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QHash>
 
+#include <model/download.h>
+
 class Downloader;
-class Download;
 class DownloadPackage;
 
 class DownloadController : public QObject
@@ -14,11 +15,11 @@ class DownloadController : public QObject
 public:
     void startDownloads();
     void stopDownloads();
-    void stopDownload(Download *download);
-    void removeDownload(Download *download);
-    void removePackage(DownloadPackage *package);
-    void resetDownload(Download *download);
-    void resetPackage(DownloadPackage *package);
+    void stopDownload(QSharedPointer<Download> download);
+    void removeDownload(QSharedPointer<Download> download);
+    void removePackage(QSharedPointer<DownloadPackage> package);
+    void resetDownload(QSharedPointer<Download> download);
+    void resetPackage(QSharedPointer<DownloadPackage> package);
 
     bool isDownloadRunning();
 
@@ -31,9 +32,9 @@ private:
 
     bool startNextDownload();
 
-    Download *findNextUnfinishedDownload();
+    QSharedPointer<Download> findNextUnfinishedDownload();
 
-    QList<Download *> m_runningDownloads;
+    QList<QSharedPointer<Download> > m_runningDownloads;
     QHash<int, Downloader *> m_runningDownloaders;
 
     Q_DISABLE_COPY(DownloadController)
