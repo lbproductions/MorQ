@@ -21,20 +21,10 @@ void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     // Paint gradient
     NoisyGradientItemDelegate::paint(painter, option, index);
 
-    QRectF boundingRect = drawTitleText(painter, option,
+    drawTitleText(painter, option,
                   index.data().toString(),
                   TITLE_OFFSET);
 
-    QSharedPointer<Series> series = index.data(SeriesListModel::RawDataRole).value<QSharedPointer<Series> >();
-
-    QPoint flagOffset = boundingRect.topRight().toPoint() - option.rect.topLeft() + FLAG_OFFSET;
-    foreach(QLocale::Language language, series->languages()) {
-        QPixmap pm = Series::languageFlag(language);
-        drawPixmap(painter, option,
-                   pm,
-                   flagOffset);
-        flagOffset.setX(flagOffset.x() + pm.width() + FLAT_MARGIN);
-    }
     drawText(painter, option,
              tr("Next episode in %1 days").arg("?"),
              NEXT_EPISODE_OFFSET);

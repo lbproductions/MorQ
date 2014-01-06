@@ -165,7 +165,6 @@ void SerienjunkiesProviderTask::seasonSearchFinished()
         if(!season) {
             season = Qp::create<Season>();
             series()->addSeason(season);
-
             season->setNumber(number);
             season->setTitle(s.title);
             Qp::update(season);
@@ -316,6 +315,7 @@ void SerienjunkiesProviderTask::_findDownloadLinks()
         newurl->setFormatDescription(url->formatDescription());
         newurl->setMirror(url->mirror());
         episode()->addDownloadLink(newurl);
+        episode()->setStatus(Episode::DownloadAvailable);
         Qp::update(newurl);
     }
 

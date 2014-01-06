@@ -197,6 +197,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         season->addEpisode(episode);
         episode->setVideoFile(result.absolutePath);
         episode->setPrimaryLanguage(result.language);
+        episode->setStatus(Episode::Ok);
         Qp::update(episode);
         m_newEpisodes.append(episode);
     }

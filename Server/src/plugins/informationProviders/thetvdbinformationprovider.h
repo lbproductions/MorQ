@@ -15,7 +15,6 @@ public:
 
     InformationProviderTask *searchSeries(const QString &title, QSharedPointer<Series> series = QSharedPointer<Series>()) Q_DECL_OVERRIDE;
     InformationProviderTask *scrapeSeries(QSharedPointer<Series> series) Q_DECL_OVERRIDE;
-    InformationProviderTask *scrapeEpisode(QSharedPointer<Episode> episode) Q_DECL_OVERRIDE;
     void saveSeriesResult(QSharedPointer<Series> source, QSharedPointer<Series> target) const Q_DECL_OVERRIDE;
     void saveEpisodeResult(QSharedPointer<Episode> source, QSharedPointer<Episode> target) const;
 

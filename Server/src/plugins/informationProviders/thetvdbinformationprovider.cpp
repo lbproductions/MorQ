@@ -89,14 +89,6 @@ InformationProviderTask *TheTvdbInformationProvider::scrapeSeries(QSharedPointer
     return task;
 }
 
-
-InformationProviderTask *TheTvdbInformationProvider::scrapeEpisode(QSharedPointer<Episode> episode)
-{
-    TheTvdbInformationProviderTask *task = new TheTvdbInformationProviderTask(this);
-    task->scrapeEpisode(episode);
-    return task;
-}
-
 void TheTvdbInformationProvider::saveSeriesResult(QSharedPointer<Series> source, QSharedPointer<Series> target) const
 {
     target->setTvdbId(source->tvdbId());
@@ -262,6 +254,7 @@ void TheTvdbInformationProviderTask::parseScrapeSeriesReply()
                 }
                 else {
                     originalEpisode = Qp::create<Episode>();
+                    originalEpisode->setStatus(Episode::Missing);
                     static_cast<TheTvdbInformationProvider *>(provider())->saveEpisodeResult(episode, originalEpisode);
                     season->addEpisode(originalEpisode);
                     Qp::update(originalEpisode);

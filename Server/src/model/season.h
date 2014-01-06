@@ -31,6 +31,13 @@ class Season : public QObject
                 "reverserelation=season;")
 
 public:
+    enum Status {
+        UnkownStatus = 0x0,
+        DownloadsAvailable = 0x1,
+        MissingEpisodes = 0x2,
+        Complete = 0x4
+    };
+
     explicit Season(QObject *parent = 0);
     ~Season();
 
@@ -38,6 +45,10 @@ public:
 
     int number() const;
     void setNumber(int number);
+
+    Season::Status status() const;
+    QPixmap statusPixmap() const;
+    QString statusMessage() const;
 
     QString title() const;
     void setTitle(const QString title);
@@ -72,5 +83,7 @@ private:
     mutable QMap<int, QSharedPointer<Episode> > m_episodesByNumber;
     QStringList m_folders;
 };
+
+Q_DECLARE_METATYPE(Season::Status)
 
 #endif // SEASON_H

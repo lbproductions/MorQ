@@ -13,11 +13,13 @@ public:
     explicit StatusBar(QWidget *parent = 0);
     ~StatusBar();
 
-    void setMessage(const QString &message);
+    void setLeftMessage(const QString &message);
+    void setRightMessage(const QString &message);
     void setWorking(bool working);
 
 private:
-    Label *m_messageLabel;
+    Label *m_messageLabelLeft;
+    Label *m_messageLabelRight;
     QLabel *m_workingIndicator;
     QMovie *m_workingGif;
 };

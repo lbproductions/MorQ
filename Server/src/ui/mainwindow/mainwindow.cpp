@@ -486,7 +486,7 @@ void MainWindow::on_actionAddDownload_triggered()
 void MainWindow::on_actionRescan_collection_triggered()
 {
     ui->statusbar->setWorking(true);
-    ui->statusbar->setMessage(tr("Scraping disk..."));
+    ui->statusbar->setLeftMessage(tr("Scraping disk..."));
     ui->actionRescan_collection->setEnabled(false);
     ui->actionRescan_collection->setText(tr("Scraping..."));
 
@@ -494,17 +494,17 @@ void MainWindow::on_actionRescan_collection_triggered()
     scraperController->scrapeLocal();
 
     connect(scraperController, &ScraperController::finishedLocalScrape, [=]{
-        ui->statusbar->setMessage(tr("Scraping TheTVDB..."));
+        ui->statusbar->setLeftMessage(tr("Scraping TheTVDB..."));
         scraperController->scrapeMissingTvdbInformation();
     });
 
     connect(scraperController, &ScraperController::finishedTvdbScrape, [=]{
-        ui->statusbar->setMessage(tr("Scraping serienjunkies.org..."));
+        ui->statusbar->setLeftMessage(tr("Scraping serienjunkies.org..."));
         scraperController->scrapeSerienjunkiesUrls();
     });
 
     connect(scraperController, &ScraperController::finishedSerienjunkiesScrape, [=]{
-        ui->statusbar->setMessage(tr(""));
+        ui->statusbar->setLeftMessage(tr(""));
         ui->statusbar->setWorking(false);
         ui->actionRescan_collection->setEnabled(true);
         ui->actionRescan_collection->setText(tr("Scrape collection"));

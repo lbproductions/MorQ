@@ -3,6 +3,7 @@
 #include "episode.h"
 #include "series.h"
 #include "onlineresource.h"
+#include "misc/tools.h"
 
 #include <QDebug>
 #include <QPixmap>
@@ -106,6 +107,99 @@ void Season::setSerienjunkiesUrls(const QList<QSharedPointer<OnlineResource> > &
 {
     m_serienjunkiesUrls.clear();
     m_serienjunkiesUrls.relate(serienjunkiesUrls);
+}
+
+Season::Status Season::status() const
+{
+    int downloads = 0;
+    int missing = 0;
+    int okay = 0;
+
+    foreach(QSharedPointer<Episode> e, episodes()) {
+        switch(e->status()) {
+        case Episode::DownloadAvailable:
+            ++downloads;
+            break;
+        case Episode::Missing:
+            ++missing;
+            break;
+        case Episode::Ok:
+            ++okay;
+        case Episode::Downloading:
+        case Episode::Extracting:
+        default:
+        case UnkownStatus:
+            break;
+        }
+    }
+
+    if(downloads > 0)
+        return Season::DownloadsAvailable;
+
+    if(missing > 0)
+        return Season::MissingEpisodes;
+
+    if(okay == episodes().count())
+        return Season::Complete;
+
+    return Season::UnkownStatus;
+}
+
+QPixmap Season::statusPixmap() const
+{
+    switch(status()) {
+    case DownloadsAvailable:
+        return Tools::cachedPixmap(":/icons/download_available");
+    case MissingEpisodes:
+        return Tools::cachedPixmap(":/icons/missing");
+    case Complete:
+        return Tools::cachedPixmap(":/icons/okay");
+    default:
+    case UnkownStatus:
+        break;
+    }
+
+    return Tools::cachedPixmap(":/icons/questionmark");
+}
+
+QString Season::statusMessage() const
+{
+    int downloads = 0;
+    int missing = 0;
+
+    foreach(QSharedPointer<Episode> e, episodes()) {
+        switch(e->status()) {
+        case Episode::DownloadAvailable:
+            ++downloads;
+            break;
+        case Episode::Missing:
+            ++missing;
+            break;
+        case Episode::Ok:
+        case Episode::Downloading:
+        case Episode::Extracting:
+        default:
+        case UnkownStatus:
+            break;
+        }
+    }
+
+    switch(status()) {
+    case DownloadsAvailable:
+        return tr("%1 downloads available")
+                .arg(downloads);
+    case MissingEpisodes:
+        return tr("%1 missing episodes")
+                .arg(missing);
+    case Complete:
+        return tr("%1 episodes")
+                .arg(episodes().count());
+    default:
+    case UnkownStatus:
+        break;
+    }
+
+    return tr("");
 }
 
 QSet<QLocale::Language> Season::languages() const

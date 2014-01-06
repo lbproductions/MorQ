@@ -11,17 +11,17 @@ Label::Label(QWidget *parent) :
 
 void Label::paintEvent(QPaintEvent *e)
 {
-    QMargins originalMargins = contentsMargins();
-    QPalette originalPalette = palette();
+//    QMargins originalMargins = contentsMargins();
+//    QPalette originalPalette = palette();
 
-    // Paint shadow first
-    setPalette(m_shadowPalette);
-    setContentsMargins(m_shadowMargins);
-    QLabel::paintEvent(e);
+//    // Paint shadow first
+//    setPalette(m_shadowPalette);
+//    setContentsMargins(m_shadowMargins);
+//    QLabel::paintEvent(e);
 
-    // Then paint normal QLabel
-    setPalette(originalPalette);
-    setContentsMargins(originalMargins);
+//    // Then paint normal QLabel
+//    setPalette(originalPalette);
+//    setContentsMargins(originalMargins);
     QLabel::paintEvent(e);
 }
 

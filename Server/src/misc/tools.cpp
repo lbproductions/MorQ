@@ -4,9 +4,23 @@
 #include <QVector>
 #include <QStringList>
 #include <QProcess>
+#include <QPixmapCache>
+#include <QDebug>
 
-Tools::Tools()
+QPixmap Tools::cachedPixmap(const QString &resource)
 {
+    QPixmap pm;
+    if(!QPixmapCache::find(resource, pm)) {
+        pm = QPixmap(resource);
+        if(pm.isNull()) {
+            qWarning() << QString("Could not find pixmap '%1'")
+                          .arg(resource);
+        }
+
+        QPixmapCache::insert(resource, pm);
+    }
+
+    return pm;
 }
 
 int Tools::levenshteinDistance(const QString &str1, const QString &str2)

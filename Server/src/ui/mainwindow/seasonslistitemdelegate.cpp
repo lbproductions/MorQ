@@ -3,9 +3,10 @@
 #include "model/seasonslistmodel.h"
 #include "model/series.h"
 
-static const QPoint TITLE_OFFSET(8,8);
+static const QPoint STATUS_ICON_OFFSET(8,8);
+static const QPoint TITLE_OFFSET(28,8);
 static const QPoint FLAG_OFFSET(10,3); // relative to title ending
-static const int FLAT_MARGIN = 2; // Gap between flags
+static const int FLAG_MARGIN = 2; // Gap between flags
 
 SeasonsListItemDelegate::SeasonsListItemDelegate(QAbstractItemView *view, QObject *parent) :
     NoisyGradientItemDelegate(view, parent)
@@ -22,18 +23,19 @@ void SeasonsListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     QSharedPointer<Season> season = index.data(SeasonsListModel::RawDataRole).value<QSharedPointer<Season> >();
 
+    drawPixmap(painter, option, season->statusPixmap(), STATUS_ICON_OFFSET);
+
     QPoint flagOffset = boundingRect.topRight().toPoint() - option.rect.topLeft() + FLAG_OFFSET;
     foreach(QLocale::Language language, season->languages()) {
         QPixmap pm = Series::languageFlag(language);
         drawPixmap(painter, option,
                    pm,
                    flagOffset);
-        flagOffset.setX(flagOffset.x() + pm.width() + FLAT_MARGIN);
+        flagOffset.setX(flagOffset.x() + pm.width() + FLAG_MARGIN);
     }
 
     drawText(painter, option,
-             tr("%1 episodes")
-             .arg(season->episodes().size()),
+             season->statusMessage(),
              TITLE_OFFSET,
              Qt::AlignRight);
 }

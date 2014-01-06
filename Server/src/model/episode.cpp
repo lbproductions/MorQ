@@ -3,6 +3,7 @@
 #include "series.h"
 #include "season.h"
 #include "onlineresource.h"
+#include "misc/tools.h"
 
 #include <QDebug>
 #include <QPixmap>
@@ -11,6 +12,7 @@ Episode::Episode(QObject *parent) :
     QObject(parent),
     m_number(-1),
     m_seasonNumber(-1),
+    m_status(Episode::UnkownStatus),
     m_downloadLinks("downloadLinks", this),
     m_season("season", this),
     m_primaryLanguage(QLocale::AnyLanguage)
@@ -44,16 +46,6 @@ int Episode::seasonNumber() const
 void Episode::setSeasonNumber(int number)
 {
     m_seasonNumber = number;
-}
-
-QString Episode::serienJunkiesTitle() const
-{
-    return m_serienJunkiesTitle;
-}
-
-void Episode::setSerienJunkiesTitle(const QString &title)
-{
-    m_serienJunkiesTitle = title;
 }
 
 QSharedPointer<Season> Episode::season() const
@@ -102,6 +94,57 @@ void Episode::setDownloadLinks(const QList<QSharedPointer<OnlineResource> > &lin
     m_downloadLinks.clear();
     m_downloadLinks.relate(links);
 }
+
+Episode::Status Episode::status() const
+{
+    return m_status;
+}
+
+void Episode::setStatus(Status status)
+{
+    m_status = status;
+}
+
+QPixmap Episode::statusPixmap() const
+{
+    switch(status()) {
+    case DownloadAvailable:
+        return Tools::cachedPixmap(":/icons/download_available");
+    case Missing:
+        return Tools::cachedPixmap(":/icons/missing");
+    case Ok:
+        return Tools::cachedPixmap(":/icons/okay");
+    case Downloading:
+        return Tools::cachedPixmap(":/icons/downloading");
+    case Extracting:
+    default:
+    case UnkownStatus:
+        break;
+    }
+
+    return Tools::cachedPixmap(":/icons/questionmark");
+}
+
+QString Episode::statusMessage() const
+{
+    switch(status()) {
+    case DownloadAvailable:
+        return tr("Download available");
+    case Missing:
+        return tr("Episode missing");
+    case Ok:
+        return tr("Okay");
+    case Downloading:
+        return tr("Download running...");
+    case Extracting:
+        return tr("Extracting...");
+    default:
+    case UnkownStatus:
+        break;
+    }
+    return tr("Unknown status");
+}
+
 
 QString Episode::videoFile() const
 {

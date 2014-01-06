@@ -12,4 +12,11 @@
     <qresource prefix="/general">
         <file alias="noisy-texture-200x200">general/noisy-texture-200x200.png</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="download_available">icons/download_available.png</file>
+        <file alias="downloading">icons/downloading.png</file>
+        <file alias="missing">icons/missing.png</file>
+        <file alias="okay">icons/okay.png</file>
+        <file alias="questionmark">icons/questionmark.png</file>
+    </qresource>
 </RCC>

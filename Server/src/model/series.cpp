@@ -2,6 +2,7 @@
 
 #include "season.h"
 #include "preferences.h"
+#include "misc/tools.h"
 
 #include <QDebug>
 #include <QPixmapCache>
@@ -213,18 +214,7 @@ void Series::addLanguages(QList<QLocale::Language> languages)
 QPixmap Series::languageFlag(QLocale::Language language)
 {
     QString flag = QString(":/flags/%1.png").arg(Series::tvdbLanguage(language));
-    QPixmap pm;
-    if(!QPixmapCache::find(flag, pm)) {
-        pm = QPixmap(flag);
-        if(pm.isNull()) {
-            qWarning() << QString("Could not find flag '%1'")
-                          .arg(flag);
-        }
-
-        QPixmapCache::insert(flag, pm);
-    }
-
-    return pm;
+    return Tools::cachedPixmap(flag);
 }
 
 QString Series::tvdbLanguage(QLocale::Language language)

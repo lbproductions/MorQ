@@ -18,7 +18,6 @@ public:
 
     virtual InformationProviderTask *searchSeries(const QString &title, QSharedPointer<Series> series = QSharedPointer<Series>()) = 0;
     virtual InformationProviderTask *scrapeSeries(QSharedPointer<Series> series) = 0;
-    virtual InformationProviderTask *scrapeEpisode(QSharedPointer<Episode> episode) = 0;
 
     virtual void saveSeriesResult(QSharedPointer<Series> source, QSharedPointer<Series> target) const = 0;
 };
