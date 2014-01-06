@@ -41,8 +41,11 @@ void ScraperController::scrapeMissingTvdbInformation()
     connect(informationProvider, &InformationProvider::finishedAllTasks,
             this, &ScraperController::finishedTvdbScrape);
 
+    bool hasNewSeries = false;
     foreach(QSharedPointer<Series> s , series) {
         if(s->tvdbId() < 0) {
+            hasNewSeries = true;
+
             InformationProviderTask *task = informationProvider->searchSeries(s->title(), s);
 
             connect(task, &InformationProviderTask::finished,
@@ -51,6 +54,9 @@ void ScraperController::scrapeMissingTvdbInformation()
                     task, &QObject::deleteLater); // TODO: handle InformationTask::error
         }
     }
+
+    if(!hasNewSeries)
+        emit finishedTvdbScrape();
 }
 
 void ScraperController::interpretTvdbSearchResults()
@@ -128,12 +134,18 @@ void ScraperController::scrapeSerienjunkiesUrls()
 {
     DownloadProvider *downloadProvider = Plugins::downloadProvider(SerienjunkiesProvider::Name);
 
+    connect(downloadProvider, &DownloadProvider::finishedAllTasks,
+            this, &ScraperController::finishedSerienjunkiesScrape);
+
+    bool hasScrapedEpisode = false;
     foreach(QSharedPointer<Episode> e, Qp::readAll<Episode>()) {
         if(!e->videoFile().isEmpty())
             continue;
 
         if(!e->downloadLinks().isEmpty())
             continue;
+
+        hasScrapedEpisode = true;
 
         DownloadProviderTask *task = downloadProvider->findDownloadLinks(e);
 
@@ -142,4 +154,7 @@ void ScraperController::scrapeSerienjunkiesUrls()
         connect(task, &DownloadProviderTask::error,
                 task, &QObject::deleteLater);
     }
+
+    if(!hasScrapedEpisode)
+        emit finishedSerienjunkiesScrape();
 }

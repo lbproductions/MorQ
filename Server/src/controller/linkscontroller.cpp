@@ -118,7 +118,6 @@ void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > link
             if(decrypter->canHandleUrl(url)) {
                 QSharedPointer<DownloadPackage> package = createPackage(url);
                 package->setExtractFolder(link->extractFolder());
-//                package->addDownload(link);
                 decrypter->handlePackage(package);
                 return;
             }

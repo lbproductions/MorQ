@@ -14,7 +14,7 @@
    <string>Media OrQanizer</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QStatusBar {
+   <string notr="true">StatusBar {
 background: url(:/statusBar/background) repeat-x;
 }</string>
   </property>
@@ -399,7 +399,7 @@ background-color: #fff;
    <addaction name="menuView"/>
    <addaction name="menuExtras"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar">
+  <widget class="StatusBar" name="statusbar">
    <property name="minimumSize">
     <size>
      <width>0</width>
@@ -526,6 +526,13 @@ background-color: #fff;
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>StatusBar</class>
+   <extends>QStatusBar</extends>
+   <header location="global">ui/mainwindow/statusbar.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -22,6 +22,8 @@ private:
 class SerienjunkiesProviderTask : public DownloadProviderTask
 {
     Q_OBJECT
+public:
+    ~SerienjunkiesProviderTask();
 
 private slots:
     void seriesSearchFinished();

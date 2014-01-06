@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreGeometry(settings.value(WINDOWGEOMETRY, "").toByteArray());
     restoreState(settings.value(WINDOWSTATE, "").toByteArray());
     ui->treeViewDownloads->header()->restoreState(settings.value(DOWNLOADSHEADERSTATE, "").toByteArray());
-    //    ui->splitter_2->restoreState(settings.value(SERIESPAGESPLITTERSTATE, "").toByteArray());
+    ui->splitter_2->restoreState(settings.value(SERIESPAGESPLITTERSTATE, "").toByteArray());
 
     connect(Controller::downloads(), &DownloadController::statusChanged,
             this, &MainWindow::enableActionsAccordingToDownloadStatus);
@@ -485,14 +485,31 @@ void MainWindow::on_actionAddDownload_triggered()
 
 void MainWindow::on_actionRescan_collection_triggered()
 {
+    ui->statusbar->setWorking(true);
+    ui->statusbar->setMessage(tr("Scraping disk..."));
+    ui->actionRescan_collection->setEnabled(false);
+    ui->actionRescan_collection->setText(tr("Scraping..."));
+
     ScraperController *scraperController = new ScraperController(this);
     scraperController->scrapeLocal();
 
-    connect(scraperController, &ScraperController::finishedLocalScrape,
-            scraperController, &ScraperController::scrapeMissingTvdbInformation);
+    connect(scraperController, &ScraperController::finishedLocalScrape, [=]{
+        ui->statusbar->setMessage(tr("Scraping TheTVDB..."));
+        scraperController->scrapeMissingTvdbInformation();
+    });
 
-    connect(scraperController, &ScraperController::finishedTvdbScrape,
-            scraperController, &ScraperController::scrapeSerienjunkiesUrls);
+    connect(scraperController, &ScraperController::finishedTvdbScrape, [=]{
+        ui->statusbar->setMessage(tr("Scraping serienjunkies.org..."));
+        scraperController->scrapeSerienjunkiesUrls();
+    });
+
+    connect(scraperController, &ScraperController::finishedSerienjunkiesScrape, [=]{
+        ui->statusbar->setMessage(tr(""));
+        ui->statusbar->setWorking(false);
+        ui->actionRescan_collection->setEnabled(true);
+        ui->actionRescan_collection->setText(tr("Scrape collection"));
+        scraperController->deleteLater();
+    });
 }
 
 void MainWindow::on_actionShow_in_Finder_triggered()

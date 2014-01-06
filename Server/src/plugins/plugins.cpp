@@ -68,6 +68,7 @@ QString PluginTask::errorMessage() const
 
 void PluginTask::setErrorMessage(const QString &errorMessage)
 {
+    qDebug() << errorMessage;
     m_errorMessage = errorMessage;
     emit error(errorMessage);
 }
