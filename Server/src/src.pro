@@ -105,7 +105,9 @@ HEADERS += \
     plugins/informationProviders/informationprovider.h \
     plugins/downloadProviders/downloadprovider.h \
     plugins/downloadProviders/serienjunkiesprovider.h \
-    model/onlineresource.h
+    model/onlineresource.h \
+    ui/mainwindow/statusbar.h \
+    ui/widgets/label.h
     #controller/filestorage.h
 
 SOURCES += main.cpp \
@@ -155,7 +157,9 @@ SOURCES += main.cpp \
     plugins/informationProviders/informationprovider.cpp \
     plugins/downloadProviders/downloadprovider.cpp \
     plugins/downloadProviders/serienjunkiesprovider.cpp \
-    model/onlineresource.cpp
+    model/onlineresource.cpp \
+    ui/mainwindow/statusbar.cpp \
+    ui/widgets/label.cpp
     #controller/filestorage.cpp
 
 FORMS += \

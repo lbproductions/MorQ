@@ -22,6 +22,7 @@ public slots:
 signals:
     void finishedLocalScrape();
     void finishedTvdbScrape();
+    void finishedSerienjunkiesScrape();
 
 private slots:
     void onFileScraperFinish();

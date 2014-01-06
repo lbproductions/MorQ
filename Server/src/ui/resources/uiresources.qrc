@@ -6,6 +6,8 @@
     </qresource>
     <qresource prefix="/statusBar">
         <file alias="background">statusBar/background.png</file>
+        <file alias="loader2">statusBar/loader.gif</file>
+        <file alias="loader">statusBar/ajax-loader.gif</file>
     </qresource>
     <qresource prefix="/general">
         <file alias="noisy-texture-200x200">general/noisy-texture-200x200.png</file>

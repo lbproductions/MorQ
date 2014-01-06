@@ -43,6 +43,10 @@ SerienjunkiesProviderTask::SerienjunkiesProviderTask(SerienjunkiesProvider *pare
 {
 }
 
+SerienjunkiesProviderTask::~SerienjunkiesProviderTask()
+{
+}
+
 QSharedPointer<Series> SerienjunkiesProviderTask::series() const
 {
     return m_series;
@@ -125,6 +129,8 @@ void SerienjunkiesProviderTask::findSeasonUrls(QSharedPointer<Series> series)
             task = s_seriesSearchTasks.value(series);
         }
 
+        connect(task, &SerienjunkiesProviderTask::error,
+                this, &SerienjunkiesProviderTask::setErrorMessage);
         connect(task, &SerienjunkiesProviderTask::finished,
                 this, &SerienjunkiesProviderTask::_findSeasonUrls);
 
@@ -195,6 +201,8 @@ void SerienjunkiesProviderTask::findAllDownloadLinks(QSharedPointer<Season> seas
             task = s_seasonSearchTasks.value(season->series());
         }
 
+        connect(task, &SerienjunkiesProviderTask::error,
+                this, &SerienjunkiesProviderTask::setErrorMessage);
         connect(task, &SerienjunkiesProviderTask::finished,
                 this, &SerienjunkiesProviderTask::_findAllDownloadLinks);
 
@@ -213,6 +221,13 @@ void SerienjunkiesProviderTask::_findAllDownloadLinks()
                 this, &SerienjunkiesProviderTask::downloadLinkSearchFinished);
         connect(reply, &QSerienJunkiesReply::error,
                 this, &SerienjunkiesProviderTask::handleSerienjunkiesError);
+    }
+
+    if(m_requestCount == 0) {
+        s_linkSearchTasks.remove(season());
+        emit error(tr("No serienjunkies URL for show '%1' season %2")
+                   .arg(season()->series()->title())
+                   .arg(season()->number()));
     }
 }
 
@@ -236,7 +251,6 @@ void SerienjunkiesProviderTask::downloadLinkSearchFinished()
                     continue;
                 }
 
-
                 QSharedPointer<OnlineResource> url = QSharedPointer<OnlineResource>(new OnlineResource(this));
                 url->setUrl(link.url);
                 url->setName(link.name);
@@ -249,6 +263,7 @@ void SerienjunkiesProviderTask::downloadLinkSearchFinished()
 
     --m_requestCount;
     if(m_requestCount == 0) {
+        s_linkSearchTasks.remove(season());
         emit finished();
     }
 }
@@ -270,6 +285,8 @@ void SerienjunkiesProviderTask::findDownloadLinks(QSharedPointer<Episode> episod
         task = s_linkSearchTasks.value(season());
     }
 
+    connect(task, &SerienjunkiesProviderTask::error,
+            this, &SerienjunkiesProviderTask::setErrorMessage);
     connect(task, &SerienjunkiesProviderTask::finished,
             this, &SerienjunkiesProviderTask::_findDownloadLinks);
 }
@@ -279,7 +296,16 @@ void SerienjunkiesProviderTask::_findDownloadLinks()
     QScopedPointer<SerienjunkiesProviderTask, QScopedPointerObjectDeleteLater<SerienjunkiesProviderTask> >
             task(static_cast<SerienjunkiesProviderTask *>(sender()));
 
-    foreach(QSharedPointer<OnlineResource> url, task->urlsForEpisode(episode())) {
+    QList<QSharedPointer<OnlineResource> > urls = task->urlsForEpisode(episode());
+
+    if(urls.isEmpty()) {
+        emit error(tr("No serienjunkies URL for show '%1' season %2 episode %3")
+                   .arg(episode()->season()->series()->title())
+                   .arg(episode()->season()->number())
+                   .arg(episode()->number()));
+    }
+
+    foreach(QSharedPointer<OnlineResource> url, urls) {
         if(!url->mirror().startsWith("uploaded.to")) {
             continue;
         }
@@ -292,12 +318,13 @@ void SerienjunkiesProviderTask::_findDownloadLinks()
         episode()->addDownloadLink(newurl);
         Qp::update(newurl);
     }
+
+    emit finished();
 }
 
 void SerienjunkiesProviderTask::handleSerienjunkiesError()
 {
     QScopedPointer<QSerienJunkiesReply, QScopedPointerObjectDeleteLater<QSerienJunkiesReply> >
             reply(static_cast<QSerienJunkiesReply *>(sender()));
-    qDebug() << reply->errorString();
     setErrorMessage(reply->errorString());
 }
