@@ -126,11 +126,14 @@ QPixmap Episode::statusPixmap() const
         return Tools::cachedPixmap(":/icons/okay");
     case Downloading:
         return Tools::cachedPixmap(":/icons/downloading");
+    case Upcoming:
     case Extracting:
     default:
     case UnkownStatus:
         break;
     }
+
+    // TODO: Add missing episode status icons
 
     return Tools::cachedPixmap(":/icons/questionmark");
 }
@@ -148,6 +151,9 @@ QString Episode::statusMessage() const
         return tr("Download running...");
     case Extracting:
         return tr("Extracting...");
+    case Upcoming:
+        return tr("Airs in %1 days")
+                .arg(QDate::currentDate().daysTo(firstAired()));
     default:
     case UnkownStatus:
         break;

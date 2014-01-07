@@ -255,8 +255,17 @@ void TheTvdbInformationProviderTask::parseScrapeSeriesReply()
                 }
                 else {
                     originalEpisode = Qp::create<Episode>();
-                    originalEpisode->setStatus(Episode::Missing);
                     static_cast<TheTvdbInformationProvider *>(provider())->saveEpisodeResult(episode, originalEpisode);
+                    if(originalEpisode->firstAired().isValid()) {
+                        if(originalEpisode->firstAired() > QDate::currentDate())
+                            originalEpisode->setStatus(Episode::Upcoming);
+                        else
+                            originalEpisode->setStatus(Episode::Missing);
+                    }
+                    else {
+                        originalEpisode->setStatus(Episode::UnkownStatus);
+                    }
+
                     season->addEpisode(originalEpisode);
                     Qp::update(originalEpisode);
                 }

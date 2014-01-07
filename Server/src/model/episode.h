@@ -36,7 +36,8 @@ public:
         Missing = 0x2,
         Ok = 0x4,
         Downloading = 0x8,
-        Extracting = 0x16
+        Extracting = 0x16,
+        Upcoming
     };
 
     explicit Episode(QObject *parent = 0);
