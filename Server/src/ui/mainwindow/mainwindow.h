@@ -18,6 +18,7 @@ class EpisodesListModel;
 class SeasonSortFilterProxyModel;
 class SeriesSortFilterProxyModel;
 class HeaderView;
+class EpisodesSortFilterProxyModel;
 
 class MainWindow : public QMainWindow
 {
@@ -68,8 +69,10 @@ private:
     SeasonsListModel *m_seasonsModel;
     SeasonSortFilterProxyModel *m_seasonsProxyModel;
     EpisodesListModel *m_episodesModel;
+    EpisodesSortFilterProxyModel *m_episodesProxyModel;
     HeaderView *m_seriesHeaderView;
     HeaderView *m_seasonsHeaderView;
+    HeaderView *m_episodesHeaderView;
 };
 
 Q_DECLARE_METATYPE(Qt::SortOrder)

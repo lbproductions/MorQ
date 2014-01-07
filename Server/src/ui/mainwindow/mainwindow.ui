@@ -294,11 +294,14 @@ background-color: #fff;
                <property name="rootIsDecorated">
                 <bool>false</bool>
                </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
                <property name="headerHidden">
                 <bool>false</bool>
                </property>
                <attribute name="headerShowSortIndicator" stdset="0">
-                <bool>false</bool>
+                <bool>true</bool>
                </attribute>
               </widget>
               <widget class="QTreeView" name="treeViewSeasons">
@@ -336,6 +339,9 @@ background-color: #fff;
                </property>
                <property name="rootIsDecorated">
                 <bool>false</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
                </property>
                <attribute name="headerVisible">
                 <bool>false</bool>

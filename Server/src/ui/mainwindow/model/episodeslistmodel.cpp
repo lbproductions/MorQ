@@ -52,3 +52,23 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
 
     return QVariant();
 }
+
+EpisodesSortFilterProxyModel::EpisodesSortFilterProxyModel(EpisodesListModel *sourceModel, QObject *parent) :
+    QpSortFilterProxyObjectModel<Episode>(sourceModel, parent)
+{
+}
+
+bool EpisodesSortFilterProxyModel::lessThan(QSharedPointer<Episode> left, QSharedPointer<Episode> right) const
+{
+    if(sortRole() == Number)
+        return left->number() < right->number();
+
+    return left < right;
+}
+
+QStringList EpisodesSortFilterProxyModel::sortRoles() const
+{
+    static QStringList roles = QStringList()
+            << tr("Number");
+    return roles;
+}

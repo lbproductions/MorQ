@@ -48,6 +48,8 @@ static const QString SERIESSORTINDICATOR("ui/mainwindow/series/sortindicator");
 static const QString SERIESSORTROLE("ui/mainwindow/series/sortrole");
 static const QString SEASONSSORTINDICATOR("ui/mainwindow/seasons/sortindicator");
 static const QString SEASONSSORTROLE("ui/mainwindow/seasons/sortrole");
+static const QString EPISODESSSORTINDICATOR("ui/mainwindow/episodes/sortindicator");
+static const QString EPISODESSORTROLE("ui/mainwindow/episodes/sortrole");
 
 MainWindow *MainWindow::s_instance = 0;
 
@@ -84,7 +86,6 @@ MainWindow::MainWindow(QWidget *parent) :
     SeriesListModel *seriesModel = new SeriesListModel(this);
     m_seriesProxyModel = new SeriesSortFilterProxyModel(seriesModel, this);
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->treeViewSeries->setSortingEnabled(true);
     ui->treeViewSeries->setModel(m_seriesProxyModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
     ui->treeViewSeries->addAction(ui->actionAddDownload);
@@ -109,11 +110,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_episodesModel = new EpisodesListModel(this);
     m_episodesModel->setSeason(QSharedPointer<Season>()); // calling this disables updates from the global signals
+    m_episodesProxyModel = new EpisodesSortFilterProxyModel(m_episodesModel, this);
     ui->treeViewEpisodes->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->treeViewEpisodes->setModel(m_episodesModel);
+    ui->treeViewEpisodes->setModel(m_episodesProxyModel);
     ui->treeViewEpisodes->setItemDelegate(new EpisodesListItemDelegate(ui->treeViewEpisodes, this));
     ui->treeViewEpisodes->addAction(ui->actionAddDownload);
     ui->treeViewEpisodes->addAction(ui->actionShow_in_Finder);
+    m_episodesHeaderView = new HeaderView(ui->treeViewEpisodes);
+    m_episodesHeaderView->setSortModel(m_episodesProxyModel);
+    m_episodesHeaderView->setStretchLastSection(true);
+    ui->treeViewEpisodes->setHeader(m_episodesHeaderView);
 
     connect(ui->treeViewSeries->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::showSeasonsForSelectedSeries);
@@ -139,6 +145,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_seriesHeaderView->setSortIndicator(0, static_cast<Qt::SortOrder>(settings.value(SERIESSORTINDICATOR, Qt::AscendingOrder).toInt()));
     m_seasonsProxyModel->setSortRole(settings.value(SEASONSSORTROLE, 0).toInt());
     m_seasonsHeaderView->setSortIndicator(0, static_cast<Qt::SortOrder>(settings.value(SEASONSSORTINDICATOR, Qt::AscendingOrder).toInt()));
+    m_episodesProxyModel->setSortRole(settings.value(EPISODESSORTROLE, 0).toInt());
+    m_episodesHeaderView->setSortIndicator(0, static_cast<Qt::SortOrder>(settings.value(EPISODESSSORTINDICATOR, Qt::AscendingOrder).toInt()));
 
     connect(Controller::downloads(), &DownloadController::statusChanged,
             this, &MainWindow::enableActionsAccordingToDownloadStatus);
@@ -165,6 +173,8 @@ MainWindow::~MainWindow()
     settings.setValue(SERIESSORTROLE, m_seriesProxyModel->sortRole());
     settings.setValue(SEASONSSORTINDICATOR, static_cast<int>(m_seasonsHeaderView->sortIndicatorOrder()));
     settings.setValue(SEASONSSORTROLE, m_seasonsProxyModel->sortRole());
+    settings.setValue(EPISODESSSORTINDICATOR, static_cast<int>(m_episodesHeaderView->sortIndicatorOrder()));
+    settings.setValue(EPISODESSORTROLE, m_episodesProxyModel->sortRole());
 
     delete ui;
 }

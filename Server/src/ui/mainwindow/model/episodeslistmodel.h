@@ -2,6 +2,7 @@
 #define EPISODESLISTMODEL_H
 
 #include "../../lib/QPersistence/src/objectlistmodel.h"
+#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
 
 #include "model/episode.h"
 
@@ -24,6 +25,22 @@ public:
 
     int columnCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
+};
+
+class EpisodesSortFilterProxyModel : public QpSortFilterProxyObjectModel<Episode>
+{
+    Q_OBJECT
+public:
+    enum SortRole {
+        Number
+    };
+
+    explicit EpisodesSortFilterProxyModel(EpisodesListModel *sourceModel, QObject *parent = 0);
+
+    QStringList sortRoles() const Q_DECL_OVERRIDE;
+
+protected:
+    bool lessThan(QSharedPointer<Episode> left, QSharedPointer<Episode> right) const Q_DECL_OVERRIDE;
 };
 
 #endif // EPISODESLISTMODEL_H
