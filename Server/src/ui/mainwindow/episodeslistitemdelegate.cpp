@@ -39,11 +39,16 @@ void EpisodesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
                   index.data().toString(),
                   TITLE_OFFSET);
 
+    drawText(painter, option,
+             episode->firstAired().toString(),
+             TITLE_OFFSET,
+             Qt::AlignRight);
+
     drawPixmap(painter, option, episode->statusPixmap(), STATUS_ICON_OFFSET);
 
     drawText(painter, option,
-                  episode->statusMessage(),
-                  STATUS_MESSAGE_OFFSET);
+             episode->statusMessage(),
+             STATUS_MESSAGE_OFFSET);
 
     COLOR_TITLE_NORMAL = original;
     COLOR_TITLE_NORMAL_SHADOW = originalShadow;

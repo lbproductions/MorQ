@@ -120,6 +120,7 @@ void TheTvdbInformationProvider::saveEpisodeResult(QSharedPointer<Episode> sourc
         qWarning() << Q_FUNC_INFO << "source->number() != target->number()";
     }
 
+    target->setFirstAired(source->firstAired());
     target->setOverview(source->overview());
 }
 
@@ -413,6 +414,9 @@ void TheTvdbInformationProviderTask::parseEpisode(QXmlStreamReader &xml, QShared
             }
             else if (name == TOKENNAME_EPISODE_LANGUAGE) {
                 episode->setPrimaryLanguage(QLocale(text).language());
+            }
+            else if (name == TOKENNAME_EPISODE_FIRSTAIRED) {
+                episode->setFirstAired(QDate::fromString(text, Qt::ISODate));
             }
 
             // TODO: Add missing properties to episode.

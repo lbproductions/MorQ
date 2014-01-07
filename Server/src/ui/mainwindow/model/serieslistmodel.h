@@ -40,7 +40,8 @@ public:
     enum SortRole {
         Title,
         Date,
-        EpisodeCount
+        EpisodeCount,
+        LatestEpisode
     };
 
     explicit SeriesSortFilterProxyModel(SeriesListModel *sourceModel, QObject *parent = 0);

@@ -3,6 +3,7 @@
 #include "season.h"
 #include "preferences.h"
 #include "misc/tools.h"
+#include "episode.h"
 
 #include <QDebug>
 #include <QPixmapCache>
@@ -181,6 +182,21 @@ QList<QSharedPointer<Episode> > Series::episodes() const
         result.append(season->episodes());
     }
     return result;
+}
+
+bool sortByDate(const QSharedPointer<Episode> &e1, const QSharedPointer<Episode> &e2)
+{
+    return e1->firstAired() < e2->firstAired();
+}
+
+QSharedPointer<Episode> Series::latestEpisode() const
+{
+    QList<QSharedPointer<Episode> > es = episodes();
+    if(es.isEmpty())
+        return QSharedPointer<Episode>();
+
+    qSort(es.begin(), es.end(), sortByDate);
+    return es.last();
 }
 
 QList<QLocale::Language> Series::languages() const

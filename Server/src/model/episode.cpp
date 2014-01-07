@@ -95,6 +95,16 @@ void Episode::setDownloadLinks(const QList<QSharedPointer<OnlineResource> > &lin
     m_downloadLinks.relate(links);
 }
 
+QDate Episode::firstAired() const
+{
+    return m_firstAired;
+}
+
+void Episode::setFirstAired(const QDate &firstAired)
+{
+    m_firstAired = firstAired;
+}
+
 Episode::Status Episode::status() const
 {
     return m_status;

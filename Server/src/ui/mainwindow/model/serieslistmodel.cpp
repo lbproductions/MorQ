@@ -1,6 +1,7 @@
 #include "serieslistmodel.h"
 
 #include "controller/controller.h"
+#include "model/episode.h"
 
 #include <QPixmap>
 
@@ -125,7 +126,8 @@ QStringList SeriesSortFilterProxyModel::sortRoles() const
     static QStringList roles = QStringList()
             << tr("Title")
             << tr("Date")
-            << tr("Episode count");
+            << tr("Episode count")
+            << tr("Latest episode");
     return roles;
 }
 
@@ -137,6 +139,17 @@ bool SeriesSortFilterProxyModel::lessThan(QSharedPointer<Series> left, QSharedPo
         return left->firstAired() < right->firstAired();
     if (sortRole() == EpisodeCount)
         return left->episodes().size() < right->episodes().size();
+    if (sortRole() == LatestEpisode) {
+        QSharedPointer<Episode> e1 = left->latestEpisode();
+        if(!e1)
+            return true;
+
+        QSharedPointer<Episode> e2 = right->latestEpisode();
+        if(!e2)
+            return false;
+
+        return e1->firstAired() < e2->firstAired();
+    }
 
     return left < right;
 }

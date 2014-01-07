@@ -5,6 +5,7 @@
 
 #include <QPersistence.h>
 #include <QLocale>
+#include <QDate>
 
 class OnlineResource;
 class Season;
@@ -20,11 +21,11 @@ class Episode : public QObject
     Q_PROPERTY(QList<QSharedPointer<OnlineResource> > downloadLinks READ downloadLinks WRITE setDownloadLinks)
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
+    Q_PROPERTY(QDate firstAired READ firstAired WRITE setFirstAired)
     Q_PROPERTY(Episode::Status status READ status WRITE setStatus)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:season",
                 "reverserelation=episodes;")
-
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloadLinks",
                     "reverserelation=episode;")
 
@@ -78,6 +79,8 @@ public:
 
     QString tvdbLanguage() const;
 
+    QDate firstAired() const;
+    void setFirstAired(const QDate &firstAired);
 
 private:
     friend class Season;
@@ -94,6 +97,7 @@ private:
     QString m_title;
     QString m_overview;
     QLocale::Language m_primaryLanguage;
+    QDate m_firstAired;
 };
 
 Q_DECLARE_METATYPE(Episode::Status)

@@ -47,6 +47,7 @@ public:
     void addSeason(QSharedPointer<Season> season);
 
     QList<QSharedPointer<Episode> > episodes() const;
+    QSharedPointer<Episode> latestEpisode() const;
 
     QList<QLocale::Language> languages() const;
     void addLanguage(QLocale::Language language);
