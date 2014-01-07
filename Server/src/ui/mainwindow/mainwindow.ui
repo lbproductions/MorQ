@@ -295,8 +295,11 @@ background-color: #fff;
                 <bool>false</bool>
                </property>
                <property name="headerHidden">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
+               <attribute name="headerShowSortIndicator" stdset="0">
+                <bool>false</bool>
+               </attribute>
               </widget>
               <widget class="QTreeView" name="treeViewSeasons">
                <property name="contextMenuPolicy">

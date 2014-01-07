@@ -5,6 +5,7 @@
 #include "serieslistitemdelegate.h"
 #include "seasonslistitemdelegate.h"
 #include "episodeslistitemdelegate.h"
+#include "headerview.h"
 #include "model/downloadsitemmodel.h"
 #include "model/serieslistmodel.h"
 #include "model/seasonslistmodel.h"
@@ -82,6 +83,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
     ui->treeViewSeries->addAction(ui->actionAddDownload);
     ui->treeViewSeries->addAction(ui->actionShow_in_Finder);
+    HeaderView *headerView = new HeaderView(ui->treeViewSeries);
+    headerView->setSortOptions(QStringList() << tr("Title") << tr("Date") << tr("Status"));
+    ui->treeViewSeries->setHeader(headerView);
+    ui->treeViewSeries->header()->setStretchLastSection(true);
 
     m_seasonsModel = new SeasonsListModel(this);
     m_seasonsModel->setSeries(QSharedPointer<Series>()); // calling this disables updates from the global signals

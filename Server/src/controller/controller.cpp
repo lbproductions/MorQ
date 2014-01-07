@@ -25,7 +25,7 @@
 bool Controller::initialize()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/Users/niklaswulf/.morq.sqlitedb");
+    db.setDatabaseName("/Users/niklaswulf/.morq/sqlitedb");
     if(!db.open()) {
         qCritical() << db.lastError();
         return false;

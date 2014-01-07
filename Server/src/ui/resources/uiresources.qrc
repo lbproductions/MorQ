@@ -19,4 +19,15 @@
         <file alias="okay">icons/okay.png</file>
         <file alias="questionmark">icons/questionmark.png</file>
     </qresource>
+    <qresource prefix="/headerView">
+        <file alias="arrow_hover">headerView/arrow_hover.png</file>
+        <file alias="arrow_normal">headerView/arrow_normal.png</file>
+        <file alias="button_border_right">headerView/button_boder_right.png</file>
+        <file alias="button_border_left">headerView/button_border_left.png</file>
+        <file alias="arrow_pressed">headerView/arrow_pressed.png</file>
+        <file alias="button_background_pressed">headerView/button_background_pressed.png</file>
+        <file alias="button_border_left_pressed">headerView/button_border_left_pressed.png</file>
+        <file alias="button_border_right_pressed">headerView/button_border_right_pressed.png</file>
+        <file alias="button_background">headerView/button_background.png</file>
+    </qresource>
 </RCC>
