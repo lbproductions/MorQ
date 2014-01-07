@@ -3,7 +3,7 @@
 #include "model/series.h"
 
 SeasonsListModel::SeasonsListModel(QObject *parent) :
-    QpAbstractObjectListModel<Season>(parent),
+    QpObjectListModel<Season>(parent),
     m_series(nullptr)
 {
 }
@@ -39,36 +39,25 @@ QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
 }
 
 
-SeasonSortFilterProxyModel::SeasonSortFilterProxyModel(QObject *parent) :
-    QSortFilterProxyModel(parent)
+SeasonSortFilterProxyModel::SeasonSortFilterProxyModel(SeasonsListModel *sourceModel, QObject *parent) :
+    QpSortFilterProxyObjectModel<Season>(sourceModel, parent)
 {
 }
 
-SeasonsListModel *SeasonSortFilterProxyModel::sourceModel() const
+bool SeasonSortFilterProxyModel::lessThan(QSharedPointer<Season> left, QSharedPointer<Season> right) const
 {
-    return static_cast<SeasonsListModel *>(QSortFilterProxyModel::sourceModel());
+    if(sortRole() == Number)
+        return left->number() < right->number();
+    if(sortRole() == EpisodeCount)
+        return left->episodes().size() < right->episodes().size();
+
+    return left < right;
 }
 
-QSharedPointer<Season> SeasonSortFilterProxyModel::objectByIndex(const QModelIndex &index) const
+QStringList SeasonSortFilterProxyModel::sortRoles() const
 {
-    QModelIndex i = mapToSource(index);
-    return sourceModel()->objectByIndex(i);
-}
-
-bool SeasonSortFilterProxyModel::filterAcceptsRow(int /*source_row*/, const QModelIndex &/*source_parent*/) const
-{
-    return true;
-}
-
-bool SeasonSortFilterProxyModel::filterAcceptsColumn(int /*source_column*/, const QModelIndex &/*source_parent*/) const
-{
-    return true;
-}
-
-bool SeasonSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    QSharedPointer<Season> s1 = sourceModel()->objectByIndex(left);
-    QSharedPointer<Season> s2 = sourceModel()->objectByIndex(right);
-
-    return s1->number() > s2->number();
+    static QStringList roles = QStringList()
+            << tr("Number")
+            << tr("Episode count");
+    return roles;
 }

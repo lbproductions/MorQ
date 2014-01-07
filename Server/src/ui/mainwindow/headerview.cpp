@@ -15,8 +15,7 @@ static const QPoint BORDER_RIGHT_OFFSET(8,-2); // relative to text top right
 HeaderView::HeaderView(QWidget *parent) :
     QHeaderView(Qt::Horizontal, parent),
     m_hover(false),
-    m_menuVisible(false),
-    m_currentSortOrder(Qt::AscendingOrder)
+    m_menuVisible(false)
 {
 }
 
@@ -28,20 +27,29 @@ QSize HeaderView::sizeHint() const
 
 void HeaderView::leaveEvent(QEvent *)
 {
-    m_hover = m_menuVisible || false;
+    bool hover = m_menuVisible;
+    if(hover == m_hover)
+        return;
+
+    m_hover = hover;
     resizeSection(0, sectionSize(0) + 1);
     resizeSection(0, sectionSize(0) - 1);
 }
 
 void HeaderView::mouseMoveEvent(QMouseEvent *e)
 {
-    m_hover = m_menuVisible || m_textRect.adjusted(-4,-2,9,1).contains(e->pos());
+    bool hover = m_menuVisible || m_textRect.adjusted(-4,-2,9,1).contains(e->pos());
+    if(hover == m_hover)
+        return;
+
+    m_hover = hover;
     resizeSection(0, sectionSize(0) + 1);
     resizeSection(0, sectionSize(0) - 1);
 }
 
-void HeaderView::mousePressEvent(QMouseEvent *)
+void HeaderView::mousePressEvent(QMouseEvent *e)
 {
+    m_hover = m_textRect.adjusted(-4,-2,9,1).contains(e->pos());
     if(!m_hover)
         return;
 
@@ -51,14 +59,17 @@ void HeaderView::mousePressEvent(QMouseEvent *)
 
     QMenu *menu = new QMenu(this);
 
-    foreach(QString a, sortOptions()) {
-        QAction *action = menu->addAction(a);
+    int roleCount = sortModel()->sortRoleCount();
+    for(int role = 0; role < roleCount; ++role) {
+        QString data = sortModel()->sortRoleTitle(role);
+        QAction *action = menu->addAction(data);
 
         connect(action, &QAction::triggered, [=]{
-            setCurrentSortOption(a);
+            sortModel()->setSortRole(role);
+            setSortIndicator(0, sortIndicatorOrder());
         });
 
-        if(currentSortOption() == a) {
+        if(sortModel()->sortRole() == role) {
             action->setCheckable(true);
             action->setChecked(true);
         }
@@ -72,13 +83,13 @@ void HeaderView::mousePressEvent(QMouseEvent *)
     actionDesc->setCheckable(true);
 
     connect(actionAsc, &QAction::triggered, [=]{
-        setCurrentSortOrder(Qt::AscendingOrder);
+        setSortIndicator(0, Qt::AscendingOrder);
     });
     connect(actionDesc, &QAction::triggered, [=]{
-        setCurrentSortOrder(Qt::DescendingOrder);
+        setSortIndicator(0, Qt::DescendingOrder);
     });
 
-    if(currentSortOrder() == Qt::AscendingOrder)
+    if(sortIndicatorOrder() == Qt::AscendingOrder)
         actionAsc->setChecked(true);
     else
         actionDesc->setChecked(true);
@@ -94,26 +105,26 @@ void HeaderView::mousePressEvent(QMouseEvent *)
     resizeSection(0, sectionSize(0) - 1);
 }
 
-void HeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
+void HeaderView::paintEvent(QPaintEvent *e)
 {
-    Q_UNUSED(logicalIndex)
-    painter->save();
+    QRect rect = e->rect();
+    QPainter painter(viewport());
 
     // Draw background
-    painter->setBrush(QBrush(QColor(243,243,243)));
-    painter->setPen(QPen(Qt::transparent));
-    painter->drawRect(rect);
-    painter->setPen(QPen(QColor(230,230,230)));
-    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+    painter.setBrush(QBrush(QColor(243,243,243)));
+    painter.setPen(QPen(Qt::transparent));
+    painter.drawRect(rect);
+    painter.setPen(QPen(QColor(230,230,230)));
+    painter.drawLine(rect.bottomLeft(), rect.bottomRight());
 
     QString text = tr("Sort by %1")
-            .arg(currentSortOption());
+            .arg(sortModel()->sortRoleTitle(sortModel()->sortRole()));
 
-    QFont f = painter->font();
+    QFont f = painter.font();
     f.setFamily("Helvetica");
     f.setPixelSize(11);
     f.setBold(true);
-    painter->setFont(f);
+    painter.setFont(f);
 
     if(m_hover) {
         QPixmap arrow = Tools::cachedPixmap(":/headerView/arrow_hover");
@@ -129,89 +140,54 @@ void HeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalI
         }
 
         // Left button border
-        painter->drawPixmap(m_textRect.topLeft().x() + BORDER_LEFT_OFFSET.x(),
+        painter.drawPixmap(m_textRect.topLeft().x() + BORDER_LEFT_OFFSET.x(),
                             m_textRect.topLeft().y() + BORDER_LEFT_OFFSET.y(),
                             borderLeft);
         // Right button border
-        painter->drawPixmap(m_textRect.topRight().x() + BORDER_RIGHT_OFFSET.x(),
+        painter.drawPixmap(m_textRect.topRight().x() + BORDER_RIGHT_OFFSET.x(),
                             m_textRect.topRight().y() + BORDER_RIGHT_OFFSET.y(),
                             borderRight);
 
         // Background
-        painter->drawTiledPixmap(m_textRect.adjusted(-1,-2,7,1), background);
+        painter.drawTiledPixmap(m_textRect.adjusted(-1,-2,7,1), background);
 
         // Text shadow
-        painter->setPen(QPen(QColor(112,112,112)));
-        painter->drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y() + 1, 0,0),
+        painter.setPen(QPen(QColor(112,112,112)));
+        painter.drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y() + 1, 0,0),
                           Qt::AlignLeft,
                           text);
 
         // Text
-        painter->setPen(QPen(QColor(Qt::white)));
-        painter->drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y(), 0,0),
+        painter.setPen(QPen(QColor(Qt::white)));
+        painter.drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y(), 0,0),
                           Qt::AlignLeft,
                           text,
                           &m_textRect);
 
         // Arrow
-        painter->drawPixmap(m_textRect.topRight().x() + ARROW_OFFSET.x(),
+        painter.drawPixmap(m_textRect.topRight().x() + ARROW_OFFSET.x(),
                             m_textRect.topRight().y() + ARROW_OFFSET.y(),
                             arrow);
     }
     else {
         QPixmap arrow = Tools::cachedPixmap(":/headerView/arrow_normal");
-        painter->setPen(QPen(QColor(145,145,145)));
-        painter->drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y(), 0,0),
+        painter.setPen(QPen(QColor(145,145,145)));
+        painter.drawText(rect.adjusted(TEXT_OFFSET.x(), TEXT_OFFSET.y(), 0,0),
                           Qt::AlignLeft,
                           text,
                           &m_textRect);
-        painter->drawPixmap(m_textRect.topRight().x() + ARROW_OFFSET.x(),
+        painter.drawPixmap(m_textRect.topRight().x() + ARROW_OFFSET.x(),
                             m_textRect.topRight().y() + ARROW_OFFSET.y(),
                             arrow);
     }
-
-    painter->restore();
 }
 
-Qt::SortOrder HeaderView::currentSortOrder() const
+QpSortFilterProxyObjectModelBase *HeaderView::sortModel() const
 {
-    return m_currentSortOrder;
+    return m_sortModel;
 }
 
-void HeaderView::setCurrentSortOrder(Qt::SortOrder sortOrder)
+void HeaderView::setSortModel(QpSortFilterProxyObjectModelBase *model)
 {
-    if(m_currentSortOrder == sortOrder)
-        return;
-
-    m_currentSortOrder = sortOrder;
-    emit currentSortOrderChanged(m_currentSortOrder);
+    m_sortModel = model;
 }
-
-QString HeaderView::currentSortOption() const
-{
-    return m_currentSortOption;
-}
-
-void HeaderView::setCurrentSortOption(const QString &sortOption)
-{
-    if(m_currentSortOption == sortOption)
-        return;
-
-    m_currentSortOption = sortOption;
-    emit currentSortOptionChanged(m_currentSortOption);
-}
-
-QStringList HeaderView::sortOptions() const
-{
-    return m_sortOptions;
-}
-
-void HeaderView::setSortOptions(const QStringList &sortOptions)
-{
-    if(sortOptions.isEmpty())
-        return;
-
-    m_sortOptions = sortOptions;
-    m_currentSortOption = m_sortOptions.first();
-}
-

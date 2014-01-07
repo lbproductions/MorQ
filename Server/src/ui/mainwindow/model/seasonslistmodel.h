@@ -3,14 +3,14 @@
 
 #include <QSortFilterProxyModel>
 
-#include "objectlistmodel.h"
-#include "abstractobjectlistmodel.h"
+#include "../../lib/QPersistence/src/objectlistmodel.h"
+#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
 
 #include "model/season.h"
 
 class Series;
 
-class SeasonsListModel : public QpAbstractObjectListModel<Season>
+class SeasonsListModel : public QpObjectListModel<Season>
 {
     Q_OBJECT
 public:
@@ -29,20 +29,21 @@ private:
     QSharedPointer<Series> m_series;
 };
 
-class SeasonSortFilterProxyModel : public QSortFilterProxyModel
+class SeasonSortFilterProxyModel : public QpSortFilterProxyObjectModel<Season>
 {
     Q_OBJECT
 public:
-    explicit SeasonSortFilterProxyModel(QObject *parent = 0);
+    enum SortRole {
+        Number,
+        EpisodeCount
+    };
 
-    SeasonsListModel *sourceModel() const;
+    explicit SeasonSortFilterProxyModel(SeasonsListModel *sourceModel, QObject *parent = 0);
 
-    QSharedPointer<Season> objectByIndex(const QModelIndex &index) const;
+    QStringList sortRoles() const Q_DECL_OVERRIDE;
 
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-    bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    bool lessThan(QSharedPointer<Season> left, QSharedPointer<Season> right) const Q_DECL_OVERRIDE;
 };
 
 #endif // SEASONSLISTMODEL_H

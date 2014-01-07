@@ -2,6 +2,7 @@
 #define HEADERVIEW_H
 
 #include <QHeaderView>
+#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
 
 class HeaderView : public QHeaderView
 {
@@ -15,30 +16,17 @@ public:
     void mouseMoveEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
     void mousePressEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
 
-    QStringList sortOptions() const;
-    void setSortOptions(const QStringList &sortOptions);
-
-    QString currentSortOption() const;
-    void setCurrentSortOption(const QString &sortOption);
-
-    Qt::SortOrder currentSortOrder() const;
-    void setCurrentSortOrder(Qt::SortOrder sortOrder);
-
-signals:
-    void currentSortOptionChanged(QString);
-    void currentSortOrderChanged(Qt::SortOrder);
+    QpSortFilterProxyObjectModelBase *sortModel() const;
+    void setSortModel(QpSortFilterProxyObjectModelBase *sortModel);
 
 protected:
-    void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent *e) Q_DECL_OVERRIDE;
 
 private:
     mutable QRect m_textRect;
     bool m_hover;
     bool m_menuVisible;
-
-    QString m_currentSortOption;
-    QStringList m_sortOptions;
-    Qt::SortOrder m_currentSortOrder;
+    QpSortFilterProxyObjectModelBase *m_sortModel;
 };
 
 #endif // HEADERVIEW_H

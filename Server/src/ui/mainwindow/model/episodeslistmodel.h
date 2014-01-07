@@ -1,13 +1,13 @@
 #ifndef EPISODESLISTMODEL_H
 #define EPISODESLISTMODEL_H
 
-#include "objectlistmodel.h"
+#include "../../lib/QPersistence/src/objectlistmodel.h"
 
 #include "model/episode.h"
 
 class Season;
 
-class EpisodesListModel : public QpAbstractObjectListModel<Episode>
+class EpisodesListModel : public QpObjectListModel<Episode>
 {
     Q_OBJECT
 public:

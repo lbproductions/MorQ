@@ -5,7 +5,7 @@
 #include <QPixmap>
 
 SeriesListModel::SeriesListModel(QObject *parent) :
-    QpAbstractObjectListModel<Series>(parent),
+    QpObjectListModel<Series>(parent),
     m_checkable(false)
 {
 }
@@ -18,7 +18,7 @@ int SeriesListModel::columnCount(const QModelIndex &parent) const
 
 Qt::ItemFlags SeriesListModel::flags(const QModelIndex &index) const
 {
-    Qt::ItemFlags f = QpAbstractObjectListModel<Series>::flags(index);
+    Qt::ItemFlags f = QpObjectListModel<Series>::flags(index);
 
     if(isCheckable())
         f = f | Qt::ItemIsTristate;
@@ -112,4 +112,31 @@ QSharedPointer<Series> SeriesListModel::checkedSeries() const
         return QSharedPointer<Series>();
 
     return objectByIndex(m_lastCheckedIndex);
+}
+
+
+SeriesSortFilterProxyModel::SeriesSortFilterProxyModel(SeriesListModel *sourceModel, QObject *parent) :
+    QpSortFilterProxyObjectModel<Series>(sourceModel, parent)
+{
+}
+
+QStringList SeriesSortFilterProxyModel::sortRoles() const
+{
+    static QStringList roles = QStringList()
+            << tr("Title")
+            << tr("Date")
+            << tr("Episode count");
+    return roles;
+}
+
+bool SeriesSortFilterProxyModel::lessThan(QSharedPointer<Series> left, QSharedPointer<Series> right) const
+{
+    if(sortRole() == Title)
+        return left->title() < right->title();
+    if(sortRole() == Date)
+        return left->firstAired() < right->firstAired();
+    if(sortRole() == EpisodeCount)
+        return left->episodes().size() < right->episodes().size();
+
+    return left < right;
 }

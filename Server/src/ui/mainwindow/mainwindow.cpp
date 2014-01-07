@@ -44,6 +44,10 @@ static const QString WINDOWGEOMETRY("ui/mainwindow/geometry");
 static const QString WINDOWSTATE("ui/mainwindow/state");
 static const QString DOWNLOADSHEADERSTATE("ui/mainwindow/downloads/headerstate");
 static const QString SERIESPAGESPLITTERSTATE("ui/mainwindow/series/splitterstate");
+static const QString SERIESSORTINDICATOR("ui/mainwindow/series/sortindicator");
+static const QString SERIESSORTROLE("ui/mainwindow/series/sortrole");
+static const QString SEASONSSORTINDICATOR("ui/mainwindow/seasons/sortindicator");
+static const QString SEASONSSORTROLE("ui/mainwindow/seasons/sortrole");
 
 MainWindow *MainWindow::s_instance = 0;
 
@@ -77,26 +81,31 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::enableActionsAccordingToDownloadSelection);
 
     // Init series page
-    m_seriesModel = new SeriesListModel(this);
+    SeriesListModel *seriesModel = new SeriesListModel(this);
+    m_seriesProxyModel = new SeriesSortFilterProxyModel(seriesModel, this);
     ui->treeViewSeries->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->treeViewSeries->setModel(m_seriesModel);
+    ui->treeViewSeries->setSortingEnabled(true);
+    ui->treeViewSeries->setModel(m_seriesProxyModel);
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
     ui->treeViewSeries->addAction(ui->actionAddDownload);
     ui->treeViewSeries->addAction(ui->actionShow_in_Finder);
-    HeaderView *headerView = new HeaderView(ui->treeViewSeries);
-    headerView->setSortOptions(QStringList() << tr("Title") << tr("Date") << tr("Status"));
-    ui->treeViewSeries->setHeader(headerView);
-    ui->treeViewSeries->header()->setStretchLastSection(true);
+    m_seriesHeaderView = new HeaderView(ui->treeViewSeries);
+    m_seriesHeaderView->setSortModel(m_seriesProxyModel);
+    m_seriesHeaderView->setStretchLastSection(true);
+    ui->treeViewSeries->setHeader(m_seriesHeaderView);
 
     m_seasonsModel = new SeasonsListModel(this);
     m_seasonsModel->setSeries(QSharedPointer<Series>()); // calling this disables updates from the global signals
-    m_seasonsProxyModel = new SeasonSortFilterProxyModel(this);
-    m_seasonsProxyModel->setSourceModel(m_seasonsModel);
+    m_seasonsProxyModel = new SeasonSortFilterProxyModel(m_seasonsModel, this);
     ui->treeViewSeasons->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->treeViewSeasons->setModel(m_seasonsProxyModel);
     ui->treeViewSeasons->setItemDelegate(new SeasonsListItemDelegate(ui->treeViewSeasons, this));
     ui->treeViewSeasons->addAction(ui->actionAddDownload);
     ui->treeViewSeasons->addAction(ui->actionShow_in_Finder);
+    m_seasonsHeaderView = new HeaderView(ui->treeViewSeasons);
+    m_seasonsHeaderView->setSortModel(m_seasonsProxyModel);
+    m_seasonsHeaderView->setStretchLastSection(true);
+    ui->treeViewSeasons->setHeader(m_seasonsHeaderView);
 
     m_episodesModel = new EpisodesListModel(this);
     m_episodesModel->setSeason(QSharedPointer<Season>()); // calling this disables updates from the global signals
@@ -126,6 +135,10 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreState(settings.value(WINDOWSTATE, "").toByteArray());
     ui->treeViewDownloads->header()->restoreState(settings.value(DOWNLOADSHEADERSTATE, "").toByteArray());
     ui->splitter_2->restoreState(settings.value(SERIESPAGESPLITTERSTATE, "").toByteArray());
+    m_seriesProxyModel->setSortRole(settings.value(SERIESSORTROLE, 0).toInt());
+    m_seriesHeaderView->setSortIndicator(0, static_cast<Qt::SortOrder>(settings.value(SERIESSORTINDICATOR, Qt::AscendingOrder).toInt()));
+    m_seasonsProxyModel->setSortRole(settings.value(SEASONSSORTROLE, 0).toInt());
+    m_seasonsHeaderView->setSortIndicator(0, static_cast<Qt::SortOrder>(settings.value(SEASONSSORTINDICATOR, Qt::AscendingOrder).toInt()));
 
     connect(Controller::downloads(), &DownloadController::statusChanged,
             this, &MainWindow::enableActionsAccordingToDownloadStatus);
@@ -148,6 +161,10 @@ MainWindow::~MainWindow()
     settings.setValue(WINDOWSTATE, saveState());
     settings.setValue(DOWNLOADSHEADERSTATE, ui->treeViewDownloads->header()->saveState());
     settings.setValue(SERIESPAGESPLITTERSTATE, ui->splitter_2->saveState());
+    settings.setValue(SERIESSORTINDICATOR, static_cast<int>(m_seriesHeaderView->sortIndicatorOrder()));
+    settings.setValue(SERIESSORTROLE, m_seriesProxyModel->sortRole());
+    settings.setValue(SEASONSSORTINDICATOR, static_cast<int>(m_seasonsHeaderView->sortIndicatorOrder()));
+    settings.setValue(SEASONSSORTROLE, m_seasonsProxyModel->sortRole());
 
     delete ui;
 }
@@ -364,7 +381,7 @@ void MainWindow::showSeasonsForSelectedSeries()
         return;
     }
 
-    QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
+    QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
     if(!series) {
         return;
     }
@@ -429,7 +446,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             ui->actionAddDownload->setEnabled(false); // TODO implement and enable downloading of complete series
             ui->actionAddDownload->setText(tr("Download complete series..."));
 
-            QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
+            QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
             ui->actionShow_in_Finder->setEnabled(series && !series->folders().isEmpty());
         }
     }
@@ -471,7 +488,7 @@ void MainWindow::on_actionAddDownload_triggered()
         if(list.isEmpty())
             return;
 
-        QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
+        QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
         if(!series)
             return;
 
@@ -551,7 +568,7 @@ void MainWindow::on_actionShow_in_Finder_triggered()
         if(list.isEmpty())
             return;
 
-        QSharedPointer<Series> series = m_seriesModel->objectByIndex(list.first());
+        QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
         if(!series || series->folders().isEmpty())
             return;
 

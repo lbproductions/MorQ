@@ -3,10 +3,6 @@
 
 #include <QStandardItemModel>
 
-namespace QDataSuite {
-class AbstractDataAccessObject;
-}
-
 class Download;
 class DownloadPackage;
 

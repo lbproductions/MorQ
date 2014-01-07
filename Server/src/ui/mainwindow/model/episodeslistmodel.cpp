@@ -3,7 +3,7 @@
 #include "model/season.h"
 
 EpisodesListModel::EpisodesListModel(QObject *parent) :
-    QpAbstractObjectListModel<Episode>(parent)
+    QpObjectListModel<Episode>(parent)
 {
 }
 

@@ -1,11 +1,12 @@
 #ifndef SERIESLISTMODEL_H
 #define SERIESLISTMODEL_H
 
-#include "objectlistmodel.h"
+#include "../../lib/QPersistence/src/objectlistmodel.h"
+#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
 
 #include "model/series.h"
 
-class SeriesListModel : public QpAbstractObjectListModel<Series>
+class SeriesListModel : public QpObjectListModel<Series>
 {
     Q_OBJECT
 public:
@@ -31,6 +32,24 @@ public:
 private:
     bool m_checkable;
     QModelIndex m_lastCheckedIndex;
+};
+
+class SeriesSortFilterProxyModel : public QpSortFilterProxyObjectModel<Series>
+{
+    Q_OBJECT
+public:
+    enum SortRole {
+        Title,
+        Date,
+        EpisodeCount
+    };
+
+    explicit SeriesSortFilterProxyModel(SeriesListModel *sourceModel, QObject *parent = 0);
+
+    QStringList sortRoles() const Q_DECL_OVERRIDE;
+
+protected:
+    bool lessThan(QSharedPointer<Series> left, QSharedPointer<Series> right) const Q_DECL_OVERRIDE;
 };
 
 #endif // SERIESLISTMODEL_H
