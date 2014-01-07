@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include <QPersistence.h>
-#include <QPersistenceRelations.h>
 
 #include <QElapsedTimer>
 #include <QTime>

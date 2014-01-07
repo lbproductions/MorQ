@@ -66,7 +66,7 @@ void NoisyGradientItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 
     QColor COLOR_TEXT = COLOR_TEXT_NORMAL;
 
-    if(option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
         COLOR_LINE_TOP1 = COLOR_LINE_TOP1_SELECTED;
         COLOR_LINE_TOP2 = COLOR_LINE_TOP2_SELECTED;
         COLOR_LINE_BOTTOM = COLOR_LINE_BOTTOM_SELECTED;
@@ -109,7 +109,7 @@ void NoisyGradientItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
 
     painter->restore();
 
-    if(option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
         painter->drawTiledPixmap(option.rect, NOISY_TEXTURE);
     }
 }
@@ -124,7 +124,7 @@ QRectF NoisyGradientItemDelegate::drawTitleText(QPainter *painter,
     QColor COLOR_TITLE = COLOR_TITLE_NORMAL;
     QColor COLOR_TITLE_SHADOW = COLOR_TITLE_NORMAL_SHADOW;
 
-    if(option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
         COLOR_TITLE = COLOR_TITLE_SELECTED;
         COLOR_TITLE_SHADOW = COLOR_TITLE_SELECTED_SHADOW;
     }
@@ -168,7 +168,7 @@ QRectF NoisyGradientItemDelegate::drawText(QPainter *painter,
 {
     QColor COLOR_TEXT = COLOR_TEXT_NORMAL;
 
-    if(option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
         COLOR_TEXT = COLOR_TEXT_SELECTED;
     }
     painter->save();
@@ -191,11 +191,11 @@ QRectF NoisyGradientItemDelegate::drawText(QPainter *painter,
 QSize NoisyGradientItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QSize size = QStyledItemDelegate::sizeHint(option, index);
-    if(m_view->selectionModel()->selectedIndexes().contains(index)) {
+    if (m_view->selectionModel()->selectedIndexes().contains(index)) {
         size.setHeight(size.height() + 1);
     }
 
-    if(m_view->selectionModel()->selectedIndexes().contains(m_view->model()->index(index.row() - 1, 0))) {
+    if (m_view->selectionModel()->selectedIndexes().contains(m_view->model()->index(index.row() - 1, 0))) {
         size.setHeight(size.height() - 1);
     }
 
@@ -211,8 +211,8 @@ void NoisyGradientItemDelegate::repaintItemsWhenSelectionChanges(const QItemSele
 {
     Q_UNUSED(selected);
 
-    foreach(QModelIndex index, deselected.indexes()) {
-        if(index.row() == 0)
+    foreach (QModelIndex index, deselected.indexes()) {
+        if (index.row() == 0)
             continue;
 
         m_view->update(m_view->model()->index(index.row() - 1, 0));
@@ -233,13 +233,13 @@ void NoisyGradientItemDelegate::drawCheckBox(QPainter *painter,
     buttonOption.rect = CheckBoxRect(option, m_checkBoxOffset);
     buttonOption.state = QStyle::State_Enabled | QStyle::State_Active;
     Qt::CheckState checkState = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
-    if(checkState == Qt::PartiallyChecked) {
+    if (checkState == Qt::PartiallyChecked) {
         buttonOption.state |= QStyle::State_NoChange; // represents "partially"
     }
-    else if(checkState == Qt::Checked) {
+    else if (checkState == Qt::Checked) {
         buttonOption.state |= QStyle::State_On;
     }
-    else if(checkState == Qt::Unchecked) {
+    else if (checkState == Qt::Unchecked) {
         buttonOption.state |= QStyle::State_Off;
     }
 
@@ -271,13 +271,13 @@ bool NoisyGradientItemDelegate::editorEvent(QEvent *event,
     }
 
     Qt::CheckState checkState = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toInt());
-    if(checkState == Qt::PartiallyChecked) {
+    if (checkState == Qt::PartiallyChecked) {
         checkState = Qt::Checked;
     }
-    else if(checkState == Qt::Checked) {
+    else if (checkState == Qt::Checked) {
         checkState = Qt::Unchecked;
     }
-    else if(checkState == Qt::Unchecked) {
+    else if (checkState == Qt::Unchecked) {
         checkState = Qt::PartiallyChecked;
     }
     return model->setData(index, checkState, Qt::CheckStateRole);

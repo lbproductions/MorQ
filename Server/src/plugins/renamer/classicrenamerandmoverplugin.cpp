@@ -25,8 +25,8 @@ ClassicRenamerAndMoverPlugin::ClassicRenamerAndMoverPlugin(QObject *parent):
 
 void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<QSharedPointer<Episode> > episodes)
 {
-    foreach(QSharedPointer<Episode> episode, episodes) {
-        if(episode->videoFile() == "") {
+    foreach (QSharedPointer<Episode> episode, episodes) {
+        if (episode->videoFile() == "") {
             continue;
         }
 
@@ -44,7 +44,7 @@ void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<QSharedPointer<Episode> 
         QString episodeDir = info.dir().absolutePath();
         qDebug() << "EpsiodeDir: " << episodeDir;
 
-        if(seasonPath.contains(episodeDir)) {
+        if (seasonPath.contains(episodeDir)) {
             folder = episodeDir;
         }
         else{
@@ -67,7 +67,7 @@ void ClassicRenamerAndMoverPlugin::renameEpisodes(QList<QSharedPointer<Episode> 
 
 void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(QSharedPointer<DownloadPackage> package)
 {
-    if(Preferences::extractMode() != "SERIES") {
+    if (Preferences::extractMode() != "SERIES") {
         return;
     }
 
@@ -80,22 +80,22 @@ void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(QSharedPoint
     qDebug() << "Dir: " << package->extractFolder() + "/" + extractSubFolder;
     QDir dir(package->extractFolder() + "/" + extractSubFolder);
 
-    if(!dir.exists()) {
+    if (!dir.exists()) {
         //TODO: Extract folder is different to package name. Find a way to get the right directory
         QDir dir(package->extractFolder());
         QList<QDir> subs = subDirectories(dir);
-        if(subs.size() == 1) {
+        if (subs.size() == 1) {
             dir.setCurrent(subs.first().absolutePath());
         }
     }
 
     QStringList videoFiles;
-    foreach(QFileInfo info, dir.entryInfoList()) {
-        if(FileScraper::VIDEOEXTENSIONS().contains(info.suffix())) {
+    foreach (QFileInfo info, dir.entryInfoList()) {
+        if (FileScraper::VIDEOEXTENSIONS().contains(info.suffix())) {
             videoFiles.append(info.absoluteFilePath());
         }
     }
-    if(videoFiles.size() != 1) {
+    if (videoFiles.size() != 1) {
         return;
         // TODO: Choose correct file if there are more than one video-file e.g. sampler
     }
@@ -111,7 +111,7 @@ void ClassicRenamerAndMoverPlugin::renameAndMoveEpisodeFromDownload(QSharedPoint
 
 QString ClassicRenamerAndMoverPlugin::numberToString(int number)
 {
-    if(number < 10) {
+    if (number < 10) {
         return "0" + QString::number(number);
     }
     else{
@@ -139,7 +139,7 @@ QList<QDir> ClassicRenamerAndMoverPlugin::subDirectories(QDir dir)
 {
     QList<QDir> list;
     QDirIterator it(dir, QDirIterator::Subdirectories);
-    while(it.hasNext())
+    while (it.hasNext())
     {
         list.append(QDir(it.next()));
     }

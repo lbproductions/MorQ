@@ -9,8 +9,8 @@
 
 QSharedPointer<Series> Series::forTitle(const QString &title)
 {
-    foreach(QSharedPointer<Series> series, Qp::readAll<Series>()) {
-        if(series->title() == title)
+    foreach (QSharedPointer<Series> series, Qp::readAll<Series>()) {
+        if (series->title() == title)
             return series;
     }
 
@@ -177,7 +177,7 @@ void Series::addSeason(QSharedPointer<Season> season)
 QList<QSharedPointer<Episode> > Series::episodes() const
 {
     QList<QSharedPointer<Episode> > result;
-    foreach(QSharedPointer<Season> season, seasons()) {
+    foreach (QSharedPointer<Season> season, seasons()) {
         result.append(season->episodes());
     }
     return result;
@@ -188,9 +188,9 @@ QList<QLocale::Language> Series::languages() const
     QList<QLocale::Language> result;
     result.append(Qp::castList<QLocale::Language>(m_languages));
 
-    foreach(QSharedPointer<Season> season, seasons()) {
-        foreach(QLocale::Language lang, season->languages()) {
-            if(!result.contains(lang))
+    foreach (QSharedPointer<Season> season, seasons()) {
+        foreach (QLocale::Language lang, season->languages()) {
+            if (!result.contains(lang))
                 result.append(lang);
         }
     }
@@ -200,13 +200,13 @@ QList<QLocale::Language> Series::languages() const
 
 void Series::addLanguage(QLocale::Language language)
 {
-    if(!m_languages.contains(language))
+    if (!m_languages.contains(language))
         m_languages.append(static_cast<int>(language));
 }
 
 void Series::addLanguages(QList<QLocale::Language> languages)
 {
-    foreach(auto l, languages) {
+    foreach (auto l, languages) {
         addLanguage(l);
     }
 }
@@ -219,7 +219,7 @@ QPixmap Series::languageFlag(QLocale::Language language)
 
 QString Series::tvdbLanguage(QLocale::Language language)
 {
-    if(language == QLocale::AnyLanguage)
+    if (language == QLocale::AnyLanguage)
         return "?";
 
     QString lang = QLocale(language).name();
@@ -245,8 +245,8 @@ QList<int> Series::_languages() const
 
 QMap<int, QSharedPointer<Season> > Series::seasonsByNumber() const
 {
-    if(m_seasonsByNumber.isEmpty()) {
-        foreach(QSharedPointer<Season> season, seasons()) {
+    if (m_seasonsByNumber.isEmpty()) {
+        foreach (QSharedPointer<Season> season, seasons()) {
             m_seasonsByNumber.insert(season->number(), season);
         }
     }
@@ -260,7 +260,7 @@ Qt::CheckState Series::checkState() const
 
 void Series::setCheckState(const Qt::CheckState &checkState)
 {
-    if(checkState == m_checkState)
+    if (checkState == m_checkState)
         return;
 
     Qt::CheckState oldState = m_checkState;

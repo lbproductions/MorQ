@@ -8,7 +8,7 @@ StatusBar::StatusBar(QWidget *parent) :
     m_messageLabelLeft(new Label(this)),
     m_messageLabelRight(new Label(this)),
     m_workingIndicator(new QLabel(this)),
-    m_workingGif(new QMovie(":/statusBar/loader"))
+    m_workingGif (new QMovie(":/statusBar/loader"))
 {
     m_workingIndicator->setMovie(m_workingGif);
 
@@ -46,7 +46,7 @@ void StatusBar::setRightMessage(const QString &message)
 
 void StatusBar::setWorking(bool working)
 {
-    if(working) {
+    if (working) {
         m_workingGif->start();
     }
     else {

@@ -15,7 +15,7 @@ int SeasonsListModel::columnCount(const QModelIndex &) const
 
 void SeasonsListModel::setSeries(QSharedPointer<Series> series)
 {
-    if(!series)
+    if (!series)
         setObjects(QList<QSharedPointer<Season> >());
     else
         setObjects(series->seasons());
@@ -24,11 +24,11 @@ void SeasonsListModel::setSeries(QSharedPointer<Series> series)
 
 QVariant SeasonsListModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     QSharedPointer<Season> season = objectByIndex(index);
-    switch(role) {
+    switch (role) {
     case Qt::DisplayRole:
         return season->title();
     case RawDataRole:
@@ -46,9 +46,9 @@ SeasonSortFilterProxyModel::SeasonSortFilterProxyModel(SeasonsListModel *sourceM
 
 bool SeasonSortFilterProxyModel::lessThan(QSharedPointer<Season> left, QSharedPointer<Season> right) const
 {
-    if(sortRole() == Number)
+    if (sortRole() == Number)
         return left->number() < right->number();
-    if(sortRole() == EpisodeCount)
+    if (sortRole() == EpisodeCount)
         return left->episodes().size() < right->episodes().size();
 
     return left < right;

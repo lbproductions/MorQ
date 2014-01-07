@@ -55,7 +55,7 @@ QSharedPointer<Season> Episode::season() const
 
 void Episode::setSeason(QSharedPointer<Season> season)
 {
-    if(season)
+    if (season)
         m_seasonNumber = season->number();
 
     m_season.relate(season);
@@ -69,8 +69,8 @@ QList<QSharedPointer<OnlineResource> > Episode::downloadLinks() const
 QList<QSharedPointer<OnlineResource> > Episode::downloadLinks(const QString &formatDescription, const QString &mirror) const
 {
     QList<QSharedPointer<OnlineResource> > list;
-    foreach(QSharedPointer<OnlineResource> link, downloadLinks()) {
-        if(link->formatDescription() == formatDescription && link->mirror() == mirror) {
+    foreach (QSharedPointer<OnlineResource> link, downloadLinks()) {
+        if (link->formatDescription() == formatDescription && link->mirror() == mirror) {
             list.append(link);
         }
     }
@@ -107,7 +107,7 @@ void Episode::setStatus(Status status)
 
 QPixmap Episode::statusPixmap() const
 {
-    switch(status()) {
+    switch (status()) {
     case DownloadAvailable:
         return Tools::cachedPixmap(":/icons/download_available");
     case Missing:
@@ -127,7 +127,7 @@ QPixmap Episode::statusPixmap() const
 
 QString Episode::statusMessage() const
 {
-    switch(status()) {
+    switch (status()) {
     case DownloadAvailable:
         return tr("Download available");
     case Missing:
@@ -197,7 +197,7 @@ QSet<QLocale::Language> Episode::languages() const
 
 QString Episode::tvdbLanguage() const
 {
-    if(m_primaryLanguage == QLocale::AnyLanguage)
+    if (m_primaryLanguage == QLocale::AnyLanguage)
         return "en";
 
     QString lang = QLocale(m_primaryLanguage).name();

@@ -10,9 +10,9 @@
 QPixmap Tools::cachedPixmap(const QString &resource)
 {
     QPixmap pm;
-    if(!QPixmapCache::find(resource, pm)) {
+    if (!QPixmapCache::find(resource, pm)) {
         pm = QPixmap(resource);
-        if(pm.isNull()) {
+        if (pm.isNull()) {
             qWarning() << QString("Could not find pixmap '%1'")
                           .arg(resource);
         }

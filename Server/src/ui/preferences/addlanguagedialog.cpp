@@ -14,7 +14,7 @@ AddLanguageDialog::AddLanguageDialog(QWidget *parent) :
 
     QList<QString> alreadyAddedLanguages;
 
-    foreach(QLocale::Language language, Preferences::languages()) {
+    foreach (QLocale::Language language, Preferences::languages()) {
         QString name = QLocale::languageToString(language);
         alreadyAddedLanguages.append(name);
 
@@ -28,10 +28,10 @@ AddLanguageDialog::AddLanguageDialog(QWidget *parent) :
     }
 
     QList<QLocale> allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
-    foreach(QLocale locale, allLocales) {
+    foreach (QLocale locale, allLocales) {
         QString name = QLocale::languageToString(locale.language());
 
-        if(alreadyAddedLanguages.contains(name))
+        if (alreadyAddedLanguages.contains(name))
             continue;
 
         alreadyAddedLanguages.append(name);
@@ -57,9 +57,9 @@ QList<QLocale::Language> AddLanguageDialog::checkedLanguages()
 {
     QList<QLocale::Language> languages;
     int count = ui->listWidgetLanguages->count();
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         QListWidgetItem *item = ui->listWidgetLanguages->item(i);
-        if(item->checkState() == Qt::Checked) {
+        if (item->checkState() == Qt::Checked) {
             languages.append(static_cast<QLocale::Language>(item->data(LanguageDataRole).toInt()));
         }
     }

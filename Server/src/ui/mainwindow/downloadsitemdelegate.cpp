@@ -26,9 +26,9 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QStyleOptionViewItem op = option;
     initStyleOption(&op, index);
 
-    if(index.column() == DownloadsItemModel::UserInputColumn) {
+    if (index.column() == DownloadsItemModel::UserInputColumn) {
         QPixmap pixmap = index.data().value<QPixmap>();
-        if(pixmap.isNull()) {
+        if (pixmap.isNull()) {
             QStyledItemDelegate::paint(painter, option, index);
             painter->restore();
             return;
@@ -39,7 +39,7 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         painter->restore();
         return;
     }
-    else if(index.column() == DownloadsItemModel::ProgressColumn) {
+    else if (index.column() == DownloadsItemModel::ProgressColumn) {
         QApplication::style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, painter, NULL);
 
         int progress = 0;
@@ -47,7 +47,7 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         QStyleOptionProgressBar progressBarOption;
         progressBarOption.maximum = 100;
 
-        if(!index.parent().isValid()) {
+        if (!index.parent().isValid()) {
             QSharedPointer<DownloadPackage> package = index.data(Qt::UserRole + 1).value<QSharedPointer<DownloadPackage> >();
             progress = package->progress() * 100;
         }
@@ -56,7 +56,7 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             progress = download->downloadProgress() * 100;
 
             // Show indetermined progressbar
-            if(download->isExtracting())
+            if (download->isExtracting())
                 progressBarOption.maximum = 0;
         }
 
@@ -83,11 +83,11 @@ void DownloadsItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
 QWidget *DownloadsItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if(index.column() != DownloadsItemModel::UserInputColumn)
+    if (index.column() != DownloadsItemModel::UserInputColumn)
         return QStyledItemDelegate::createEditor(parent, option, index);
 
     QPixmap pixmap = index.data().value<QPixmap>();
-    if(pixmap.isNull())
+    if (pixmap.isNull())
         return QStyledItemDelegate::createEditor(parent, option, index);
 
     QWidget *editor = new CaptchaWidget(pixmap, parent);
@@ -119,9 +119,9 @@ QSize DownloadsItemDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 void DownloadsItemDelegate::initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
 {
     QStyledItemDelegate::initStyleOption(option, index);
-    if(index.parent().isValid()) {
+    if (index.parent().isValid()) {
         QSharedPointer<Download> download = index.data(Qt::UserRole + 1).value<QSharedPointer<Download> >();
-        if(!download->isEnabled()) {
+        if (!download->isEnabled()) {
             option->state = option->state & ~QStyle::State_Enabled;
         }
     }

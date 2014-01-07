@@ -19,7 +19,7 @@ ChooseDownloadLinksDialog::ChooseDownloadLinksDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    if(Preferences::extractMode() != "SERIES") {
+    if (Preferences::extractMode() != "SERIES") {
         ui->comboBoxPath->setEnabled(false);
     }
 
@@ -42,10 +42,10 @@ void ChooseDownloadLinksDialog::setEpisodes(QList<QSharedPointer<Episode> > epis
     QStringList formats;
     m_episodes = episodes;
 
-    foreach(QSharedPointer<Episode> episode, episodes) {
-        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
-            //if(formats.contains(link->formatDescription()))
-            if(formats.contains(link->name()))
+    foreach (QSharedPointer<Episode> episode, episodes) {
+        foreach (QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
+            //if (formats.contains(link->formatDescription()))
+            if (formats.contains(link->name()))
                 continue;
 
             formats.append(link->name());
@@ -53,17 +53,17 @@ void ChooseDownloadLinksDialog::setEpisodes(QList<QSharedPointer<Episode> > epis
             //ui->comboBoxFormat->addItem(link->formatDescription());
             ui->comboBoxFormat->addItem(link->name());
         }
-        if(episode->season()->folders().size() == 0){
-            foreach(QString folder, episode->season()->series()->folders()) {
-                if(ui->comboBoxPath->findText(folder) == -1) {
+        if (episode->season()->folders().size() == 0){
+            foreach (QString folder, episode->season()->series()->folders()) {
+                if (ui->comboBoxPath->findText(folder) == -1) {
                     ui->comboBoxPath->addItem(folder);
                 }
             }       
             ui->checkBoxCreateSeason->setEnabled(true);
         }
         else{
-            foreach(QString folder, episode->season()->folders()) {
-                if(ui->comboBoxPath->findText(folder) == -1) {
+            foreach (QString folder, episode->season()->folders()) {
+                if (ui->comboBoxPath->findText(folder) == -1) {
                     ui->comboBoxPath->addItem(folder);
                 }
             }
@@ -81,10 +81,10 @@ void ChooseDownloadLinksDialog::addMirrorsBasedOnSelectedFormat()
 {
     ui->comboBoxMirror->clear();
 
-    foreach(QSharedPointer<Episode> episode, m_episodes) {
-        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
-            //if(link->formatDescription() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
-            if(link->name() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
+    foreach (QSharedPointer<Episode> episode, m_episodes) {
+        foreach (QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
+            //if (link->formatDescription() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
+            if (link->name() != ui->comboBoxFormat->currentText() || ui->comboBoxMirror->findText(link->mirror()) != -1)
                 continue;
 
             ui->comboBoxMirror->addItem(link->mirror());
@@ -95,7 +95,7 @@ void ChooseDownloadLinksDialog::addMirrorsBasedOnSelectedFormat()
 void ChooseDownloadLinksDialog::finish()
 {
     QString targetFolder;
-    if(ui->checkBoxCreateSeason->isEnabled()) {
+    if (ui->checkBoxCreateSeason->isEnabled()) {
         QDir dir(ui->comboBoxPath->currentText());
         //TODO: Think about downloading episodes from different seasons
         //TODO: Different names for different languages
@@ -114,12 +114,12 @@ void ChooseDownloadLinksDialog::finish()
     }
 
     QList<QSharedPointer<OnlineResource> > links;
-    foreach(QSharedPointer<Episode> episode, m_episodes) {
-        foreach(QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
-            //if(link->formatDescription() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
-            if(link->name() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
+    foreach (QSharedPointer<Episode> episode, m_episodes) {
+        foreach (QSharedPointer<OnlineResource> link, episode->downloadLinks()) {
+            //if (link->formatDescription() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
+            if (link->name() == ui->comboBoxFormat->currentText() && link->mirror() == ui->comboBoxMirror->currentText()) {
                 links.append(link);
-                if(Preferences::extractMode() == "SERIES") {
+                if (Preferences::extractMode() == "SERIES") {
                     link->setExtractFolder(targetFolder);
                 }
                 else{

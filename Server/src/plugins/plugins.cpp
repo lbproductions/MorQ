@@ -30,7 +30,7 @@ void Plugin::decreaseTaskCount()
 {
     --m_taskCount;
 
-    if(m_taskCount == 0) {
+    if (m_taskCount == 0) {
         emit finishedAllTasks();
     }
 }
@@ -101,10 +101,10 @@ QList<DownloadProvider *> Plugins::downloadProviders()
 void Plugins::registerPlugin(Plugin *plugin)
 {
     s_plugins.append(plugin);
-    if(plugin->metaObject()->superClass()->className() == InformationProvider::staticMetaObject.className()) {
+    if (plugin->metaObject()->superClass()->className() == InformationProvider::staticMetaObject.className()) {
         s_informationProviders.insert(plugin->name(), static_cast<InformationProvider *>(plugin));
     }
-    else if(plugin->metaObject()->superClass()->className() == DownloadProvider::staticMetaObject.className()) {
+    else if (plugin->metaObject()->superClass()->className() == DownloadProvider::staticMetaObject.className()) {
         s_downloadProviders.insert(plugin->name(), static_cast<DownloadProvider *>(plugin));
     }
 }

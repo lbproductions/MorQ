@@ -1,8 +1,7 @@
 #ifndef EPISODESLISTMODEL_H
 #define EPISODESLISTMODEL_H
 
-#include "../../lib/QPersistence/src/objectlistmodel.h"
-#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
+#include <QPersistence.h>
 
 #include "model/episode.h"
 

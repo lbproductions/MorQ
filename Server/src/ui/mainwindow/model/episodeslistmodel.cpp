@@ -9,7 +9,7 @@ EpisodesListModel::EpisodesListModel(QObject *parent) :
 
 void EpisodesListModel::setSeason(QSharedPointer<Season> season)
 {
-    if(!season)
+    if (!season)
         setObjects(QList<QSharedPointer<Episode> >());
     else
         setObjects(season->episodes());
@@ -22,17 +22,17 @@ int EpisodesListModel::columnCount(const QModelIndex &) const
 
 QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     QSharedPointer<Episode> episode = objectByIndex(index);
 
     QString links = "";
-    if(episode->downloadLinks().size() > 0) {
+    if (episode->downloadLinks().size() > 0) {
         links = "Downloads available";
     }
 
-    switch(role) {
+    switch (role) {
     case Qt::DisplayRole:
         return QString("E%1 - %2")
                 .arg(episode->number(),2,10,QChar('0'))
@@ -60,7 +60,7 @@ EpisodesSortFilterProxyModel::EpisodesSortFilterProxyModel(EpisodesListModel *so
 
 bool EpisodesSortFilterProxyModel::lessThan(QSharedPointer<Episode> left, QSharedPointer<Episode> right) const
 {
-    if(sortRole() == Number)
+    if (sortRole() == Number)
         return left->number() < right->number();
 
     return left < right;

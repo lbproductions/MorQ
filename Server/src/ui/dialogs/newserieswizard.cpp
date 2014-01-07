@@ -21,11 +21,11 @@
 //{
 //    ui->setupUi(this);
 
-//    foreach(DownloadProvider *provider, Controller::plugins()->downloadProviderPlugins()) {
+//    foreach (DownloadProvider *provider, Controller::plugins()->downloadProviderPlugins()) {
 //        ui->comboBoxProvider->addItem(provider->name());
 //    }
 
-//    foreach(QString location, Preferences::seriesLocations()) {
+//    foreach (QString location, Preferences::seriesLocations()) {
 //        ui->comboBoxLocation->addItem(location);
 //    }
 
@@ -63,7 +63,7 @@
 //{
 //    button(QWizard::NextButton)->setEnabled(false);
 
-//    if(m_currentDownloadProvider)
+//    if (m_currentDownloadProvider)
 //        disconnect(m_currentDownloadProvider, 0, this, 0);
 
 //    m_currentDownloadProvider = Controller::plugins()->downloadProviderPlugins().at(index);
@@ -75,7 +75,7 @@
 //    });
 
 //    QString text = ui->lineEditName->text();
-//    if(!m_completer
+//    if (!m_completer
 //            || (m_completer->completionCount() == 0
 //                && text.size() > 2)) {
 //        m_currentDownloadProvider->searchSeries(text);
@@ -84,20 +84,20 @@
 
 //void NewSeriesWizard::on_lineEditName_textEdited(const QString &text)
 //{
-//    if(m_timer.isActive())
+//    if (m_timer.isActive())
 //        return;
 
 //    button(QWizard::NextButton)->setEnabled(false);
 //    m_timer.start(1000);
 
-//    foreach(DownloadProvider::SeriesData s, m_mostRecentResults) {
-//        if(QString::compare(s.title, ui->lineEditName->text(), Qt::CaseInsensitive) == 0) {
+//    foreach (DownloadProvider::SeriesData s, m_mostRecentResults) {
+//        if (QString::compare(s.title, ui->lineEditName->text(), Qt::CaseInsensitive) == 0) {
 //            setSeries(s);
 //            button(QWizard::NextButton)->setEnabled(true);
 //        }
 //    }
 
-//    if(!m_completer
+//    if (!m_completer
 //            || text.size() > 2) {
 //        m_currentDownloadProvider->searchSeries(text);
 //    }
@@ -106,7 +106,7 @@
 
 //void NewSeriesWizard::complete(QList<DownloadProvider::SeriesData> series)
 //{
-//    if(series.isEmpty()) {
+//    if (series.isEmpty()) {
 //        ui->labelError->setText(tr("No such show"));
 //        button(QWizard::NextButton)->setEnabled(false);
 //    }
@@ -116,16 +116,16 @@
 
 //    m_mostRecentResults = series;
 //    QStringList list;
-//    foreach(DownloadProvider::SeriesData s, m_mostRecentResults) {
+//    foreach (DownloadProvider::SeriesData s, m_mostRecentResults) {
 //        list.append(s.title);
 
-//        if(QString::compare(s.title, ui->lineEditName->text(), Qt::CaseInsensitive) == 0) {
+//        if (QString::compare(s.title, ui->lineEditName->text(), Qt::CaseInsensitive) == 0) {
 //            setSeries(s);
 //            button(QWizard::NextButton)->setEnabled(true);
 //        }
 //    }
 
-//    if(m_completer) {
+//    if (m_completer) {
 //        m_completer->deleteLater();
 //    }
 
@@ -142,7 +142,7 @@
 //void NewSeriesWizard::finish()
 //{
 //    QSharedPointer<Series> series = Series::forTitle(m_currentSeries.title);
-//    if(!series) {
+//    if (!series) {
 //        series = Qp::create<Series>();
 //        Qp::update(series);
 //    }

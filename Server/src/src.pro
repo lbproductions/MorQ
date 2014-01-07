@@ -3,12 +3,6 @@ LIBPATH = ../../lib/
 QPERSISTENCE_PATH = $$LIBPATH/QPersistence
 include($$QPERSISTENCE_PATH/QPersistence.pri)
 
-#QRESTSERVER_PATH = $$QPERSISTENCE_BASEPATH/QRestServer
-#include($$QRESTSERVER_PATH/QRestServer.pri)
-
-#QHAL_PATH = $$QRESTSERVER_PATH/lib/QHal
-#include($$QHAL_PATH/QHal.pri)
-
 QSERIENJUNKIES_PATH = $$LIBPATH/QSerienJunkies
 include($$QSERIENJUNKIES_PATH/QSerienJunkies.pri)
 
@@ -42,18 +36,6 @@ INCLUDEPATH     += $$QSERIENJUNKIES_INCLUDEPATH
 
 LIBS            += $$QUUNRAR_LIBS
 INCLUDEPATH     += $$QUUNRAR_INCLUDEPATH
-
-
-#### QHttpServer ###
-
-#INCLUDEPATH     += $$QHTTPSERVER_INCLUDEPATH
-#LIBS            += $$QHTTPSERVER_LIBS
-
-
-#### QHal ###
-
-#LIBS            += $$QHAL_LIBS
-#INCLUDEPATH     += $$QHAL_INCLUDEPATH
 
 
 ### Files ###
@@ -109,7 +91,6 @@ HEADERS += \
     ui/mainwindow/statusbar.h \
     ui/widgets/label.h \
     ui/mainwindow/headerview.h
-    #controller/filestorage.h
 
 SOURCES += main.cpp \
     ui/mainwindow/mainwindow.cpp \
@@ -162,7 +143,6 @@ SOURCES += main.cpp \
     ui/mainwindow/statusbar.cpp \
     ui/widgets/label.cpp \
     ui/mainwindow/headerview.cpp
-    #controller/filestorage.cpp
 
 FORMS += \
     ui/mainwindow/mainwindow.ui \

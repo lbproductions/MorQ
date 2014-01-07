@@ -20,7 +20,7 @@
 LinksController::LinksController(QObject *parent) :
     QObject(parent)
 {
-    foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+    foreach (DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
         connect(decrypter, &DecrypterPlugin::finishedPackage,
                 this, &LinksController::packageFinished);
     }
@@ -41,25 +41,25 @@ void LinksController::clipboardChanged()
 {
     static QString oldClipboard;
     QString clipboard = QApplication::clipboard()->text();
-    if(clipboard.isEmpty() || clipboard == oldClipboard)
+    if (clipboard.isEmpty() || clipboard == oldClipboard)
         return;
 
     oldClipboard = clipboard;
 
     QUrl url(clipboard);
-    if(!url.isValid())
+    if (!url.isValid())
         return;
 
-    foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
-        if(decrypter->canHandleUrl(url)) {
+    foreach (DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+        if (decrypter->canHandleUrl(url)) {
             QSharedPointer<DownloadPackage> package = createPackage(url);
             decrypter->handlePackage(package);
             return;
         }
     }
 
-    foreach(HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
-        if(hoster->canHandleUrl(url)) {
+    foreach (HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
+        if (hoster->canHandleUrl(url)) {
             QSharedPointer<Download>  dl = createDownload(url);
             hoster->getDownloadInformation(dl);
             return;
@@ -69,9 +69,9 @@ void LinksController::clipboardChanged()
 
 void LinksController::packageFinished(QSharedPointer<DownloadPackage> package)
 {
-    foreach(QSharedPointer<Download> dl, package->downloads()) {
-        foreach(HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
-            if(hoster->canHandleUrl(dl->url())) {
+    foreach (QSharedPointer<Download> dl, package->downloads()) {
+        foreach (HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
+            if (hoster->canHandleUrl(dl->url())) {
                 hoster->getDownloadInformation(dl);
                 break;
             }
@@ -101,8 +101,8 @@ void LinksController::downloadEpisode(QSharedPointer<Episode> episode)
 {
 //    QUrl url = episode->downloadLinks();
 
-//    foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
-//        if(decrypter->canHandleUrl(url)) {
+//    foreach (DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+//        if (decrypter->canHandleUrl(url)) {
 //            QSharedPointer<DownloadPackage> package = createPackage(url);
 //            decrypter->handlePackage(package);
 //            return;
@@ -112,10 +112,10 @@ void LinksController::downloadEpisode(QSharedPointer<Episode> episode)
 
 void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > links)
 {
-    foreach(QSharedPointer<OnlineResource>  link, links) {
+    foreach (QSharedPointer<OnlineResource>  link, links) {
         QUrl url = link->url();
-        foreach(DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
-            if(decrypter->canHandleUrl(url)) {
+        foreach (DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
+            if (decrypter->canHandleUrl(url)) {
                 QSharedPointer<DownloadPackage> package = createPackage(url);
                 package->setExtractFolder(link->extractFolder());
                 decrypter->handlePackage(package);

@@ -38,10 +38,10 @@ void Season::setNumber(int number)
 
 QString Season::title() const
 {
-    if(!m_title.isEmpty())
+    if (!m_title.isEmpty())
         return m_title;
 
-    if(m_number <= 0)
+    if (m_number <= 0)
         return QString("Specials");
 
     return QString(tr("Season %1")).arg(number());
@@ -69,8 +69,8 @@ QList<QSharedPointer<Episode> > Season::episodes() const
 
 QSharedPointer<Episode> Season::episode(int number) const
 {
-    if(m_episodesByNumber.isEmpty()) {
-        foreach(QSharedPointer<Episode> episode, episodes()) {
+    if (m_episodesByNumber.isEmpty()) {
+        foreach (QSharedPointer<Episode> episode, episodes()) {
             m_episodesByNumber.insert(episode->number(), episode);
         }
     }
@@ -115,8 +115,8 @@ Season::Status Season::status() const
     int missing = 0;
     int okay = 0;
 
-    foreach(QSharedPointer<Episode> e, episodes()) {
-        switch(e->status()) {
+    foreach (QSharedPointer<Episode> e, episodes()) {
+        switch (e->status()) {
         case Episode::DownloadAvailable:
             ++downloads;
             break;
@@ -133,13 +133,13 @@ Season::Status Season::status() const
         }
     }
 
-    if(downloads > 0)
+    if (downloads > 0)
         return Season::DownloadsAvailable;
 
-    if(missing > 0)
+    if (missing > 0)
         return Season::MissingEpisodes;
 
-    if(okay == episodes().count())
+    if (okay == episodes().count())
         return Season::Complete;
 
     return Season::UnkownStatus;
@@ -147,7 +147,7 @@ Season::Status Season::status() const
 
 QPixmap Season::statusPixmap() const
 {
-    switch(status()) {
+    switch (status()) {
     case DownloadsAvailable:
         return Tools::cachedPixmap(":/icons/download_available");
     case MissingEpisodes:
@@ -167,8 +167,8 @@ QString Season::statusMessage() const
     int downloads = 0;
     int missing = 0;
 
-    foreach(QSharedPointer<Episode> e, episodes()) {
-        switch(e->status()) {
+    foreach (QSharedPointer<Episode> e, episodes()) {
+        switch (e->status()) {
         case Episode::DownloadAvailable:
             ++downloads;
             break;
@@ -184,7 +184,7 @@ QString Season::statusMessage() const
         }
     }
 
-    switch(status()) {
+    switch (status()) {
     case DownloadsAvailable:
         return tr("%1 downloads available")
                 .arg(downloads);
@@ -205,8 +205,8 @@ QString Season::statusMessage() const
 QSet<QLocale::Language> Season::languages() const
 {
     QSet<QLocale::Language> result;
-    foreach(QSharedPointer<Episode> episode, episodes()) {
-        foreach(QLocale::Language lang, episode->languages()) {
+    foreach (QSharedPointer<Episode> episode, episodes()) {
+        foreach (QLocale::Language lang, episode->languages()) {
             result.insert(lang);
         }
     }

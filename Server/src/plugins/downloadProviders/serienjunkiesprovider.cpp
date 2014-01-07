@@ -89,7 +89,7 @@ void SerienjunkiesProviderTask::seriesSearchFinished()
             reply(static_cast<QSerienJunkiesReply *>(sender()));
 
     QList<QSharedPointer<Series> > results;
-    foreach(QSerienJunkiesReply::Series s, reply->series()) {
+    foreach (QSerienJunkiesReply::Series s, reply->series()) {
         QSharedPointer<Series> result = QSharedPointer<Series>(new Series(this));
         result->setTitle(s.name);
         result->setSerienJunkiesUrl(s.url);
@@ -98,7 +98,7 @@ void SerienjunkiesProviderTask::seriesSearchFinished()
 
     QSharedPointer<Series> result = ScraperController::inferBestMatchingSeries(series(), results);
 
-    if(!result) {
+    if (!result) {
         setErrorMessage(QString("No Seriesjunkies entry: %1")
                         .arg(series()->title()));
         return;
@@ -117,10 +117,10 @@ void SerienjunkiesProviderTask::findSeasonUrls(QSharedPointer<Series> series)
     setSeries(series);
 
     // Needs the series url
-    if(!series->serienJunkiesUrl().isValid()) {
+    if (!series->serienJunkiesUrl().isValid()) {
         SerienjunkiesProviderTask *task = nullptr;
 
-        if(!s_seriesSearchTasks.contains(series)) {
+        if (!s_seriesSearchTasks.contains(series)) {
             task = new SerienjunkiesProviderTask(this);
             s_seriesSearchTasks.insert(series, task);
             task->findSeriesUrl(series);
@@ -154,15 +154,15 @@ void SerienjunkiesProviderTask::seasonSearchFinished()
     QScopedPointer<QSerienJunkiesReply, QScopedPointerObjectDeleteLater<QSerienJunkiesReply> >
             reply(static_cast<QSerienJunkiesReply *>(sender()));
 
-    foreach(QSerienJunkiesReply::Season s, reply->seasons()) {
+    foreach (QSerienJunkiesReply::Season s, reply->seasons()) {
         int number = QSerienJunkies::seasonNumberFromTitle(s.title);
-        if(s.title.contains("COMPLETE")) {
+        if (s.title.contains("COMPLETE")) {
             number = 1;
         }
 
         QSharedPointer<Season> season = series()->season(number);
 
-        if(!season) {
+        if (!season) {
             season = Qp::create<Season>();
             series()->addSeason(season);
             season->setNumber(number);
@@ -188,10 +188,10 @@ void SerienjunkiesProviderTask::findAllDownloadLinks(QSharedPointer<Season> seas
     setSeason(season);
 
     // Needs the season's URL
-    if(season->serienjunkiesUrls().isEmpty()) {
+    if (season->serienjunkiesUrls().isEmpty()) {
         SerienjunkiesProviderTask *task = nullptr;
 
-        if(!s_seasonSearchTasks.contains(season->series())) {
+        if (!s_seasonSearchTasks.contains(season->series())) {
             task = new SerienjunkiesProviderTask(this);
             s_seasonSearchTasks.insert(season->series(), task);
             task->findSeasonUrls(season->series());
@@ -213,7 +213,7 @@ void SerienjunkiesProviderTask::findAllDownloadLinks(QSharedPointer<Season> seas
 
 void SerienjunkiesProviderTask::_findAllDownloadLinks()
 {
-    foreach(QSharedPointer<OnlineResource> url, season()->serienjunkiesUrls()) {
+    foreach (QSharedPointer<OnlineResource> url, season()->serienjunkiesUrls()) {
         ++m_requestCount;
         QSerienJunkiesReply *reply = QSerienJunkies::searchDownloads(url->url());
         connect(reply, &QSerienJunkiesReply::finished,
@@ -222,7 +222,7 @@ void SerienjunkiesProviderTask::_findAllDownloadLinks()
                 this, &SerienjunkiesProviderTask::handleSerienjunkiesError);
     }
 
-    if(m_requestCount == 0) {
+    if (m_requestCount == 0) {
         s_linkSearchTasks.remove(season());
         emit error(tr("No serienjunkies URL for show '%1' season %2")
                    .arg(season()->series()->title())
@@ -235,16 +235,16 @@ void SerienjunkiesProviderTask::downloadLinkSearchFinished()
     QScopedPointer<QSerienJunkiesReply, QScopedPointerObjectDeleteLater<QSerienJunkiesReply> >
             reply(static_cast<QSerienJunkiesReply *>(sender()));
 
-    foreach(QSerienJunkiesReply::Format f, reply->formats()) {
-        foreach(QString mirror, f.mirrors) {
-            foreach(QSerienJunkiesReply::DownloadLink link, reply->downloadLinks(f, mirror)) {
-                if(link.name.contains("DVD"))
+    foreach (QSerienJunkiesReply::Format f, reply->formats()) {
+        foreach (QString mirror, f.mirrors) {
+            foreach (QSerienJunkiesReply::DownloadLink link, reply->downloadLinks(f, mirror)) {
+                if (link.name.contains("DVD"))
                     continue;
 
                 int episodeNumber = QSerienJunkies::episodeNumberFromName(link.name);
 
                 QSharedPointer<Episode> episode = season()->episode(episodeNumber);
-                if(!episode) {
+                if (!episode) {
                     // TODO: create episode!
                     qDebug() << "No such episode: " << episodeNumber << link.name;
                     continue;
@@ -261,7 +261,7 @@ void SerienjunkiesProviderTask::downloadLinkSearchFinished()
     }
 
     --m_requestCount;
-    if(m_requestCount == 0) {
+    if (m_requestCount == 0) {
         s_linkSearchTasks.remove(season());
         emit finished();
     }
@@ -275,7 +275,7 @@ void SerienjunkiesProviderTask::findDownloadLinks(QSharedPointer<Episode> episod
     // Searching for all links of the whole season in one request is cheaper
     SerienjunkiesProviderTask *task = nullptr;
 
-    if(!s_linkSearchTasks.contains(season())) {
+    if (!s_linkSearchTasks.contains(season())) {
         task = new SerienjunkiesProviderTask(this);
         s_linkSearchTasks.insert(season(), task);
         task->findAllDownloadLinks(season());
@@ -297,15 +297,15 @@ void SerienjunkiesProviderTask::_findDownloadLinks()
 
     QList<QSharedPointer<OnlineResource> > urls = task->urlsForEpisode(episode());
 
-    if(urls.isEmpty()) {
+    if (urls.isEmpty()) {
         emit error(tr("No serienjunkies URL for show '%1' season %2 episode %3")
                    .arg(episode()->season()->series()->title())
                    .arg(episode()->season()->number())
                    .arg(episode()->number()));
     }
 
-    foreach(QSharedPointer<OnlineResource> url, urls) {
-        if(!url->mirror().startsWith("uploaded.to")) {
+    foreach (QSharedPointer<OnlineResource> url, urls) {
+        if (!url->mirror().startsWith("uploaded.to")) {
             continue;
         }
 

@@ -24,10 +24,10 @@ void EpisodesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIt
 
     QSharedPointer<Episode> episode = index.data(EpisodesListModel::RawDataRole).value<QSharedPointer<Episode> >();
 
-    if(episode->status() == Episode::Missing
+    if (episode->status() == Episode::Missing
             || episode->status() == Episode::UnkownStatus) {
         COLOR_TITLE_NORMAL = QColor(Qt::gray);
-        if(index.data(EpisodesListModel::DownloadLinkRole).toString() != ""){
+        if (index.data(EpisodesListModel::DownloadLinkRole).toString() != ""){
             COLOR_GRADIENT_TOP_NORMAL = QColor(230,230,230);
             COLOR_GRADIENT_BOTTOM_NORMAL = QColor(210,210,210);
         }

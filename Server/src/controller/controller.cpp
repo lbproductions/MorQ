@@ -13,8 +13,7 @@
 #include "model/episode.h"
 #include "model/onlineresource.h"
 
-#include <QPersistenceDatabaseSchema.h>
-#include <QPersistencePersistentDataAccessObject.h>
+#include <QPersistence.h>
 
 #include <QObject>
 #include <QSqlDatabase>
@@ -26,7 +25,7 @@ bool Controller::initialize()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("/Users/niklaswulf/.morq/sqlitedb");
-    if(!db.open()) {
+    if (!db.open()) {
         qCritical() << db.lastError();
         return false;
     }
@@ -62,7 +61,7 @@ DownloadController *Controller::downloads()
     static DownloadController *controller = nullptr;
     static QObject GUARD;
 
-    if(!controller)
+    if (!controller)
         controller = new DownloadController(&GUARD);
 
     return controller;
@@ -72,7 +71,7 @@ PluginController *Controller::plugins()
     static QObject GUARD;
     static PluginController *controller = nullptr;
 
-    if(!controller)
+    if (!controller)
         controller = new PluginController(&GUARD);
 
     return controller;
@@ -83,7 +82,7 @@ LinksController *Controller::links()
     static QObject GUARD;
     static LinksController *controller = nullptr;
 
-    if(!controller)
+    if (!controller)
         controller = new LinksController(&GUARD);
 
     return controller;
@@ -94,7 +93,7 @@ ExtractionController *Controller::extractor()
     static QObject GUARD;
     static ExtractionController *controller = nullptr;
 
-    if(!controller)
+    if (!controller)
         controller = new ExtractionController(&GUARD);
 
     return controller;
@@ -104,7 +103,7 @@ QNetworkAccessManager *Controller::networkAccessManager()
 {
     static QNetworkAccessManager *nam = nullptr;
 
-    if(!nam)
+    if (!nam)
         nam = new QNetworkAccessManager;
 
     static QObject guard;

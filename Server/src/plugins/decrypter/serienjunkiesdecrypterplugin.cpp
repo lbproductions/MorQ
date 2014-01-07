@@ -22,10 +22,10 @@ SerienJunkiesDecrypterPlugin::SerienJunkiesDecrypterPlugin(QObject *parent) :
 
 bool SerienJunkiesDecrypterPlugin::canHandleUrl(const QUrl &url) const
 {
-    if(!url.isValid())
+    if (!url.isValid())
         return false;
 
-    if(LINK_REGEXP.match(url.toString()).hasMatch())
+    if (LINK_REGEXP.match(url.toString()).hasMatch())
         return true;
 
     return false;
@@ -79,7 +79,7 @@ void SerienJunkiesDecryptHandler::requestCaptchaSolution()
 
     connect(m_package.data(), &DownloadPackage::captchaStringChanged, [=]() {
         QString solution = m_package->captchaString();
-        if(!solution.isEmpty())
+        if (!solution.isEmpty())
             reply->solveCaptcha(solution);
     });
 
@@ -91,7 +91,7 @@ void SerienJunkiesDecryptHandler::replyFinished()
     QSerienJunkiesReply *reply = static_cast<QSerienJunkiesReply *>(sender());
     m_package->setCaptcha(QByteArray());
 
-    foreach(const QUrl &url, reply->urls()) {
+    foreach (const QUrl &url, reply->urls()) {
         QSharedPointer<Download> download = Controller::links()->createDownload(url);
         m_package->addDownload(download);
         m_package->setMessage(QString());

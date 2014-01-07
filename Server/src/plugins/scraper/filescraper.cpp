@@ -47,7 +47,7 @@ QStringList FileScraper::VIDEOEXTENSIONS()
 static QString fileExtension(const QString &name)
 {
     int index = name.lastIndexOf('.');
-    if(index < 0)
+    if (index < 0)
         return QString();
 
     return name.right(name.length() - index - 1);
@@ -94,7 +94,7 @@ void FileScraper::scanAllLocationsForShowsSeasonsAndEpisodes()
     QStringList locations = Preferences::seriesLocations();
     m_locationCount = locations.size();
     m_currentLocationCount = 0;
-    foreach(QString location, locations) {
+    foreach (QString location, locations) {
         ++m_currentLocationCount;
         m_currentLocation = location;
         scanLocationForShowsSeasonsAndEpisodes(location);
@@ -106,7 +106,7 @@ void FileScraper::scanAllLocationsForShowsSeasonsAndEpisodes()
 void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location)
 {
     QDirIterator it(location, QDirIterator::Subdirectories);
-    while(it.hasNext())
+    while (it.hasNext())
     {
         QString path = it.next();
         path.remove(0, location.length());
@@ -115,14 +115,14 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
 
 
         QString extension = fileExtension(path);
-        if(!VIDEOEXTENSIONS().contains(extension))
+        if (!VIDEOEXTENSIONS().contains(extension))
             continue;
 
         FileScraperPrivate::Result r;
         r.seasonNumber = QSerienJunkies::seasonNumberFromName(path);
         r.episodeNumber = QSerienJunkies::episodeNumberFromName(path);
         r.seriesPath = location + "/" + folders.at(1);
-        if(folders.size() >= 3){
+        if (folders.size() >= 3){
             r.seasonPath = r.seriesPath + "/" + folders.at(2);
         }
         r.seriesTitle = seriesTitleFromPath(path);
@@ -134,11 +134,11 @@ void FileScraper::scanLocationForShowsSeasonsAndEpisodes(const QString &location
 
 QString FileScraper::seriesTitleFromPath(const QString &path)
 {
-    foreach(QRegularExpression regExp, SERIESTITLE_REGEXPS()) {
+    foreach (QRegularExpression regExp, SERIESTITLE_REGEXPS()) {
         QRegularExpressionMatch match = regExp.match(path);
-        if(match.hasMatch()) {
+        if (match.hasMatch()) {
             QStringList matches = match.capturedTexts();
-            if(matches.size() > 1)
+            if (matches.size() > 1)
                 return matches.at(1);
             return matches.first();
         }
@@ -166,32 +166,32 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 {
     QSharedPointer<Series> series = Series::forTitle(result.seriesTitle);
 
-    if(!series) {
+    if (!series) {
         series = Qp::create<Series>();
         series->setTitle(result.seriesTitle);
         Qp::update(series);
         m_newSeries.append(series);
     }
-    if(!series->folders().contains(result.seriesPath)) {
+    if (!series->folders().contains(result.seriesPath)) {
         series->addFolder(result.seriesPath);
     }
 
     QSharedPointer<Season> season = series->season(result.seasonNumber);
-    if(!season) {
+    if (!season) {
         season = Qp::create<Season>();
         season->setNumber(result.seasonNumber);
         series->addSeason(season);
         Qp::update(season);
         m_newSeasons.append(season);
     }
-    if(!season->folders().contains(result.seasonPath)) {
+    if (!season->folders().contains(result.seasonPath)) {
         season->addFolder(result.seasonPath);
         Qp::update(season);
     }
 
     QSharedPointer<Episode> episode = season->episode(result.episodeNumber);
 
-    if(!episode) {
+    if (!episode) {
         episode = Qp::create<Episode>();
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);
@@ -201,7 +201,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
         Qp::update(episode);
         m_newEpisodes.append(episode);
     }
-    else if(episode->videoFile() != result.absolutePath) {
+    else if (episode->videoFile() != result.absolutePath) {
         qDebug() << QString("Duplicate episode: %1 and %2")
                     .arg(episode->videoFile())
                     .arg(result.absolutePath);
@@ -213,10 +213,10 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 
 QLocale::Language FileScraper::languageFromPath(const QString &path)
 {
-    foreach(QPair<QLocale::Language COMMA QRegularExpression> pair, LANGUAGE_REGEXPS()) {
+    foreach (QPair<QLocale::Language COMMA QRegularExpression> pair, LANGUAGE_REGEXPS()) {
         QRegularExpression regExp = pair.second;
         QRegularExpressionMatch match = regExp.match(path);
-        if(match.hasMatch())
+        if (match.hasMatch())
             return pair.first;
     }
 

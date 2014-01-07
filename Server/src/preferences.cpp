@@ -115,11 +115,11 @@ QList<QLocale::Language> Preferences::languages()
     QList<QLocale::Language> result;
     QSettings settings;
     QStringList list = settings.value(TVDB_LANGUAGES).toStringList();
-    foreach(QString string, list) {
+    foreach (QString string, list) {
         result.append(static_cast<QLocale::Language>(string.toInt()));
     }
 
-    if(result.isEmpty()) {
+    if (result.isEmpty()) {
         result.append(QLocale::English);
     }
 
@@ -130,7 +130,7 @@ void Preferences::setLanguages(const QList<QLocale::Language> &languages)
 {
     QSettings settings;
     QStringList result;
-    foreach(QLocale::Language language, languages) {
+    foreach (QLocale::Language language, languages) {
         result.append(QString::number(language));
     }
     settings.setValue(TVDB_LANGUAGES, result);

@@ -55,7 +55,7 @@ PreferencesWindow::~PreferencesWindow()
 
 void PreferencesWindow::setCurrentPage(PreferencesWindow::Page page)
 {
-    switch(page) {
+    switch (page) {
     default:
     case DownloadsPage:
         on_actionDownloads_triggered();
@@ -123,7 +123,7 @@ void PreferencesWindow::on_lineEditExtractFolder_editingFinished()
 void PreferencesWindow::on_pushButtonChooseDownloadFolder_clicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this);
-    if(folder.isEmpty())
+    if (folder.isEmpty())
         return;
 
     ui->lineEditDownloadFolder->setText(folder);
@@ -133,7 +133,7 @@ void PreferencesWindow::on_pushButtonChooseDownloadFolder_clicked()
 void PreferencesWindow::on_pushButtonChooseExtractFolder_clicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this);
-    if(folder.isEmpty())
+    if (folder.isEmpty())
         return;
 
     ui->lineEditExtractFolder->setText(folder);
@@ -149,10 +149,10 @@ void PreferencesWindow::on_spinBoxMaxDownloads_editingFinished()
 void PreferencesWindow::on_pushButtonAddLocation_clicked()
 {
     QString folder = QFileDialog::getExistingDirectory(this);
-    if(folder.isEmpty())
+    if (folder.isEmpty())
         return;
 
-    if(Preferences::seriesLocations().contains(folder)) {
+    if (Preferences::seriesLocations().contains(folder)) {
         QMessageBox msg(this);
         msg.setWindowTitle(tr(""));
         msg.setText(tr("Location exists"));
@@ -187,7 +187,7 @@ void PreferencesWindow::on_pushButtonRemoveLocation_clicked()
 
     msg.exec();
     QAbstractButton *clickedButton = msg.clickedButton();
-    if(clickedButton == buttonKeep) {
+    if (clickedButton == buttonKeep) {
         delete ui->listWidgetLocations->selectedItems().first();
         saveSeriesLocations();
     }
@@ -204,7 +204,7 @@ void PreferencesWindow::saveSeriesLocations()
 {
     QStringList locations;
     int count = ui->listWidgetLocations->count();
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         locations << ui->listWidgetLocations->item(i)->text();
     }
 
@@ -213,7 +213,7 @@ void PreferencesWindow::saveSeriesLocations()
 
 void PreferencesWindow::showTvdbLanguagesList()
 {
-    foreach(QLocale::Language language, Preferences::languages()) {
+    foreach (QLocale::Language language, Preferences::languages()) {
         QListWidgetItem *item = new QListWidgetItem(QIcon(Series::languageFlag(language)),
                                                     QLocale::languageToString(language),
                                                     ui->listWidgetLanguages);
@@ -226,7 +226,7 @@ void PreferencesWindow::saveLanguages()
 {
     QList<QLocale::Language> languages;
     int count = ui->listWidgetLanguages->count();
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         QListWidgetItem *item = ui->listWidgetLanguages->item(i);
         languages.append(static_cast<QLocale::Language>(item->data(LanguageDataRole).toInt()));
     }
@@ -258,15 +258,15 @@ void PreferencesWindow::on_pushButtonAdd_clicked()
     AddLanguageDialog dialog(this);
     int ret = dialog.exec();
 
-    if(ret != QDialog::Accepted)
+    if (ret != QDialog::Accepted)
         return;
 
     QList<QLocale::Language> checkedLanguages = dialog.checkedLanguages();
     QList<QLocale::Language> languages = Preferences::languages();
 
     ui->listWidgetLanguages->clear();
-    foreach(QLocale::Language language, languages) {
-        if(!checkedLanguages.contains(language)) {
+    foreach (QLocale::Language language, languages) {
+        if (!checkedLanguages.contains(language)) {
             languages.removeAll(language);
         }
         else {
@@ -274,7 +274,7 @@ void PreferencesWindow::on_pushButtonAdd_clicked()
         }
     }
 
-    foreach(QLocale::Language language, checkedLanguages) {
+    foreach (QLocale::Language language, checkedLanguages) {
         languages.append(language);
     }
 

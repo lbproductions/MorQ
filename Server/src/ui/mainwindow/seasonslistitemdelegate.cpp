@@ -26,7 +26,7 @@ void SeasonsListItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     drawPixmap(painter, option, season->statusPixmap(), STATUS_ICON_OFFSET);
 
     QPoint flagOffset = boundingRect.topRight().toPoint() - option.rect.topLeft() + FLAG_OFFSET;
-    foreach(QLocale::Language language, season->languages()) {
+    foreach (QLocale::Language language, season->languages()) {
         QPixmap pm = Series::languageFlag(language);
         drawPixmap(painter, option,
                    pm,

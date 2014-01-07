@@ -1,10 +1,7 @@
 #ifndef SEASONSLISTMODEL_H
 #define SEASONSLISTMODEL_H
 
-#include <QSortFilterProxyModel>
-
-#include "../../lib/QPersistence/src/objectlistmodel.h"
-#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
+#include <QPersistence.h>
 
 #include "model/season.h"
 

@@ -20,7 +20,7 @@ QList<QSharedPointer<Series> > NewSeriesScraper::newSeries()
 {
     QSharedPointer<Series> series = Series::forTitle(m_title);
 
-    if(!series) {
+    if (!series) {
         series = Qp::create<Series>();
         series->setTitle(m_title);
         Qp::update(series);

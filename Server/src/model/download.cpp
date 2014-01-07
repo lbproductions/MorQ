@@ -120,7 +120,7 @@ void Download::setFileSize(qint64 bytes)
 
 int Download::order() const
 {
-    if(!package())
+    if (!package())
         return 0;
 
     return package()->downloads().indexOf(Qp::sharedFrom(this));
@@ -135,7 +135,7 @@ void Download::setBytesDownloaded(qint64 bytes)
 {    
     m_bytesDownloaded = bytes;
 
-    if(isDownloadFinished())
+    if (isDownloadFinished())
         emit downloadFinished();
 }
 
@@ -152,7 +152,7 @@ void Download::setEnabled(bool e)
 
 double Download::downloadProgress() const
 {
-    if(m_bytesDownloaded <= 0
+    if (m_bytesDownloaded <= 0
             || m_fileSize <= 0)
         return 0.0;
 
@@ -176,12 +176,12 @@ void Download::setExtracting(bool extracting)
 
 void Download::calculateSpeed() const
 {
-    if(!m_speedTimer.isValid()) {
+    if (!m_speedTimer.isValid()) {
         m_speedTimer.start();
         return;
     }
 
-    if(isDownloadFinished()) {
+    if (isDownloadFinished()) {
         m_speed = 0;
         m_weightedSpeed = 0;
         m_eta = QTime();
@@ -189,14 +189,14 @@ void Download::calculateSpeed() const
     }
 
     qint64 elapsedTime = m_speedTimer.elapsed();
-    if(elapsedTime > 100) {
+    if (elapsedTime > 100) {
         qint64 bytesProcessedSinceLastMeasurement = m_bytesDownloaded - m_bytesProcessedAtLastSpeedMeasurement;
 
-        if(bytesProcessedSinceLastMeasurement == 0
+        if (bytesProcessedSinceLastMeasurement == 0
                 && elapsedTime < 3000)
             return;
 
-        if(m_bytesProcessedAtLastSpeedMeasurement < 0) {
+        if (m_bytesProcessedAtLastSpeedMeasurement < 0) {
             m_bytesProcessedAtLastSpeedMeasurement = m_bytesDownloaded;
             return;
         }
@@ -205,9 +205,9 @@ void Download::calculateSpeed() const
         m_speed = bytesProcessedSinceLastMeasurement * 1000 / elapsedTime;
         m_speed = qMax(qint64(0), m_speed);
 
-        if(m_weightedSpeed < 1000) // if weighted is less than 1kb/s just reset it.
+        if (m_weightedSpeed < 1000) // if weighted is less than 1kb/s just reset it.
             m_weightedSpeed = m_speed;
-        else if(m_speed <= 0)
+        else if (m_speed <= 0)
             m_weightedSpeed /= 10;
         else
             m_weightedSpeed = m_speed * s_speedAlpha + m_weightedSpeed * (1 - s_speedAlpha);
@@ -215,19 +215,19 @@ void Download::calculateSpeed() const
         m_weightedSpeed = qMax(qint64(0), m_weightedSpeed);
         m_speedTimer.restart();
 
-        if(m_weightedSpeed <= 0) {
+        if (m_weightedSpeed <= 0) {
             m_eta = QTime();
             return;
         }
 
         qint64 bytesLeft = m_fileSize - m_bytesDownloaded;
 
-        if(bytesLeft < 0) {
+        if (bytesLeft < 0) {
             m_eta = QTime();
             return;
         }
 
-        if(bytesLeft == 0) {
+        if (bytesLeft == 0) {
             m_eta = QTime(0,0,0);
             return;
         }

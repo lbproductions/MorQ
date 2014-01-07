@@ -22,10 +22,10 @@ PremuimizeMePlugin::PremuimizeMePlugin(QObject *parent) :
 
 bool PremuimizeMePlugin::canHandleUrl(const QUrl &url) const
 {
-    if(!url.isValid())
+    if (!url.isValid())
         return false;
 
-    if(url.host() == QLatin1String("uploaded.to")
+    if (url.host() == QLatin1String("uploaded.to")
             || url.host() == QLatin1String("uploaded.net")
             || url.host() == QLatin1String("ul.to"))
         return true;
@@ -61,7 +61,7 @@ PremiumizeMeDownloadHandler::PremiumizeMeDownloadHandler(QSharedPointer<Download
         this->deleteLater();
     });
 
-    if(!s_timer.isActive()) {
+    if (!s_timer.isActive()) {
         s_timer.setInterval(1000);
         s_timer.start();
     }
@@ -160,7 +160,7 @@ void PremiumizeMeDownloadHandler::generateLinkReplyFinished()
     reply->deleteLater();
 
     QRegularExpressionMatch match = LOCATION_REGEXP.match(data);
-    if(!match.hasMatch()) {
+    if (!match.hasMatch()) {
         m_download->setMessage("No download url found: "+data);
         m_download->setEnabled(false);
         return;

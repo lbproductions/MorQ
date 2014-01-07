@@ -76,12 +76,12 @@
 //    ui->textEdit->append(message);
 
 //    m_newSeries = m_scraper->newSeries();
-//    foreach(QSharedPointer<Series> series, Qp::readAll<Series>()) {
-//        if(series->tvdbId() <= 0 && !m_newSeries.contains(series))
+//    foreach (QSharedPointer<Series> series, Qp::readAll<Series>()) {
+//        if (series->tvdbId() <= 0 && !m_newSeries.contains(series))
 //            m_newSeries.append(series);
 //    }
 
-//    if(m_newSeries.isEmpty()) {
+//    if (m_newSeries.isEmpty()) {
 //        finish();
 //    }
 //    else {
@@ -142,7 +142,7 @@
 //    m_seriesListModel->setObjects(m_provider->seriesSearchResults());
 //    m_seriesListModel->setCheckable(true);
 
-//    foreach(QSharedPointer<Series> series, m_provider->seriesSearchResults()) {
+//    foreach (QSharedPointer<Series> series, m_provider->seriesSearchResults()) {
 //        connect(series.data(), &Series::checkStateChanged,
 //                this, &RescanCollectionDialog::enableContinueButtonBasedOnCheckStates);
 //    }
@@ -159,7 +159,7 @@
 
 //    ui->seriesWidget->setVisible(false);
 
-//    if(m_seriesListModel->rowCount() > 0) {
+//    if (m_seriesListModel->rowCount() > 0) {
 //        ui->treeView->selectionModel()->select(m_seriesListModel->index(0), QItemSelectionModel::Select);
 //    }
 //    else {
@@ -175,7 +175,7 @@
 //void RescanCollectionDialog::showSelectedSeries()
 //{
 //    QModelIndexList list = ui->treeView->selectionModel()->selectedIndexes();
-//    if(list.isEmpty())
+//    if (list.isEmpty())
 //        return;
 
 //    QSharedPointer<Series> series = m_seriesListModel->objectByIndex(list.first());
@@ -196,8 +196,8 @@
 //        m_scrapedSeries.append(m_currentSeries);
 //    }
 
-//    foreach(QSharedPointer<Series> s, m_seriesListModel->objects()) {
-//        if(s->checkState() == Qt::PartiallyChecked)
+//    foreach (QSharedPointer<Series> s, m_seriesListModel->objects()) {
+//        if (s->checkState() == Qt::PartiallyChecked)
 //            m_currentSeries->addLanguage(s->primaryLanguage());
 
 //        Qp::remove(s);
@@ -216,7 +216,7 @@
 //{
 //    clear();
 
-//    if(!m_newSeries.isEmpty()) {
+//    if (!m_newSeries.isEmpty()) {
 //        confirmNextNewSeries();
 //    }
 //    else {
@@ -233,8 +233,8 @@
 //{
 //    ui->treeView->setModel(nullptr);
 
-//    if(m_seriesListModel) {
-//        foreach(QSharedPointer<Series> series, m_seriesListModel->objects()) {
+//    if (m_seriesListModel) {
+//        foreach (QSharedPointer<Series> series, m_seriesListModel->objects()) {
 //            Qp::remove(series);
 //        }
 //    }
@@ -248,11 +248,11 @@
 
 //void RescanCollectionDialog::enableContinueButtonBasedOnCheckStates(Qt::CheckState oldState, Qt::CheckState newState)
 //{
-//    if(oldState == Qt::Checked) {
+//    if (oldState == Qt::Checked) {
 //        ui->pushButtonContinue->setEnabled(false);
 //    }
 
-//    if(newState == Qt::Checked) {
+//    if (newState == Qt::Checked) {
 //        ui->pushButtonContinue->setEnabled(true);
 //    }
 //}
@@ -282,12 +282,12 @@
 //{
 //    ui->comboBoxSerienjunkiesUrl->setEnabled(true);
 
-//    if(series.isEmpty()) {
+//    if (series.isEmpty()) {
 //        ui->comboBoxSerienjunkiesUrl->setItemText(0, tr("No results"));
 //    }
 //    else {
 //        ui->comboBoxSerienjunkiesUrl->clear();
-//        foreach(DownloadProviderPlugin::SeriesData s, series) {
+//        foreach (DownloadProviderPlugin::SeriesData s, series) {
 //            ui->comboBoxSerienjunkiesUrl->addItem(s.url.toString());
 //        }
 //    }
@@ -316,7 +316,7 @@
 
 //    m_newEpisodes = m_scraper->newEpisodes();
 
-//    if(!m_scrapedSeries.isEmpty()) {
+//    if (!m_scrapedSeries.isEmpty()) {
 //        ui->textEdit->append(tr("Scraping new series..."));
 //    }
 //    else {
@@ -328,11 +328,11 @@
 
 //void RescanCollectionDialog::scrapeNextSeries()
 //{
-//    if(m_currentSeries) {
+//    if (m_currentSeries) {
 //        Qp::update(m_currentSeries);
 
-//        foreach(QSharedPointer<Season> season, m_currentSeries->seasons()) {
-//            foreach(QSharedPointer<Episode> episode, season->episodes()) {
+//        foreach (QSharedPointer<Season> season, m_currentSeries->seasons()) {
+//            foreach (QSharedPointer<Episode> episode, season->episodes()) {
 //                m_newEpisodes.removeAll(episode);
 //            }
 //        }
@@ -343,8 +343,8 @@
 //    delete m_provider;
 //    m_provider = nullptr;
 
-//    if(m_scrapedSeries.isEmpty()) {
-//        if(m_newEpisodes.isEmpty()) {
+//    if (m_scrapedSeries.isEmpty()) {
+//        if (m_newEpisodes.isEmpty()) {
 //            ui->textEdit->append(tr("No new episodes left for scraping."));
 //        }
 //        else {
@@ -355,10 +355,10 @@
 //        return;
 //    }
 
-//    while(!m_scrapedSeries.isEmpty()) {
+//    while (!m_scrapedSeries.isEmpty()) {
 //        m_currentSeries = m_scrapedSeries.takeFirst();
 
-//        if(m_currentSeries->tvdbId() <= 0) {
+//        if (m_currentSeries->tvdbId() <= 0) {
 //            ui->textEdit->append(tr("Skipping %1").arg(m_currentSeries->title()));
 //            m_currentSeries = QSharedPointer<Series>();
 //        }
@@ -367,7 +367,7 @@
 //        }
 //    }
 
-//    if(m_currentSeries) {
+//    if (m_currentSeries) {
 //        m_provider = new TheTvdbInformationProvider(this);
 //        connect(m_provider, &InformationProvider::finished,
 //                this, &RescanCollectionDialog::scrapeNextSeries);
@@ -390,21 +390,21 @@
 //    delete m_provider;
 //    m_provider = nullptr;
 
-//    if(m_currentEpisode) {
+//    if (m_currentEpisode) {
 //        Qp::update(m_currentEpisode);
 //        m_currentEpisode = QSharedPointer<Episode>();
 //    }
 
-//    if(m_newEpisodes.isEmpty()) {
+//    if (m_newEpisodes.isEmpty()) {
 //        finish();
 //        return;
 //    }
 
-//    while(!m_newEpisodes.isEmpty()) {
+//    while (!m_newEpisodes.isEmpty()) {
 //        m_currentEpisode = m_newEpisodes.takeFirst();
 //        ++m_currentScrapingEpisode;
 
-//        if(m_currentEpisode->season()->series()->tvdbId() <= 0) {
+//        if (m_currentEpisode->season()->series()->tvdbId() <= 0) {
 //            ui->textEdit->append(tr("Skipping %1").arg(m_currentEpisode->videoFile()));
 //            m_currentEpisode = QSharedPointer<Episode>();
 //        }
@@ -413,7 +413,7 @@
 //        }
 //    }
 
-//    if(m_currentEpisode) {
+//    if (m_currentEpisode) {
 //        m_provider = new TheTvdbInformationProvider(this);
 //        connect(m_provider, &InformationProvider::finished,
 //                this, &RescanCollectionDialog::scrapeNextEpisode);

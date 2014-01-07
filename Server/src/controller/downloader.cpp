@@ -47,7 +47,7 @@ QString DownloaderData::fileNameFromUrl() const
     QString path = redirectedUrl.path();
     int index = 0;
     QString result;
-    while(result.isEmpty()
+    while (result.isEmpty()
           && index >= 0) {
         index = path.lastIndexOf('/', index - 1);
         Q_ASSERT(index >= 0);
@@ -68,7 +68,7 @@ qint64 DownloaderData::BUFFERSIZE = (2 << 18);
 
 Downloader::~Downloader()
 {
-    if(data->reply)
+    if (data->reply)
         data->reply->disconnect();
     abortDownload();
 }
@@ -141,7 +141,7 @@ QString Downloader::errorString() const
 void Downloader::setErrorString(const QString &errorString)
 {
     data->errorString = errorString;
-    if(!errorString.isEmpty())
+    if (!errorString.isEmpty())
         emit error();
 }
 
@@ -149,10 +149,10 @@ static void (QNetworkReply:: *ERRORSIGNAL)(QNetworkReply::NetworkError) = &QNetw
 
 void Downloader::getMetaData()
 {
-    if(data->started)
+    if (data->started)
         return;
 
-    if(data->gettingMetaData)
+    if (data->gettingMetaData)
         return;
 
     data->gettingMetaData = true;
@@ -162,7 +162,7 @@ void Downloader::getMetaData()
                      this, &Downloader::_metaDataChanged);
 
     QObject::connect(data->reply, ERRORSIGNAL, [=]() {
-        if(data->reply->error() == QNetworkReply::OperationCanceledError)
+        if (data->reply->error() == QNetworkReply::OperationCanceledError)
             return;
 
         setErrorString("Network error: "+data->reply->errorString());
@@ -171,19 +171,19 @@ void Downloader::getMetaData()
 
 void Downloader::startDownload()
 {
-    if(data->started)
+    if (data->started)
         return;
 
     data->started = true;
 
-    if(data->reply) { // meta data reply
+    if (data->reply) { // meta data reply
         data->reply->abort();
         data->reply->disconnect();
         data->reply->deleteLater();
         data->reply = nullptr;
     }
 
-    if(data->redirectedUrl.isEmpty())
+    if (data->redirectedUrl.isEmpty())
         data->redirectedUrl = data->url;
 
     data->bytesWritten = 0;
@@ -198,7 +198,7 @@ void Downloader::startDownload()
                      this, &Downloader::_metaDataChanged);
 
     QObject::connect(data->reply, ERRORSIGNAL, [=]() {
-        if(data->reply->error() == QNetworkReply::OperationCanceledError)
+        if (data->reply->error() == QNetworkReply::OperationCanceledError)
             return;
 
         setErrorString("Network error: "+data->reply->errorString());
@@ -208,20 +208,20 @@ void Downloader::startDownload()
 
 void Downloader::abortDownload()
 {
-    if(data->reply) {
+    if (data->reply) {
         data->reply->abort();
         data->reply->disconnect();
         data->reply->deleteLater();
         data->reply = nullptr;
     }
 
-    if(data->file) {
+    if (data->file) {
         data->file->flush();
         data->file->close();
         data->file->deleteLater();
     }
 
-    if(data->buffer) {
+    if (data->buffer) {
         delete[] data->buffer;
     }
 }
@@ -237,16 +237,16 @@ void Downloader::_metaDataChanged()
 
     // FileName
     QString contentDisposition = QString::fromLatin1(data->reply->rawHeader("Content-Disposition"));
-    if(!contentDisposition.isEmpty()) {
+    if (!contentDisposition.isEmpty()) {
         QRegularExpression reg(QLatin1String("filename=\\\"(.*)\\\""));
         QRegularExpressionMatch match = reg.match(contentDisposition);
-        if(match.hasMatch()) {
+        if (match.hasMatch()) {
             QString name = match.captured(1);
-            if(!name.isEmpty())
+            if (!name.isEmpty())
                 data->fileName = name;
         }
     }
-    if(data->fileName.isEmpty())
+    if (data->fileName.isEmpty())
         data->fileName = data->fileNameFromUrl();
     Q_ASSERT(!data->fileName.isEmpty());
 
@@ -254,10 +254,10 @@ void Downloader::_metaDataChanged()
     // Redirection
     data->redirectedUrl = data->reply->header(QNetworkRequest::LocationHeader).toUrl();
 
-    if(data->redirectedUrl.isEmpty())
+    if (data->redirectedUrl.isEmpty())
         data->redirectedUrl = data->url;
 
-    if(data->reply->operation() == QNetworkAccessManager::HeadOperation) {
+    if (data->reply->operation() == QNetworkAccessManager::HeadOperation) {
         data->reply->deleteLater();
         data->reply = nullptr;
     }
@@ -268,13 +268,13 @@ void Downloader::_metaDataChanged()
 void Downloader::_readAvailableBytes()
 {
     qint64 bytesAvailable = data->reply->bytesAvailable();
-    if(bytesAvailable < DownloaderData::BUFFERSIZE)
+    if (bytesAvailable < DownloaderData::BUFFERSIZE)
         return;
 
-    if(!data->file) {
+    if (!data->file) {
         data->file = new QFile(data->destinationFolder + QDir::separator() + data->fileName);
-        if(data->file->exists()) {
-            if(!data->file->remove()) {
+        if (data->file->exists()) {
+            if (!data->file->remove()) {
                 setErrorString(QString("Could not remove existing file '%1': %2")
                                .arg(data->file->fileName())
                                .arg(data->file->errorString()));
@@ -283,7 +283,7 @@ void Downloader::_readAvailableBytes()
             }
         }
 
-        if(!data->file->open(QIODevice::WriteOnly)) {
+        if (!data->file->open(QIODevice::WriteOnly)) {
             setErrorString(QString("Could not write to file '%1': %2")
                            .arg(data->file->fileName())
                            .arg(data->file->errorString()));
@@ -292,11 +292,11 @@ void Downloader::_readAvailableBytes()
         }
     }
 
-    if(!data->buffer)
+    if (!data->buffer)
         data->buffer = new char[DownloaderData::BUFFERSIZE];
 
     qint64 read = data->reply->read(data->buffer, DownloaderData::BUFFERSIZE);
-    if(read == -1) {
+    if (read == -1) {
         setErrorString(QString("Could not read from network: %2")
                        .arg(data->reply->errorString()));
         abortDownload();
@@ -304,7 +304,7 @@ void Downloader::_readAvailableBytes()
     }
 
     qint64 write = data->file->write(data->buffer, read);
-    if(write == -1) {
+    if (write == -1) {
         setErrorString(QString("Could not write to file '%1': %2")
                        .arg(data->file->fileName())
                        .arg(data->file->errorString()));
@@ -324,7 +324,7 @@ void Downloader::_finishedDownload()
     data->bytesWritten += bytesAvailable;
     qint64 write = data->file->write(data->reply->readAll());
 
-    if(data->reply->error() != QNetworkReply::OperationCanceledError)
+    if (data->reply->error() != QNetworkReply::OperationCanceledError)
         Q_ASSERT(bytesAvailable == write);
 
     emit bytesWritten(write);

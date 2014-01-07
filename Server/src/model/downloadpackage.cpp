@@ -102,11 +102,11 @@ void DownloadPackage::setCaptchaString(const QString &string)
 
 void DownloadPackage::setDownloads(const QList<QSharedPointer<Download> > downloads)
 {
-    foreach(QSharedPointer<Download> download, this->downloads()){
+    foreach (QSharedPointer<Download> download, this->downloads()){
         disconnect(download.data(), 0, this, 0);
     }
 
-    foreach(QSharedPointer<Download> download, downloads){
+    foreach (QSharedPointer<Download> download, downloads){
         connect(download.data(), &Download::downloadFinished,
                 this, &DownloadPackage::maybeEmitDownloadFinished);
     }
@@ -117,7 +117,7 @@ void DownloadPackage::setDownloads(const QList<QSharedPointer<Download> > downlo
 qint64 DownloadPackage::totalFileSize() const
 {
     qint64 total = 0;
-    foreach(QSharedPointer<Download> dl, differentDownloads()) {
+    foreach (QSharedPointer<Download> dl, differentDownloads()) {
         total += dl->fileSize();
     }
 
@@ -127,7 +127,7 @@ qint64 DownloadPackage::totalFileSize() const
 qint64 DownloadPackage::bytesDownloaded() const
 {
     qint64 total = 0;
-    foreach(QSharedPointer<Download> dl, differentDownloads()) {
+    foreach (QSharedPointer<Download> dl, differentDownloads()) {
         total += dl->bytesDownloaded();
     }
 
@@ -136,7 +136,7 @@ qint64 DownloadPackage::bytesDownloaded() const
 
 double DownloadPackage::progress() const
 {
-    if(isExtracting())
+    if (isExtracting())
         return extractionProgress();
 
     return downloadProgress();
@@ -146,7 +146,7 @@ double DownloadPackage::downloadProgress() const
 {
     qint64 byteDown = bytesDownloaded();
     qint64 total = totalFileSize();
-    if(byteDown <= 0
+    if (byteDown <= 0
             || total <= 0)
         return 0.0;
 
@@ -170,7 +170,7 @@ bool DownloadPackage::isExtractionFinished() const
 
 double DownloadPackage::extractionProgress() const
 {
-    if(m_extractedFilesSize <= 0
+    if (m_extractedFilesSize <= 0
             || m_bytesExtracted <= 0)
         return 0.0;
 
@@ -199,12 +199,12 @@ void DownloadPackage::setExtractedFileSize(qint64 extractedFileSize)
 
 void DownloadPackage::calculateSpeed() const
 {
-    if(!m_speedTimer.isValid()) {
+    if (!m_speedTimer.isValid()) {
         m_speedTimer.start();
         return;
     }
 
-    if(isDownloadFinished()) {
+    if (isDownloadFinished()) {
         m_speed = 0;
         m_weightedSpeed = 0;
         m_eta = QTime();
@@ -213,20 +213,20 @@ void DownloadPackage::calculateSpeed() const
 
 
     qint64 elapsedTime = m_speedTimer.elapsed();
-    if(elapsedTime > 100) {
+    if (elapsedTime > 100) {
         qint64 bytes = 0;
-        if(isExtracting())
+        if (isExtracting())
             bytes = m_bytesExtracted;
         else
             bytes = bytesDownloaded();
 
         qint64 bytesWritten = bytes - m_bytesDownloadedAtLastSpeedMeasurement;
 
-        if(bytesWritten == 0
+        if (bytesWritten == 0
                 && elapsedTime < 3000)
             return;
 
-        if(m_bytesDownloadedAtLastSpeedMeasurement < 0) {
+        if (m_bytesDownloadedAtLastSpeedMeasurement < 0) {
             m_bytesDownloadedAtLastSpeedMeasurement = bytes;
             return;
         }
@@ -236,9 +236,9 @@ void DownloadPackage::calculateSpeed() const
         m_speed = bytesWritten * 1000 / elapsedTime;
         m_speed = qMax(qint64(0), m_speed);
 
-        if(m_weightedSpeed < 1000) // if weighted is less than 1kb/s just reset it.
+        if (m_weightedSpeed < 1000) // if weighted is less than 1kb/s just reset it.
             m_weightedSpeed = m_speed;
-        else if(m_speed <= 0)
+        else if (m_speed <= 0)
             m_weightedSpeed /= 10;
         else
             m_weightedSpeed = m_speed * s_speedAlpha + m_weightedSpeed * (1 - s_speedAlpha);
@@ -246,19 +246,19 @@ void DownloadPackage::calculateSpeed() const
         m_speed = qMax(qint64(0), m_speed);
         m_speedTimer.restart();
 
-        if(m_weightedSpeed <= 0) {
+        if (m_weightedSpeed <= 0) {
             m_eta = QTime();
             return;
         }
 
         qint64 bytesLeft = totalFileSize() - bytes;
 
-        if(bytesLeft < 0) {
+        if (bytesLeft < 0) {
             m_eta = QTime();
             return;
         }
 
-        if(bytesLeft == 0) {
+        if (bytesLeft == 0) {
             m_eta = QTime(0,0,0);
             return;
         }
@@ -267,7 +267,7 @@ void DownloadPackage::calculateSpeed() const
         m_eta = m_eta.addSecs(int(bytesLeft / m_weightedSpeed));
 
         QTime maxDownloadEta = QTime();
-        foreach(QSharedPointer<Download> dl, downloads()) {
+        foreach (QSharedPointer<Download> dl, downloads()) {
             maxDownloadEta = qMax(dl->eta(), maxDownloadEta);
         }
         m_eta = qMax(maxDownloadEta, m_eta);
@@ -278,8 +278,8 @@ QList<QSharedPointer<Download> > DownloadPackage::differentDownloads() const
 {
     QList<QSharedPointer<Download> > differentFiles;
     QStringList fileNames;
-    foreach(QSharedPointer<Download>  dl, downloads()) {
-        if(!fileNames.contains(dl->fileName())) {
+    foreach (QSharedPointer<Download>  dl, downloads()) {
+        if (!fileNames.contains(dl->fileName())) {
             differentFiles.append(dl);
             fileNames.append(dl->fileName());
         }
@@ -313,7 +313,7 @@ QString DownloadPackage::extractFolder() const
 
 void DownloadPackage::maybeEmitDownloadFinished()
 {
-    if(isDownloadFinished())
+    if (isDownloadFinished())
         emit downloadFinished();
 }
 

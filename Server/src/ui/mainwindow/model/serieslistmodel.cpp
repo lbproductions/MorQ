@@ -20,7 +20,7 @@ Qt::ItemFlags SeriesListModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QpObjectListModel<Series>::flags(index);
 
-    if(isCheckable())
+    if (isCheckable())
         f = f | Qt::ItemIsTristate;
 
     return f;
@@ -28,11 +28,11 @@ Qt::ItemFlags SeriesListModel::flags(const QModelIndex &index) const
 
 QVariant SeriesListModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     QSharedPointer<Series> series = objectByIndex(index);
-    switch(role) {
+    switch (role) {
     case Qt::DisplayRole:
         return series->title();
     case Qt::CheckStateRole:
@@ -52,15 +52,15 @@ QVariant SeriesListModel::data(const QModelIndex &index, int role) const
 
 bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(role == Qt::CheckStateRole) {
+    if (role == Qt::CheckStateRole) {
         QSharedPointer<Series> series = objectByIndex(index);
         Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
-        if(checkState == Qt::Checked) {
-            if(m_lastCheckedIndex.isValid()) {
+        if (checkState == Qt::Checked) {
+            if (m_lastCheckedIndex.isValid()) {
                 QSharedPointer<Series> lastCheckedSeries = objectByIndex(m_lastCheckedIndex);
 
-                if(lastCheckedSeries && lastCheckedSeries != series && lastCheckedSeries->checkState() == Qt::Checked) {
+                if (lastCheckedSeries && lastCheckedSeries != series && lastCheckedSeries->checkState() == Qt::Checked) {
                     lastCheckedSeries->setCheckState(Qt::PartiallyChecked);
                     emit dataChanged(m_lastCheckedIndex, m_lastCheckedIndex);
                 }
@@ -68,11 +68,11 @@ bool SeriesListModel::setData(const QModelIndex &index, const QVariant &value, i
 
             m_lastCheckedIndex = index;
         }
-        else if(checkState == Qt::PartiallyChecked && !m_lastCheckedIndex.isValid()) {
+        else if (checkState == Qt::PartiallyChecked && !m_lastCheckedIndex.isValid()) {
             m_lastCheckedIndex = index;
             checkState = Qt::Checked;
         }
-        else if(checkState == Qt::Unchecked) {
+        else if (checkState == Qt::Unchecked) {
             m_lastCheckedIndex = QModelIndex();
         }
 
@@ -97,8 +97,8 @@ void SeriesListModel::setCheckable(bool checkable)
 QList<QSharedPointer<Series> > SeriesListModel::seriesByCheckState(Qt::CheckState state) const
 {
     QList<QSharedPointer<Series> > result;
-    foreach(QSharedPointer<Series> series, objects()) {
-        if(series->checkState() == state) {
+    foreach (QSharedPointer<Series> series, objects()) {
+        if (series->checkState() == state) {
             result.append(series);
         }
     }
@@ -108,7 +108,7 @@ QList<QSharedPointer<Series> > SeriesListModel::seriesByCheckState(Qt::CheckStat
 
 QSharedPointer<Series> SeriesListModel::checkedSeries() const
 {
-    if(!m_lastCheckedIndex.isValid())
+    if (!m_lastCheckedIndex.isValid())
         return QSharedPointer<Series>();
 
     return objectByIndex(m_lastCheckedIndex);
@@ -131,11 +131,11 @@ QStringList SeriesSortFilterProxyModel::sortRoles() const
 
 bool SeriesSortFilterProxyModel::lessThan(QSharedPointer<Series> left, QSharedPointer<Series> right) const
 {
-    if(sortRole() == Title)
+    if (sortRole() == Title)
         return left->title() < right->title();
-    if(sortRole() == Date)
+    if (sortRole() == Date)
         return left->firstAired() < right->firstAired();
-    if(sortRole() == EpisodeCount)
+    if (sortRole() == EpisodeCount)
         return left->episodes().size() < right->episodes().size();
 
     return left < right;

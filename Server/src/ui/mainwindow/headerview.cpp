@@ -28,7 +28,7 @@ QSize HeaderView::sizeHint() const
 void HeaderView::leaveEvent(QEvent *)
 {
     bool hover = m_menuVisible;
-    if(hover == m_hover)
+    if (hover == m_hover)
         return;
 
     m_hover = hover;
@@ -39,7 +39,7 @@ void HeaderView::leaveEvent(QEvent *)
 void HeaderView::mouseMoveEvent(QMouseEvent *e)
 {
     bool hover = m_menuVisible || m_textRect.adjusted(-4,-2,9,1).contains(e->pos());
-    if(hover == m_hover)
+    if (hover == m_hover)
         return;
 
     m_hover = hover;
@@ -50,7 +50,7 @@ void HeaderView::mouseMoveEvent(QMouseEvent *e)
 void HeaderView::mousePressEvent(QMouseEvent *e)
 {
     m_hover = m_textRect.adjusted(-4,-2,9,1).contains(e->pos());
-    if(!m_hover)
+    if (!m_hover)
         return;
 
     m_menuVisible = true;
@@ -60,7 +60,7 @@ void HeaderView::mousePressEvent(QMouseEvent *e)
     QMenu *menu = new QMenu(this);
 
     int roleCount = sortModel()->sortRoleCount();
-    for(int role = 0; role < roleCount; ++role) {
+    for (int role = 0; role < roleCount; ++role) {
         QString data = sortModel()->sortRoleTitle(role);
         QAction *action = menu->addAction(data);
 
@@ -69,7 +69,7 @@ void HeaderView::mousePressEvent(QMouseEvent *e)
             setSortIndicator(0, sortIndicatorOrder());
         });
 
-        if(sortModel()->sortRole() == role) {
+        if (sortModel()->sortRole() == role) {
             action->setCheckable(true);
             action->setChecked(true);
         }
@@ -89,7 +89,7 @@ void HeaderView::mousePressEvent(QMouseEvent *e)
         setSortIndicator(0, Qt::DescendingOrder);
     });
 
-    if(sortIndicatorOrder() == Qt::AscendingOrder)
+    if (sortIndicatorOrder() == Qt::AscendingOrder)
         actionAsc->setChecked(true);
     else
         actionDesc->setChecked(true);
@@ -126,13 +126,13 @@ void HeaderView::paintEvent(QPaintEvent *e)
     f.setBold(true);
     painter.setFont(f);
 
-    if(m_hover) {
+    if (m_hover) {
         QPixmap arrow = Tools::cachedPixmap(":/headerView/arrow_hover");
         QPixmap borderLeft = Tools::cachedPixmap(":/headerView/button_border_left");
         QPixmap borderRight = Tools::cachedPixmap(":/headerView/button_border_right");
         QPixmap background = Tools::cachedPixmap(":/headerView/button_background");
 
-        if(m_menuVisible) {
+        if (m_menuVisible) {
             arrow  = Tools::cachedPixmap(":/headerView/arrow_pressed");
             borderLeft = Tools::cachedPixmap(":/headerView/button_border_left_pressed");
             borderRight = Tools::cachedPixmap(":/headerView/button_border_right_pressed");

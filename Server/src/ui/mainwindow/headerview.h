@@ -2,7 +2,7 @@
 #define HEADERVIEW_H
 
 #include <QHeaderView>
-#include "../../lib/QPersistence/src/sortfilterproxyobjectmodel.h"
+#include <QPersistence.h>
 
 class HeaderView : public QHeaderView
 {

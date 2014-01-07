@@ -42,8 +42,8 @@ void ScraperController::scrapeMissingTvdbInformation()
             this, &ScraperController::finishedTvdbScrape);
 
     bool hasNewSeries = false;
-    foreach(QSharedPointer<Series> s , series) {
-        if(s->tvdbId() < 0) {
+    foreach (QSharedPointer<Series> s , series) {
+        if (s->tvdbId() < 0) {
             hasNewSeries = true;
 
             InformationProviderTask *task = informationProvider->searchSeries(s->title(), s);
@@ -55,7 +55,7 @@ void ScraperController::scrapeMissingTvdbInformation()
         }
     }
 
-    if(!hasNewSeries)
+    if (!hasNewSeries)
         emit finishedTvdbScrape();
 }
 
@@ -67,10 +67,10 @@ void ScraperController::interpretTvdbSearchResults()
     QSharedPointer<Series> s = task->series();
     QSharedPointer<Series> result = inferBestMatchingSeries(s, task->resultSeries());
 
-    if(result) {
+    if (result) {
         task->provider()->saveSeriesResult(result, s);
 
-        foreach(QSharedPointer<Series> r, task->resultSeries()) {
+        foreach (QSharedPointer<Series> r, task->resultSeries()) {
             Qp::remove(r);
         }
 
@@ -83,7 +83,7 @@ void ScraperController::interpretTvdbSearchResults()
     else {
         // TODO: Allow manual searching or setting of tvdbids
         qDebug() << "No TVDB entry found";
-        foreach(QSharedPointer<Series> r, task->resultSeries()) {
+        foreach (QSharedPointer<Series> r, task->resultSeries()) {
             Qp::remove(r);
         }
     }
@@ -95,34 +95,34 @@ QSharedPointer<Series> ScraperController::inferBestMatchingSeries(QSharedPointer
     QList<QSharedPointer<Series> > bestResults;
     int bestDistance = std::numeric_limits<int>::max();
 
-    foreach(QLocale::Language language, series->languages()) {
-        foreach(QSharedPointer<Series> result, results) {
-            if(!result->languages().contains(language))
+    foreach (QLocale::Language language, series->languages()) {
+        foreach (QSharedPointer<Series> result, results) {
+            if (!result->languages().contains(language))
                 continue;
 
             int distance = Tools::levenshteinDistance(result->title(), series->title());
 
-            if(distance == bestDistance) {
+            if (distance == bestDistance) {
                 bestResults.append(result);
             }
-            else if(distance < bestDistance) {
+            else if (distance < bestDistance) {
                 bestResults.clear();
                 bestResults.append(result);
                 bestDistance = distance;
             }
         }
 
-        if(!bestResults.isEmpty())
+        if (!bestResults.isEmpty())
             break;
     }
 
-    if(bestResults.isEmpty())
+    if (bestResults.isEmpty())
         return QSharedPointer<Series>();
 
-    if(bestResults.size() > 1)
+    if (bestResults.size() > 1)
         qDebug() << "Ambiguous TVDB entries: " << bestResults;
 
-    if(bestDistance > 0) {
+    if (bestDistance > 0) {
         qDebug() << "No matching TVDB entry: " << series->title();
         return QSharedPointer<Series>();
     }
@@ -138,11 +138,11 @@ void ScraperController::scrapeSerienjunkiesUrls()
             this, &ScraperController::finishedSerienjunkiesScrape);
 
     bool hasScrapedEpisode = false;
-    foreach(QSharedPointer<Episode> e, Qp::readAll<Episode>()) {
-        if(!e->videoFile().isEmpty())
+    foreach (QSharedPointer<Episode> e, Qp::readAll<Episode>()) {
+        if (!e->videoFile().isEmpty())
             continue;
 
-        if(!e->downloadLinks().isEmpty())
+        if (!e->downloadLinks().isEmpty())
             continue;
 
         hasScrapedEpisode = true;
@@ -155,6 +155,6 @@ void ScraperController::scrapeSerienjunkiesUrls()
                 task, &QObject::deleteLater);
     }
 
-    if(!hasScrapedEpisode)
+    if (!hasScrapedEpisode)
         emit finishedSerienjunkiesScrape();
 }
