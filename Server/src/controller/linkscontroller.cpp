@@ -120,6 +120,7 @@ void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > link
                 package->setExtractFolder(link->extractFolder());
                 decrypter->handlePackage(package);
                 link->episode()->setStatus(Episode::Downloading);
+                Qp::update(link->episode());
                 return;
             }
         }

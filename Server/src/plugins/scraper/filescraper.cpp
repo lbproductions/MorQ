@@ -191,7 +191,7 @@ void FileScraper::consumeResult(const FileScraperPrivate::Result &result)
 
     QSharedPointer<Episode> episode = season->episode(result.episodeNumber);
 
-    if (!episode) {
+    if (!episode || result.episodeNumber < 0) {
         episode = Qp::create<Episode>();
         episode->setNumber(result.episodeNumber);
         season->addEpisode(episode);

@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QPixmapCache>
 #include <QDebug>
+#include <QDate>
 
 QPixmap Tools::cachedPixmap(const QString &resource)
 {
@@ -100,4 +101,19 @@ void Tools::showInGraphicalShell(QWidget *parent, const QString &pathIn)
     if (!success)
         showGraphicalShellError(parent, app, error);
 #endif
+}
+
+QString Tools::airsInString(const QDate &date)
+{
+    int days = QDate::currentDate().daysTo(date);
+    if(days < 31)
+        return QObject::tr("Airs in %1 days").arg(days);
+
+    if(QDate::currentDate().month() + 1 == date.month())
+        return QObject::tr("Airs next month");
+
+    if(QDate::currentDate().year() == date.year())
+        return QObject::tr("Airs in %1").arg(date.toString("MMMM"));
+
+    return QObject::tr("Airs in %1").arg(date.toString("MM/yy"));
 }

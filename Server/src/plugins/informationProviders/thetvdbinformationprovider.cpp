@@ -238,11 +238,6 @@ void TheTvdbInformationProviderTask::parseScrapeSeriesReply()
                 if (!season) {
                     season = Qp::create<Season>();
                     season->setNumber(episode->seasonNumber());
-
-                    if (season->number() == 0) {
-                        season->setTitle("Specials (TheTVDB)");
-                    }
-
                     series->addSeason(season);
                     Qp::update(season);
                 }

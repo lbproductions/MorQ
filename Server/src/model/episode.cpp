@@ -152,8 +152,8 @@ QString Episode::statusMessage() const
     case Extracting:
         return tr("Extracting...");
     case Upcoming:
-        return tr("Airs in %1 days")
-                .arg(QDate::currentDate().daysTo(firstAired()));
+        return Tools::airsInString(firstAired());
+
     default:
     case UnkownStatus:
         break;

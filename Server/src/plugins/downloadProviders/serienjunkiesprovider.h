@@ -51,7 +51,7 @@ private:
     void findAllDownloadLinks(QSharedPointer<Season> season);
     void findDownloadLinks(QSharedPointer<Episode> episode);
 
-    QList<QSharedPointer<OnlineResource> > urlsForEpisode(QSharedPointer<Episode> episode) const;
+    QList<QSharedPointer<OnlineResource> > takeUrlsForEpisode(QSharedPointer<Episode> episode) const;
 
     static QHash<QSharedPointer<Series>, SerienjunkiesProviderTask *> s_seriesSearchTasks;
     static QHash<QSharedPointer<Series>, SerienjunkiesProviderTask *> s_seasonSearchTasks;

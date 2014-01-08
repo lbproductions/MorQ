@@ -151,6 +151,9 @@ void ScraperController::scrapeSerienjunkiesUrls()
 
         connect(task, &DownloadProviderTask::finished,
                 task, &QObject::deleteLater);
+        connect(task, &DownloadProviderTask::error, [=]{
+            qDebug() << task->errorMessage();
+        });
         connect(task, &DownloadProviderTask::error,
                 task, &QObject::deleteLater);
     }

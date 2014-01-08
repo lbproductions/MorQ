@@ -10,7 +10,7 @@
 
 Season::Season(QObject *parent) :
     QObject(parent),
-    m_number(0),
+    m_number(-1),
     m_series("series", this),
     m_episodes("episodes", this),
     m_serienjunkiesUrls("serienjunkiesUrls", this)
@@ -33,6 +33,15 @@ int Season::number() const
 
 void Season::setNumber(int number)
 {
+    Q_ASSERT(m_number >= -1);
+    if(number != m_number) {
+        m_number = number;
+        if(series()) {
+            series()->removeSeason(Qp::sharedFrom(this));
+            series()->addSeason(Qp::sharedFrom(this));
+        }
+    }
+
     m_number = number;
 }
 
@@ -41,10 +50,13 @@ QString Season::title() const
     if (!m_title.isEmpty())
         return m_title;
 
-    if (m_number <= 0)
-        return QString("Specials");
+    if (m_number < 0)
+        return tr("Unkown season");
 
-    return QString(tr("Season %1")).arg(number());
+    if (m_number == 0)
+        return tr("Specials");
+
+    return tr("Season %1").arg(number());
 }
 
 void Season::setTitle(const QString title)
@@ -67,6 +79,12 @@ QList<QSharedPointer<Episode> > Season::episodes() const
     return m_episodes.resolveList();
 }
 
+QList<QSharedPointer<Episode> > Season::specialEpisodes() const
+{
+    episode(-1);
+    return m_episodesByNumber.values(-1);
+}
+
 QSharedPointer<Episode> Season::episode(int number) const
 {
     if (m_episodesByNumber.isEmpty()) {
@@ -76,6 +94,15 @@ QSharedPointer<Episode> Season::episode(int number) const
     }
 
     return m_episodesByNumber.value(number);
+}
+
+QSharedPointer<Episode> Season::episode(const QString &title) const
+{
+    foreach(QSharedPointer<Episode> e, episodes()) {
+        if(e->title() == title)
+            return e;
+    }
+    return QSharedPointer<Episode>();
 }
 
 void Season::addEpisode(QSharedPointer<Episode> episode)

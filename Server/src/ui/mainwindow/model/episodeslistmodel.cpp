@@ -34,6 +34,9 @@ QVariant EpisodesListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
+        if(episode->number() < 0)
+            return episode->title();
+
         return QString("E%1 - %2")
                 .arg(episode->number(),2,10,QChar('0'))
                 .arg(episode->title());

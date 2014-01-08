@@ -57,7 +57,9 @@ public:
     QSharedPointer<Series> series() const;
 
     QList<QSharedPointer<Episode> > episodes() const;
+    QList<QSharedPointer<Episode> > specialEpisodes() const;
     QSharedPointer<Episode> episode(int number) const;
+    QSharedPointer<Episode> episode(const QString &title) const;
     void addEpisode(QSharedPointer<Episode> episode);
     void removeEpisode(QSharedPointer<Episode> episode);
 
@@ -79,7 +81,7 @@ private:
     QpWeakRelation<Series> m_series;
     QpStrongRelation<Episode> m_episodes;
     QpStrongRelation<OnlineResource> m_serienjunkiesUrls;
-    mutable QMap<int, QSharedPointer<Episode> > m_episodesByNumber;
+    mutable QMultiMap<int, QSharedPointer<Episode> > m_episodesByNumber;
     QStringList m_folders;
 };
 
