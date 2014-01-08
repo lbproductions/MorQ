@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeries->setItemDelegate(new SeriesListItemDelegate(ui->treeViewSeries, this));
     ui->treeViewSeries->addAction(ui->actionAddDownload);
     ui->treeViewSeries->addAction(ui->actionShow_in_Finder);
+    ui->treeViewSeries->addAction(ui->actionShow_TheTVDB_page);
     m_seriesHeaderView = new HeaderView(ui->treeViewSeries);
     m_seriesHeaderView->setSortModel(m_seriesProxyModel);
     m_seriesHeaderView->setStretchLastSection(true);
@@ -103,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeasons->setItemDelegate(new SeasonsListItemDelegate(ui->treeViewSeasons, this));
     ui->treeViewSeasons->addAction(ui->actionAddDownload);
     ui->treeViewSeasons->addAction(ui->actionShow_in_Finder);
+    ui->treeViewSeasons->addAction(ui->actionShow_TheTVDB_page);
     m_seasonsHeaderView = new HeaderView(ui->treeViewSeasons);
     m_seasonsHeaderView->setSortModel(m_seasonsProxyModel);
     m_seasonsHeaderView->setStretchLastSection(true);
@@ -116,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewEpisodes->setItemDelegate(new EpisodesListItemDelegate(ui->treeViewEpisodes, this));
     ui->treeViewEpisodes->addAction(ui->actionAddDownload);
     ui->treeViewEpisodes->addAction(ui->actionShow_in_Finder);
+    ui->treeViewEpisodes->addAction(ui->actionShow_TheTVDB_page);
     m_episodesHeaderView = new HeaderView(ui->treeViewEpisodes);
     m_episodesHeaderView->setSortModel(m_episodesProxyModel);
     m_episodesHeaderView->setStretchLastSection(true);
@@ -419,6 +422,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
     QWidget *focusWidget = QApplication::focusWidget();
     ui->actionAddDownload->setEnabled(false);
     ui->actionShow_in_Finder->setEnabled(false);
+    ui->actionShow_TheTVDB_page->setEnabled(false);
 
     // TODO implement and enable downloading multiple episodes/seasons/series in one step
 
@@ -427,13 +431,15 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
         if (!list.isEmpty()) {
             ui->actionAddDownload->setText(tr("Download episode..."));
 
-            QSharedPointer<Episode> episode = m_episodesModel->objectByIndex(list.first());
+            QSharedPointer<Episode> episode = m_episodesProxyModel->objectByIndex(list.first());
             if (!episode)
                 return;
 
             ui->actionAddDownload->setEnabled(!episode->downloadLinks().isEmpty()
                                               && episode->videoFile().isEmpty());
             ui->actionShow_in_Finder->setEnabled(!episode->videoFile().isEmpty());
+            ui->actionShow_TheTVDB_page->setEnabled(episode->tvdbUrl().isValid());
+
         }
         return;
     }
@@ -445,7 +451,11 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             ui->actionAddDownload->setText(tr("Download season..."));
 
             QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
+            if(!season)
+                return;
+
             ui->actionShow_in_Finder->setEnabled(season && !season->folders().isEmpty());
+            ui->actionShow_TheTVDB_page->setEnabled(season->tvdbUrl().isValid());
         }
         return;
     }
@@ -457,7 +467,11 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             ui->actionAddDownload->setText(tr("Download complete series..."));
 
             QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
-            ui->actionShow_in_Finder->setEnabled(series && !series->folders().isEmpty());
+            if(!series)
+                return;
+
+            ui->actionShow_in_Finder->setEnabled(!series->folders().isEmpty());
+            ui->actionShow_TheTVDB_page->setEnabled(series->tvdbUrl().isValid());
         }
     }
 }
@@ -474,7 +488,7 @@ void MainWindow::on_actionAddDownload_triggered()
         if (list.isEmpty())
             return;
 
-        QSharedPointer<Episode> episode = m_episodesModel->objectByIndex(list.first());
+        QSharedPointer<Episode> episode = m_episodesProxyModel->objectByIndex(list.first());
         if (!episode)
             return;
 
@@ -546,7 +560,6 @@ void MainWindow::on_actionRescan_collection_triggered()
 
 void MainWindow::on_actionShow_in_Finder_triggered()
 {
-
     QWidget *focusWidget = QApplication::focusWidget();
 
     if (focusWidget == ui->treeViewEpisodes) {
@@ -554,7 +567,7 @@ void MainWindow::on_actionShow_in_Finder_triggered()
         if (list.isEmpty())
             return;
 
-        QSharedPointer<Episode> episode = m_episodesModel->objectByIndex(list.first());
+        QSharedPointer<Episode> episode = m_episodesProxyModel->objectByIndex(list.first());
         if (!episode || episode->videoFile().isEmpty())
             return;
 
@@ -583,5 +596,46 @@ void MainWindow::on_actionShow_in_Finder_triggered()
             return;
 
         Tools::showInGraphicalShell(this, series->folders().first());
+    }
+}
+
+void MainWindow::on_actionShow_TheTVDB_page_triggered()
+{
+    QWidget *focusWidget = QApplication::focusWidget();
+
+    if (focusWidget == ui->treeViewEpisodes) {
+        QModelIndexList list = ui->treeViewEpisodes->selectionModel()->selectedRows();
+        if (list.isEmpty())
+            return;
+
+        QSharedPointer<Episode> episode = m_episodesProxyModel->objectByIndex(list.first());
+        if (!episode || !episode->tvdbUrl().isValid())
+            return;
+
+        QDesktopServices::openUrl(episode->tvdbUrl());
+    }
+
+    if (focusWidget == ui->treeViewSeasons) {
+        QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
+        if (list.isEmpty())
+            return;
+
+        QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
+        if (!season || !season->tvdbUrl().isValid())
+            return;
+
+        QDesktopServices::openUrl(season->tvdbUrl());;
+    }
+
+    if (focusWidget == ui->treeViewSeries) {
+        QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
+        if (list.isEmpty())
+            return;
+
+        QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
+        if (!series || !series->tvdbUrl().isValid())
+            return;
+
+        QDesktopServices::openUrl(series->tvdbUrl());
     }
 }

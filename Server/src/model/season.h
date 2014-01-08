@@ -16,6 +16,7 @@ class Season : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int number READ number WRITE setNumber)
+    Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QSharedPointer<Series>  series READ series WRITE setSeries)
     Q_PROPERTY(QList<QSharedPointer<Episode> > episodes READ episodes WRITE setEpisodes)
@@ -70,6 +71,10 @@ public:
     void addSerienjunkiesUrl(QSharedPointer<OnlineResource> serienjunkiesUrl);
     QList<QSharedPointer<OnlineResource> > serienjunkiesUrls() const;
 
+    int tvdbId() const;
+    void setTvdbId(int arg);
+    QUrl tvdbUrl() const;
+
 private:
     friend class Series;
     void setSeries(QSharedPointer<Series> series);
@@ -83,6 +88,7 @@ private:
     QpStrongRelation<OnlineResource> m_serienjunkiesUrls;
     mutable QMultiMap<int, QSharedPointer<Episode> > m_episodesByNumber;
     QStringList m_folders;
+    int m_tvdbId;
 };
 
 Q_DECLARE_METATYPE(Season::Status)

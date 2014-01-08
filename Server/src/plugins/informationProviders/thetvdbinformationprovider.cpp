@@ -120,8 +120,11 @@ void TheTvdbInformationProvider::saveEpisodeResult(QSharedPointer<Episode> sourc
         qWarning() << Q_FUNC_INFO << "source->number() != target->number()";
     }
 
+
+    target->setTvdbSeasonId(source->tvdbSeasonId());
     target->setFirstAired(source->firstAired());
     target->setOverview(source->overview());
+    target->setTvdbId(source->tvdbId());
 }
 
 TheTvdbInformationProviderTask::TheTvdbInformationProviderTask(TheTvdbInformationProvider *parent) :
@@ -421,6 +424,12 @@ void TheTvdbInformationProviderTask::parseEpisode(QXmlStreamReader &xml, QShared
             }
             else if (name == TOKENNAME_EPISODE_FIRSTAIRED) {
                 episode->setFirstAired(QDate::fromString(text, Qt::ISODate));
+            }
+            else if (name == TOKENNAME_EPISODE_ID) {
+                episode->setTvdbId(text.toInt());
+            }
+            else if (name == TOKENNAME_EPISODE_SEASONID) {
+                episode->setTvdbSeasonId(text.toInt());
             }
 
             // TODO: Add missing properties to episode.

@@ -14,6 +14,7 @@ class Episode : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int number READ number WRITE setNumber)
+    Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QSharedPointer<Season>  season READ season WRITE setSeason)
     Q_PROPERTY(QString videoFile READ videoFile WRITE setVideoFile)
     Q_PROPERTY(QString title READ title WRITE setTitle)
@@ -72,6 +73,14 @@ public:
     QPixmap primaryLanguageFlag() const;
 
     // TheTVDB
+    int tvdbId() const;
+    void setTvdbId(int arg);
+
+    int tvdbSeasonId() const;
+    void setTvdbSeasonId(int arg);
+
+    QUrl tvdbUrl() const;
+
     QString title() const;
     void setTitle(const QString &title);
 
@@ -89,6 +98,8 @@ private:
     void setDownloadLinks(const QList<QSharedPointer<OnlineResource> > &links);
 
     int m_number;
+    int m_tvdbId;
+    int m_tvdbSeasonId;
     int m_seasonNumber;
     Status m_status;
     QpStrongRelation<OnlineResource> m_downloadLinks;
@@ -100,6 +111,8 @@ private:
     QLocale::Language m_primaryLanguage;
     QDate m_firstAired;
 };
+
+
 
 Q_DECLARE_METATYPE(Episode::Status)
 

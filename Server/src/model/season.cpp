@@ -13,7 +13,8 @@ Season::Season(QObject *parent) :
     m_number(-1),
     m_series("series", this),
     m_episodes("episodes", this),
-    m_serienjunkiesUrls("serienjunkiesUrls", this)
+    m_serienjunkiesUrls("serienjunkiesUrls", this),
+    m_tvdbId(-1)
 {
 }
 
@@ -128,6 +129,26 @@ void Season::setEpisodes(const QList<QSharedPointer<Episode> > &episodes)
 QList<QSharedPointer<OnlineResource> > Season::serienjunkiesUrls() const
 {
     return m_serienjunkiesUrls.resolveList();
+}
+
+int Season::tvdbId() const
+{
+    return m_tvdbId;
+}
+
+void Season::setTvdbId(int arg)
+{
+    m_tvdbId = arg;
+}
+
+QUrl Season::tvdbUrl() const
+{
+    if(tvdbId() <= 0)
+        return QUrl();
+
+    return QUrl(QString("http://thetvdb.com/?tab=season&seriesid=%1&seasonid=%2&lid=7")
+                .arg(series()->tvdbId())
+                .arg(tvdbId()));
 }
 
 void Season::setSerienjunkiesUrls(const QList<QSharedPointer<OnlineResource> > &serienjunkiesUrls)

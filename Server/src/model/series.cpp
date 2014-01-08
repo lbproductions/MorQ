@@ -68,6 +68,9 @@ void Series::setTvdbId(int id)
 
 QUrl Series::tvdbUrl() const
 {
+    if(tvdbId() <= 0)
+        return QUrl();
+
     return QUrl(QString("http://thetvdb.com/?tab=series&id=%1").arg(tvdbId()));
 }
 

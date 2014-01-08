@@ -11,6 +11,8 @@
 Episode::Episode(QObject *parent) :
     QObject(parent),
     m_number(-1),
+    m_tvdbId(-1),
+    m_tvdbSeasonId(-1),
     m_seasonNumber(-1),
     m_status(Episode::UnkownStatus),
     m_downloadLinks("downloadLinks", this),
@@ -103,6 +105,40 @@ QDate Episode::firstAired() const
 void Episode::setFirstAired(const QDate &firstAired)
 {
     m_firstAired = firstAired;
+}
+
+int Episode::tvdbSeasonId() const
+{
+    return m_tvdbSeasonId;
+}
+
+void Episode::setTvdbSeasonId(int arg)
+{
+    if(season())
+        season()->setTvdbId(arg);
+
+    m_tvdbSeasonId = arg;
+}
+
+int Episode::tvdbId() const
+{
+    return m_tvdbId;
+}
+
+void Episode::setTvdbId(int arg)
+{
+    m_tvdbId = arg;
+}
+
+QUrl Episode::tvdbUrl() const
+{
+    if(tvdbId() <= 0)
+        return QUrl();
+
+    return QUrl(QString("http://thetvdb.com/?tab=episode&seriesid=%1&seasonid=%2&id=%3&lid=7")
+                .arg(season()->series()->tvdbId())
+                .arg(tvdbSeasonId())
+                .arg(tvdbId()));
 }
 
 Episode::Status Episode::status() const

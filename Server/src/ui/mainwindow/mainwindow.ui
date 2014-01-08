@@ -534,6 +534,14 @@ background-color: #fff;
     <string>Show in Finder</string>
    </property>
   </action>
+  <action name="actionShow_TheTVDB_page">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Open TheTVDB entry</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
