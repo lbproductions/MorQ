@@ -24,6 +24,7 @@
 #include "plugins/scraper/filescraper.h"
 #include "plugins/scraper/newseriesscraper.h"
 #include "misc/tools.h"
+#include "model/onlineresource.h"
 
 #include "model/download.h"
 #include "model/downloadpackage.h"
@@ -91,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeries->addAction(ui->actionAddDownload);
     ui->treeViewSeries->addAction(ui->actionShow_in_Finder);
     ui->treeViewSeries->addAction(ui->actionShow_TheTVDB_page);
+    ui->treeViewSeries->addAction(ui->actionOpen_SerienJunkies_page);
     m_seriesHeaderView = new HeaderView(ui->treeViewSeries);
     m_seriesHeaderView->setSortModel(m_seriesProxyModel);
     m_seriesHeaderView->setStretchLastSection(true);
@@ -105,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeViewSeasons->addAction(ui->actionAddDownload);
     ui->treeViewSeasons->addAction(ui->actionShow_in_Finder);
     ui->treeViewSeasons->addAction(ui->actionShow_TheTVDB_page);
+    ui->treeViewSeasons->addAction(ui->actionOpen_SerienJunkies_page);
     m_seasonsHeaderView = new HeaderView(ui->treeViewSeasons);
     m_seasonsHeaderView->setSortModel(m_seasonsProxyModel);
     m_seasonsHeaderView->setStretchLastSection(true);
@@ -423,6 +426,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
     ui->actionAddDownload->setEnabled(false);
     ui->actionShow_in_Finder->setEnabled(false);
     ui->actionShow_TheTVDB_page->setEnabled(false);
+    ui->actionOpen_SerienJunkies_page->setEnabled(false);
 
     // TODO implement and enable downloading multiple episodes/seasons/series in one step
 
@@ -439,7 +443,6 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
                                               && episode->videoFile().isEmpty());
             ui->actionShow_in_Finder->setEnabled(!episode->videoFile().isEmpty());
             ui->actionShow_TheTVDB_page->setEnabled(episode->tvdbUrl().isValid());
-
         }
         return;
     }
@@ -456,6 +459,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
 
             ui->actionShow_in_Finder->setEnabled(season && !season->folders().isEmpty());
             ui->actionShow_TheTVDB_page->setEnabled(season->tvdbUrl().isValid());
+            ui->actionOpen_SerienJunkies_page->setEnabled(!season->serienjunkiesUrls().isEmpty());
         }
         return;
     }
@@ -472,6 +476,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
 
             ui->actionShow_in_Finder->setEnabled(!series->folders().isEmpty());
             ui->actionShow_TheTVDB_page->setEnabled(series->tvdbUrl().isValid());
+            ui->actionOpen_SerienJunkies_page->setEnabled(series->serienJunkiesUrl().isValid());
         }
     }
 }
@@ -637,5 +642,34 @@ void MainWindow::on_actionShow_TheTVDB_page_triggered()
             return;
 
         QDesktopServices::openUrl(series->tvdbUrl());
+    }
+}
+
+void MainWindow::on_actionOpen_SerienJunkies_page_triggered()
+{
+    QWidget *focusWidget = QApplication::focusWidget();
+
+    if (focusWidget == ui->treeViewSeasons) {
+        QModelIndexList list = ui->treeViewSeasons->selectionModel()->selectedRows();
+        if (list.isEmpty())
+            return;
+
+        QSharedPointer<Season> season = m_seasonsProxyModel->objectByIndex(list.first());
+        if (!season || season->serienjunkiesUrls().isEmpty())
+            return;
+
+        QDesktopServices::openUrl(season->serienjunkiesUrls().first()->url());
+    }
+
+    if (focusWidget == ui->treeViewSeries) {
+        QModelIndexList list = ui->treeViewSeries->selectionModel()->selectedRows();
+        if (list.isEmpty())
+            return;
+
+        QSharedPointer<Series> series = m_seriesProxyModel->objectByIndex(list.first());
+        if (!series || !series->serienJunkiesUrl().isValid())
+            return;
+
+        QDesktopServices::openUrl(series->serienJunkiesUrl());
     }
 }

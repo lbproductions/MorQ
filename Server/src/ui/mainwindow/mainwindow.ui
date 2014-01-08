@@ -542,6 +542,11 @@ background-color: #fff;
     <string>Open TheTVDB entry</string>
    </property>
   </action>
+  <action name="actionOpen_SerienJunkies_page">
+   <property name="text">
+    <string>Open SerienJunkies page</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

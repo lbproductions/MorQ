@@ -59,6 +59,8 @@ private slots:
 
     void on_actionShow_TheTVDB_page_triggered();
 
+    void on_actionOpen_SerienJunkies_page_triggered();
+
 private:
     static MainWindow *s_instance;
     explicit MainWindow(QWidget *parent = 0);
