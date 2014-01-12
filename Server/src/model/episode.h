@@ -13,6 +13,8 @@ class Season;
 class Episode : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(Status)
+
     Q_PROPERTY(int number READ number WRITE setNumber)
     Q_PROPERTY(int tvdbId READ tvdbId WRITE setTvdbId)
     Q_PROPERTY(QSharedPointer<Season>  season READ season WRITE setSeason)
@@ -23,7 +25,7 @@ class Episode : public QObject
     Q_PROPERTY(QLocale::Language primaryLanguage READ primaryLanguage WRITE setPrimaryLanguage)
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
     Q_PROPERTY(QDate firstAired READ firstAired WRITE setFirstAired)
-    Q_PROPERTY(Episode::Status status READ status WRITE setStatus)
+    Q_PROPERTY(Status status READ status WRITE setStatus)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:season",
                 "reverserelation=episodes;")
@@ -32,19 +34,19 @@ class Episode : public QObject
 
 public:
     enum Status {
-        UnkownStatus = 0x0,
-        DownloadAvailable = 0x1,
-        Missing = 0x2,
-        Ok = 0x4,
-        Downloading = 0x8,
-        Extracting = 0x16,
+        UnkownStatus,
+        DownloadAvailable,
+        Missing,
+        Ok,
+        Downloading ,
+        Extracting,
         Upcoming
     };
 
     explicit Episode(QObject *parent = 0);
     ~Episode();
 
-    Episode::Status status() const;
+    Status status() const;
     void setStatus(Episode::Status status);
     QPixmap statusPixmap() const;
     QString statusMessage() const;
@@ -109,9 +111,5 @@ private:
     QLocale::Language m_primaryLanguage;
     QDate m_firstAired;
 };
-
-
-
-Q_DECLARE_METATYPE(Episode::Status)
 
 #endif // EPISODE_H

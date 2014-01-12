@@ -141,7 +141,7 @@ Episode::Status Episode::status() const
     return m_status;
 }
 
-void Episode::setStatus(Status status)
+void Episode::setStatus(Episode::Status status)
 {
     m_status = status;
 }
