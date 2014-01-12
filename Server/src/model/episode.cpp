@@ -158,6 +158,7 @@ QPixmap Episode::statusPixmap() const
     case Downloading:
         return Tools::cachedPixmap(":/icons/downloading");
     case Upcoming:
+        return Tools::cachedPixmap(":/icons/upcoming");
     case Extracting:
     default:
     case UnkownStatus:

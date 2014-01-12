@@ -18,6 +18,7 @@
         <file alias="missing">icons/missing.png</file>
         <file alias="okay">icons/okay.png</file>
         <file alias="questionmark">icons/questionmark.png</file>
+        <file alias="upcoming">icons/upcoming.png</file>
     </qresource>
     <qresource prefix="/headerView">
         <file alias="arrow_hover">headerView/arrow_hover.png</file>
