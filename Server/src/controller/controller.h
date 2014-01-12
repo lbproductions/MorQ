@@ -18,7 +18,7 @@ class OnlineResource;
 class Controller
 {
 public:
-    static bool initialize();
+    static bool initialize(bool cleanDatabase);
 
     static DownloadController *downloads();
     static PluginController *plugins();

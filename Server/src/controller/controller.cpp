@@ -21,16 +21,8 @@
 #include <QSqlError>
 #include <QNetworkAccessManager>
 
-bool Controller::initialize()
+bool Controller::initialize(bool cleanDatabase)
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/Users/niklaswulf/.morq/sqlitedb");
-    if (!db.open()) {
-        qCritical() << db.lastError();
-        return false;
-    }
-    Qp::setDatabase(db);
-
     Qp::registerSetType<int>();
     Qp::registerClass<Download>();
     Qp::registerClass<DownloadPackage>();
@@ -39,10 +31,14 @@ bool Controller::initialize()
     Qp::registerClass<Episode>();
     Qp::registerClass<OnlineResource>();
 
-    // Adjust database
     QpDatabaseSchema databaseSchema;
-    databaseSchema.createCleanSchema();
-//    databaseSchema.adjustSchema();
+    // Adjust database
+    if(cleanDatabase) {
+        databaseSchema.createCleanSchema();
+    }
+    else {
+        databaseSchema.adjustSchema();
+    }
 
 
     // Call these methods, to once initialize each controller
