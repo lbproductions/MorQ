@@ -371,6 +371,7 @@ void SerienjunkiesProviderTask::_findDownloadLinks()
     newurl->setMirror(bestMirror->mirror());
     episode()->addDownloadLink(newurl);
     episode()->setStatus(Episode::DownloadAvailable);
+    Qp::update(episode());
     Qp::update(newurl);
 
     emit finished();
