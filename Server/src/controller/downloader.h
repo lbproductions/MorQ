@@ -4,9 +4,10 @@
 
 #include <QObject>
 
-#include <QSharedDataPointer>
+#include <QExplicitlySharedDataPointer>
 
 class QUrl;
+class Download;
 class QFile;
 
 class DownloaderData;
@@ -43,6 +44,9 @@ public:
     QString errorString() const;
     void setErrorString(const QString &errorString);
 
+    QSharedPointer<Download> download() const;
+    void setDownload(const QSharedPointer<Download> &value);
+
 Q_SIGNALS:
     void started();
     void metaDataChanged();
@@ -57,7 +61,7 @@ private Q_SLOTS:
     void _finishedDownload();
 
 private:
-    QSharedDataPointer<DownloaderData> data;
+    QExplicitlySharedDataPointer<DownloaderData> data;
 
     Q_DISABLE_COPY(Downloader)
 };

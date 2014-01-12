@@ -17,6 +17,11 @@ DownloadController::DownloadController(QObject *parent) :
 {
 }
 
+DownloadController::~DownloadController()
+{
+    stopDownloads();
+}
+
 QSharedPointer<Download> DownloadController::findNextUnfinishedDownload()
 {
     QList<QSharedPointer<DownloadPackage> > packages = Qp::readAll<DownloadPackage>();
@@ -24,19 +29,11 @@ QSharedPointer<Download> DownloadController::findNextUnfinishedDownload()
     foreach (QSharedPointer<DownloadPackage> package, packages) {
         if (package->isDownloadFinished())
             continue;
-        QStringList fileNames;
-        foreach (QSharedPointer<Download> dl , package->downloads()) {
-            if (fileNames.contains(dl->fileName())) {
-                removeDownload(dl);
-            }
-            else{
-                fileNames.append(dl->fileName());
-            }
-        }
+
         foreach (QSharedPointer<Download> dl , package->downloads()) {
             if (!dl->isDownloadFinished()
-               && !m_runningDownloaders.contains(dl->id())
-               && dl->isEnabled()) {
+                    && !m_runningDownloaders.contains(dl)
+                    && dl->isEnabled()) {
                 return dl;
             }
 
@@ -58,22 +55,10 @@ bool DownloadController::startNextDownload()
     foreach (HosterPlugin *hoster, Controller::plugins()->hosterPlugins()) {
         if (hoster->canHandleUrl(dl->url())) {
             Downloader *downloader = hoster->handleDownload(dl);
-            m_runningDownloaders.insert(dl->id(), downloader);
-            m_runningDownloads.append(dl);
-
-            connect(dl.data(), &Download::downloadFinished, [=]() {
-                m_runningDownloaders.remove(dl->id());
-                m_runningDownloads.removeAll(dl);
-                startNextDownload();
-            });
-
-            connect(dl.data(), &Download::enabled, [=]() {
-                if (!dl->isEnabled()) {
-                    m_runningDownloads.removeAll(dl);
-                    m_runningDownloaders.remove(dl->id());
-                    startNextDownload();
-                }
-            });
+            downloader->setDownload(dl);
+            m_runningDownloaders.insert(dl, downloader);
+            connect(downloader, &Downloader::finished,
+                    this, &DownloadController::handleFinishedDownloader);
 
             emit statusChanged();
             return true;
@@ -83,20 +68,24 @@ bool DownloadController::startNextDownload()
     return false;
 }
 
+void DownloadController::handleFinishedDownloader()
+{
+    Downloader *downloader = static_cast<Downloader *>(sender());
+    m_runningDownloaders.remove(downloader->download());
+    downloader->deleteLater();
+    startNextDownload();
+}
+
 void DownloadController::removeDownload(QSharedPointer<Download> download)
 {
-    bool wasRunning = false;
+    bool wasRunning = isDownloadRunning();
 
-    if (m_runningDownloaders.contains(download->id())) {
+    if (m_runningDownloaders.contains(download)) {
         stopDownload(download);
-        wasRunning = true;
     }
 
+    download->package()->removeDownload(download);
     Qp::remove(download);
-
-    if (download->package()) {
-        download->package()->removeDownload(download);
-    }
 
     if (wasRunning)
         startDownloads();
@@ -116,7 +105,7 @@ void DownloadController::resetDownload(QSharedPointer<Download> download)
 {
     bool wasRunning = false;
 
-    if (m_runningDownloaders.contains(download->id())) {
+    if (m_runningDownloaders.contains(download)) {
         stopDownload(download);
         wasRunning = true;
     }
@@ -135,7 +124,7 @@ void DownloadController::resetDownload(QSharedPointer<Download> download)
     }
 
     if (wasRunning
-       || isDownloadRunning())
+            || isDownloadRunning())
         startDownloads();
 }
 
@@ -161,18 +150,18 @@ void DownloadController::startDownloads()
 
 void DownloadController::stopDownloads()
 {
-    foreach (QSharedPointer<Download> download, m_runningDownloads) {
+    foreach (QSharedPointer<Download> download, m_runningDownloaders.keys()) {
         stopDownload(download);
     }
 }
 
 void DownloadController::stopDownload(QSharedPointer<Download> download)
 {
-    if (m_runningDownloaders.contains(download->id())) {
-        m_runningDownloaders.value(download->id())->abortDownload();
-        m_runningDownloaders.remove(download->id());
-        m_runningDownloads.removeAll(download);
-
+    if (m_runningDownloaders.contains(download)) {
+        Downloader *downloader = m_runningDownloaders.value(download);
+        downloader->abortDownload();
+        m_runningDownloaders.remove(download);
+        downloader->deleteLater();
         emit statusChanged();
     }
 }

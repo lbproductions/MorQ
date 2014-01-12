@@ -13,6 +13,8 @@ class DownloadController : public QObject
 {
     Q_OBJECT
 public:
+    ~DownloadController();
+
     void startDownloads();
     void stopDownloads();
     void stopDownload(QSharedPointer<Download> download);
@@ -26,16 +28,17 @@ public:
 signals:
     void statusChanged();
 
+private slots:
+    void handleFinishedDownloader();
+
 private:
     friend class Controller;
     explicit DownloadController(QObject *parent = 0);
 
     bool startNextDownload();
-
     QSharedPointer<Download> findNextUnfinishedDownload();
 
-    QList<QSharedPointer<Download> > m_runningDownloads;
-    QHash<int, Downloader *> m_runningDownloaders;
+    QHash<QSharedPointer<Download>, Downloader *> m_runningDownloaders;
 
     Q_DISABLE_COPY(DownloadController)
 };

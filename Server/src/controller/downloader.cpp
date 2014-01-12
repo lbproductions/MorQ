@@ -37,6 +37,8 @@ public:
     bool gettingMetaData;
     char *buffer;
 
+    QSharedPointer<Download> download;
+
     static qint64 BUFFERSIZE;
 
     QString fileNameFromUrl() const;
@@ -136,6 +138,16 @@ bool Downloader::isDownloading() const
 QString Downloader::errorString() const
 {
     return data->errorString;
+}
+
+QSharedPointer<Download> Downloader::download() const
+{
+    return data->download;
+}
+
+void Downloader::setDownload(const QSharedPointer<Download> &value)
+{
+    data->download = value;
 }
 
 void Downloader::setErrorString(const QString &errorString)
