@@ -33,6 +33,13 @@ class Series : public QObject
                 "reverserelation=series;")
 
 public:
+    enum Status {
+        UnkownStatus,
+        DownloadsAvailable,
+        MissingEpisodes,
+        Complete
+    };
+
     static QSharedPointer<Series> forTitle(const QString &title);
 
     explicit Series(QObject *parent = 0);
@@ -95,6 +102,11 @@ public:
     QStringList folders() const;
     void setFolders(const QStringList &folders);
     void addFolder(const QString &folder);
+
+    Status status() const;
+    QPixmap statusPixmap() const;
+    QString statusMessage() const;
+
 
 signals:
     void checkStateChanged(Qt::CheckState oldState, Qt::CheckState newState);

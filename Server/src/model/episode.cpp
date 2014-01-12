@@ -4,6 +4,7 @@
 #include "season.h"
 #include "onlineresource.h"
 #include "misc/tools.h"
+#include "downloadpackage.h"
 
 #include <QDebug>
 #include <QPixmap>
@@ -17,12 +18,23 @@ Episode::Episode(QObject *parent) :
     m_status(Episode::UnkownStatus),
     m_downloadLinks("downloadLinks", this),
     m_season("season", this),
-    m_primaryLanguage(QLocale::AnyLanguage)
+    m_primaryLanguage(QLocale::AnyLanguage),
+    m_downloadPackage("downloadPackage", this)
 {
 }
 
 Episode::~Episode()
 {
+}
+
+QString Episode::displayString() const
+{
+    if(number() < 0)
+        return title();
+
+    return QString("E%1 - %2")
+            .arg(number(),2,10,QChar('0'))
+            .arg(title());
 }
 
 int Episode::number() const
@@ -100,6 +112,17 @@ QDate Episode::firstAired() const
 void Episode::setFirstAired(const QDate &firstAired)
 {
     m_firstAired = firstAired;
+}
+
+QSharedPointer<DownloadPackage> Episode::downloadPackage() const
+{
+    return m_downloadPackage.resolve();
+}
+
+void Episode::setDownloadPackage(QSharedPointer<DownloadPackage> arg)
+{
+    arg->setEpisode(Qp::sharedFrom(this));
+    m_downloadPackage.relate(arg);
 }
 
 int Episode::tvdbSeasonId() const

@@ -267,6 +267,91 @@ QMap<int, QSharedPointer<Season> > Series::seasonsByNumber() const
     return m_seasonsByNumber;
 }
 
+Series::Status Series::status() const
+{
+    int downloads = 0;
+    int missing = 0;
+    int okay = 0;
+
+    foreach (QSharedPointer<Season> s, seasons()) {
+        switch (s->status()) {
+        case Season::DownloadsAvailable:
+            ++downloads;
+            break;
+        case Season::MissingEpisodes:
+            ++missing;
+            break;
+        case Season::Complete:
+            ++okay;
+        default:
+        case Season::UnkownStatus:
+            break;
+        }
+    }
+
+    if (downloads > 0)
+        return Series::DownloadsAvailable;
+
+    if (missing > 0)
+        return Series::MissingEpisodes;
+
+    if (okay == seasons().size())
+        return Series::Complete;
+
+    return Series::UnkownStatus;
+}
+
+QPixmap Series::statusPixmap() const
+{
+    switch (status()) {
+    case DownloadsAvailable:
+        return Tools::cachedPixmap(":/icons/download_available");
+    case MissingEpisodes:
+        return Tools::cachedPixmap(":/icons/missing");
+    case Complete:
+        return Tools::cachedPixmap(":/icons/okay");
+    case UnkownStatus:
+    default:
+        break;
+    }
+
+    return Tools::cachedPixmap(":/icons/questionmark");
+}
+
+QString Series::statusMessage() const
+{
+    int downloads = 0;
+    int missing = 0;
+    foreach (QSharedPointer<Episode> e, episodes()) {
+        switch (e->status()) {
+        case Episode::DownloadAvailable:
+            ++downloads;
+            break;
+        case Episode::Missing:
+            ++missing;
+            break;
+        default:
+            break;
+        }
+    }
+
+    switch (status()) {
+    case DownloadsAvailable:
+        return tr("%1 downloads available")
+                .arg(downloads);
+    case MissingEpisodes:
+        return tr("%1 missing episodes")
+                .arg(missing);
+    case Complete:
+        return tr("Complete");
+    default:
+    case UnkownStatus:
+        break;
+    }
+
+    return tr("");
+}
+
 Qt::CheckState Series::checkState() const
 {
     return m_checkState;

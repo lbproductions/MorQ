@@ -90,7 +90,8 @@ QWidget *DownloadsItemDelegate::createEditor(QWidget *parent, const QStyleOption
     if (pixmap.isNull())
         return QStyledItemDelegate::createEditor(parent, option, index);
 
-    QWidget *editor = new CaptchaWidget(pixmap, parent);
+    CaptchaWidget *editor = new CaptchaWidget(pixmap, parent);
+    connect(editor, &CaptchaWidget::editingFinished, this, &DownloadsItemDelegate::onEditingFinished);
     return editor;
 }
 
@@ -131,8 +132,9 @@ void DownloadsItemDelegate::onEditingFinished()
 {
     CaptchaWidget *editor = qobject_cast<CaptchaWidget *>(sender());
     emit commitData(editor);
-    emit closeEditor(editor);
+    emit closeEditor(editor, QAbstractItemDelegate::EditNextItem);
 }
+
 
 CaptchaWidget::CaptchaWidget(const QPixmap &pm, QWidget *parent) :
     QWidget(parent),

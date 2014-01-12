@@ -24,6 +24,7 @@
 #include "plugins/scraper/filescraper.h"
 #include "plugins/scraper/newseriesscraper.h"
 #include "misc/tools.h"
+#include "controller/linkscontroller.h"
 #include "model/onlineresource.h"
 
 #include "model/download.h"
@@ -355,7 +356,7 @@ void MainWindow::enableActionsAccordingToDownloadSelection()
     }
 
     bool running = Controller::downloads()->isDownloadRunning();
-    ui->actionStart->setEnabled(downloadsAvailable && !running);
+    ui->actionStart->setEnabled(/*downloadsAvailable &&*/ !running);
 }
 
 void MainWindow::on_actionExtract_triggered()
@@ -428,8 +429,6 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
     ui->actionShow_TheTVDB_page->setEnabled(false);
     ui->actionOpen_SerienJunkies_page->setEnabled(false);
 
-    // TODO implement and enable downloading multiple episodes/seasons/series in one step
-
     if (focusWidget == ui->treeViewEpisodes) {
         QModelIndexList list = ui->treeViewEpisodes->selectionModel()->selectedRows();
         if (!list.isEmpty()) {
@@ -457,6 +456,8 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             if(!season)
                 return;
 
+            ui->actionAddDownload->setEnabled(season->status() == Season::DownloadsAvailable);
+
             ui->actionShow_in_Finder->setEnabled(season && !season->folders().isEmpty());
             ui->actionShow_TheTVDB_page->setEnabled(season->tvdbUrl().isValid());
             ui->actionOpen_SerienJunkies_page->setEnabled(!season->serienjunkiesUrls().isEmpty());
@@ -474,6 +475,7 @@ void MainWindow::enableActionsAccordingToSeriesSelection()
             if(!series)
                 return;
 
+            ui->actionAddDownload->setEnabled(series->status() == Series::DownloadsAvailable);
             ui->actionShow_in_Finder->setEnabled(!series->folders().isEmpty());
             ui->actionShow_TheTVDB_page->setEnabled(series->tvdbUrl().isValid());
             ui->actionOpen_SerienJunkies_page->setEnabled(series->serienJunkiesUrl().isValid());
@@ -529,9 +531,7 @@ void MainWindow::on_actionAddDownload_triggered()
         ui->actionAddDownload->setEnabled(false);
     }
 
-    ChooseDownloadLinksDialog dialog;
-    dialog.setEpisodes(episodes);
-    dialog.exec();
+    Controller::links()->downloadEpisodes(episodes);
 }
 
 void MainWindow::on_actionRescan_collection_triggered()

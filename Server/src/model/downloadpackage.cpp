@@ -2,6 +2,9 @@
 
 #include "download.h"
 #include "onlineresource.h"
+#include "season.h"
+#include "episode.h"
+#include "series.h"
 
 #include <QTime>
 #include <QDebug>
@@ -16,7 +19,8 @@ DownloadPackage::DownloadPackage(QObject *parent) :
     m_speed(0),
     m_weightedSpeed(0),
     m_speedTimer(QElapsedTimer()),
-    m_bytesDownloadedAtLastSpeedMeasurement(-1)
+    m_bytesDownloadedAtLastSpeedMeasurement(-1),
+    m_episode("episode", this)
 {
 }
 
@@ -26,6 +30,16 @@ DownloadPackage::~DownloadPackage()
 
 QString DownloadPackage::name() const
 {
+    QSharedPointer<Episode> e = episode();
+
+    if(e) {
+        return tr("%1 - S%2%3 (%4)")
+                .arg(e->season()->series()->title())
+                .arg(e->season()->number(),2,10,QChar('0'))
+                .arg(e->displayString())
+                .arg(m_name);
+    }
+
     return m_name;
 }
 
@@ -316,5 +330,15 @@ void DownloadPackage::maybeEmitDownloadFinished()
 void DownloadPackage::setExtractFolder(const QString &extractFolder)
 {
     m_extractFolder = extractFolder;
+}
+
+QSharedPointer<Episode> DownloadPackage::episode() const
+{
+    return m_episode.resolve();
+}
+
+void DownloadPackage::setEpisode(QSharedPointer<Episode> arg)
+{
+    m_episode.relate(arg);
 }
 

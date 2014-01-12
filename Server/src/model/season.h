@@ -32,10 +32,10 @@ class Season : public QObject
 
 public:
     enum Status {
-        UnkownStatus = 0x0,
-        DownloadsAvailable = 0x1,
-        MissingEpisodes = 0x2,
-        Complete = 0x4
+        UnkownStatus,
+        DownloadsAvailable,
+        MissingEpisodes,
+        Complete
     };
 
     explicit Season(QObject *parent = 0);

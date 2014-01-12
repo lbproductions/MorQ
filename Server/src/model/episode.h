@@ -9,6 +9,7 @@
 
 class OnlineResource;
 class Season;
+class DownloadPackage;
 
 class Episode : public QObject
 {
@@ -26,10 +27,13 @@ class Episode : public QObject
     Q_PROPERTY(QString overview READ overview WRITE setOverview)
     Q_PROPERTY(QDate firstAired READ firstAired WRITE setFirstAired)
     Q_PROPERTY(Status status READ status WRITE setStatus)
+    Q_PROPERTY(QSharedPointer<DownloadPackage> downloadPackage READ downloadPackage WRITE setDownloadPackage)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:season",
                 "reverserelation=episodes;")
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloadLinks",
+                    "reverserelation=episode;")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloadPackage",
                     "reverserelation=episode;")
 
 public:
@@ -45,6 +49,8 @@ public:
 
     explicit Episode(QObject *parent = 0);
     ~Episode();
+
+    QString displayString() const;
 
     Status status() const;
     void setStatus(Episode::Status status);
@@ -92,6 +98,9 @@ public:
     QDate firstAired() const;
     void setFirstAired(const QDate &firstAired);
 
+    QSharedPointer<DownloadPackage> downloadPackage() const;
+    void setDownloadPackage(QSharedPointer<DownloadPackage> arg);
+
 private:
     friend class Season;
     void setSeason(QSharedPointer<Season> season);
@@ -110,6 +119,7 @@ private:
     QString m_overview;
     QLocale::Language m_primaryLanguage;
     QDate m_firstAired;
+    QpStrongRelation<DownloadPackage> m_downloadPackage;
 };
 
 #endif // EPISODE_H

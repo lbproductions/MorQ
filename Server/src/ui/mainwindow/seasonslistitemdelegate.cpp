@@ -3,7 +3,7 @@
 #include "model/seasonslistmodel.h"
 #include "model/series.h"
 
-static const QPoint STATUS_ICON_OFFSET(8,8);
+static const QPoint STATUS_ICON_OFFSET(8,9);
 static const QPoint TITLE_OFFSET(28,8);
 static const QPoint FLAG_OFFSET(10,3); // relative to title ending
 static const int FLAG_MARGIN = 2; // Gap between flags

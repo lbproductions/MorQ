@@ -17,6 +17,7 @@ public:
     QSharedPointer<Download> createDownload(const QUrl &url);
     QSharedPointer<DownloadPackage> createPackage(const QUrl &url);
 
+    void downloadEpisodes(QList<QSharedPointer<Episode> > episode);
     void downloadEpisode(QSharedPointer<Episode> episode);
 
     void downloadVideos(QList<QSharedPointer<OnlineResource> > links);

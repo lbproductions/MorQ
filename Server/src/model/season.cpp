@@ -171,7 +171,7 @@ Season::Status Season::status() const
         case Episode::Downloading:
         case Episode::Extracting:
         default:
-        case UnkownStatus:
+        case Episode::UnkownStatus:
             break;
         }
     }

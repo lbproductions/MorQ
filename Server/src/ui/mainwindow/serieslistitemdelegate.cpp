@@ -6,7 +6,8 @@
 
 static const int HEIGHT = 64;
 static const QPoint TITLE_OFFSET(12,12);
-static const QPoint NEXT_EPISODE_OFFSET(12,32);
+static const QPoint STATUS_ICON_OFFSET(12,33);
+static const QPoint STATUSMESSAGE_OFFSET(32,32);
 static const QPoint SEASON_EPISODE_COUNT_OFFSET(0,12);
 static const QPoint FLAG_OFFSET(12,3); // relative to title ending
 static const int FLAT_MARGIN = 2; // Gap between flags
@@ -25,9 +26,15 @@ void SeriesListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
                   index.data().toString(),
                   TITLE_OFFSET);
 
+    QSharedPointer<Series> series = index.data(SeriesListModel::RawDataRole).value<QSharedPointer<Series> >();
+
+    drawPixmap(painter, option,
+               series->statusPixmap(),
+               STATUS_ICON_OFFSET);
+
     drawText(painter, option,
-             tr("Next episode in %1 days").arg("?"),
-             NEXT_EPISODE_OFFSET);
+             series->statusMessage(),
+             STATUSMESSAGE_OFFSET);
     drawText(painter, option,
              tr("%1 seasons, %2 episodes")
              .arg(index.data(SeriesListModel::SeasonCountRole).toInt())

@@ -6,8 +6,8 @@
 #include <QPainter>
 
 static const QPoint TITLE_OFFSET(8,8);
-static const QPoint STATUS_ICON_OFFSET(8,32);
-static const QPoint STATUS_MESSAGE_OFFSET(28,32);
+static const QPoint STATUS_ICON_OFFSET(8,33);
+static const QPoint STATUS_MESSAGE_OFFSET(32,32);
 static const int HEIGHT = 64;
 
 EpisodesListItemDelegate::EpisodesListItemDelegate(QAbstractItemView *view, QObject *parent) :

@@ -6,11 +6,13 @@
 #include "downloader.h"
 #include "plugins/hoster/hosterplugin.h"
 #include "plugins/decrypter/decrypterplugin.h"
-
+#include "ui/dialogs/choosedownloadlinksdialog.h"
 #include "model/download.h"
 #include "model/downloadpackage.h"
 #include "model/episode.h"
 #include "model/onlineresource.h"
+#include "model/season.h"
+#include "model/series.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -97,17 +99,29 @@ QSharedPointer<DownloadPackage> LinksController::createPackage(const QUrl &url)
     return package;
 }
 
+void LinksController::downloadEpisodes(QList<QSharedPointer<Episode> > episodes)
+{
+    foreach(QSharedPointer<Episode> e, episodes) {
+        downloadEpisode(e);
+    }
+}
+
 void LinksController::downloadEpisode(QSharedPointer<Episode> episode)
 {
-//    QUrl url = episode->downloadLinks();
+    QList<QSharedPointer<OnlineResource> > links = episode->downloadLinks();
 
-//    foreach (DecrypterPlugin *decrypter, Controller::plugins()->decrypterPlugins()) {
-//        if (decrypter->canHandleUrl(url)) {
-//            QSharedPointer<DownloadPackage> package = createPackage(url);
-//            decrypter->handlePackage(package);
-//            return;
-//        }
-    //    }
+    // TODO: Scrape or ask for downloadlink
+    if(links.isEmpty())
+        return;
+
+    if(links.size() == 1) {
+        downloadVideos(links);
+        return;
+    }
+
+    ChooseDownloadLinksDialog dialog;
+    dialog.setEpisodes(QList<QSharedPointer<Episode> >() << episode);
+    dialog.exec();
 }
 
 void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > links)
@@ -120,6 +134,8 @@ void LinksController::downloadVideos(QList<QSharedPointer<OnlineResource> > link
                 package->setExtractFolder(link->extractFolder());
                 decrypter->handlePackage(package);
                 link->episode()->setStatus(Episode::Downloading);
+                link->episode()->setDownloadPackage(package);
+                Qp::update(package);
                 Qp::update(link->episode());
                 return;
             }

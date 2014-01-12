@@ -10,6 +10,7 @@
 #include <QUrl>
 
 class Download;
+class Episode;
 
 class DownloadPackage : public QObject
 {
@@ -18,9 +19,12 @@ class DownloadPackage : public QObject
     Q_PROPERTY(QString message READ message WRITE setMessage)
     Q_PROPERTY(QList<QSharedPointer<Download> > downloads READ downloads WRITE setDownloads)
     Q_PROPERTY(QUrl sourceUrl READ sourceUrl WRITE setSourceUrl)
+    Q_PROPERTY(QSharedPointer<Episode> episode READ episode WRITE setEpisode)
 
     Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:downloads",
                 "reverserelation=package;")
+    Q_CLASSINFO("QPERSISTENCE_PROPERTYMETADATA:episode",
+                "reverserelation=downloadPackage;")
 
 public:
     explicit DownloadPackage(QObject *parent = 0);
@@ -70,7 +74,7 @@ public:
     QString extractFolder() const;
     void setExtractFolder(const QString &extractFolder);
 
-
+    QSharedPointer<Episode> episode() const;
 
 signals:
     void captchaStringChanged();
@@ -80,6 +84,8 @@ private slots:
     void maybeEmitDownloadFinished();
 
 private:
+    friend class Episode;
+    void setEpisode(QSharedPointer<Episode> arg);
     void setDownloads(const QList<QSharedPointer<Download> > downloads);
 
     void calculateSpeed() const;
@@ -104,6 +110,7 @@ private:
     static float s_speedAlpha;
 
     QString m_extractFolder;
+    QpWeakRelation<Episode> m_episode;
 };
 
 Q_DECLARE_METATYPE(QSharedPointer<DownloadPackage> )
