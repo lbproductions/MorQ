@@ -35,7 +35,6 @@ public:
 
     QSharedPointer<DownloadPackage> package() const;
 
-    int id() const;
     int order() const;
 
     QUrl url() const;

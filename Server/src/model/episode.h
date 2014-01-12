@@ -44,8 +44,6 @@ public:
     explicit Episode(QObject *parent = 0);
     ~Episode();
 
-    int id() const;
-
     Episode::Status status() const;
     void setStatus(Episode::Status status);
     QPixmap statusPixmap() const;

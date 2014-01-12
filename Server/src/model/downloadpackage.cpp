@@ -24,11 +24,6 @@ DownloadPackage::~DownloadPackage()
 {
 }
 
-int DownloadPackage::id() const
-{
-    return Qp::primaryKey(Qp::sharedFrom(this));
-}
-
 QString DownloadPackage::name() const
 {
     return m_name;

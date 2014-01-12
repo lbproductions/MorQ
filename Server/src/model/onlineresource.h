@@ -14,7 +14,6 @@ class OnlineResource : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QString formatDescription READ formatDescription WRITE setFormatDescription)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
@@ -32,8 +31,6 @@ class OnlineResource : public QObject
 public:
     explicit OnlineResource(QObject *parent = 0);
     ~OnlineResource();
-
-    int id() const;
 
     QString name() const;
     void setName(const QString &name);
@@ -66,7 +63,6 @@ private:
     QList<int> _languages() const;
     void _setLanguages(const QList<int> &_languages);
 
-    int m_id;
     QString m_name;
     QString m_formatDescription;
     QUrl m_url;

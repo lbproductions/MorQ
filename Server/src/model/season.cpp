@@ -22,11 +22,6 @@ Season::~Season()
 {
 }
 
-int Season::id() const
-{
-    return Qp::primaryKey(Qp::sharedFrom(this));
-}
-
 int Season::number() const
 {
     return m_number;
@@ -35,7 +30,7 @@ int Season::number() const
 void Season::setNumber(int number)
 {
     Q_ASSERT(m_number >= -1);
-    if(number != m_number) {
+    if(number != m_number && Qp::sharedFrom(this)) {
         m_number = number;
         if(series()) {
             series()->removeSeason(Qp::sharedFrom(this));

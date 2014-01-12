@@ -7,7 +7,6 @@
 
 OnlineResource::OnlineResource(QObject *parent) :
     QObject(parent),
-    m_id(-1),
     m_episode("episode", this),
     m_season("season", this)
 {
@@ -15,16 +14,6 @@ OnlineResource::OnlineResource(QObject *parent) :
 
 OnlineResource::~OnlineResource()
 {
-}
-
-int OnlineResource::id() const
-{
-    return m_id;
-}
-
-void OnlineResource::setId(int id)
-{
-    m_id  = id;
 }
 
 QString OnlineResource::name() const

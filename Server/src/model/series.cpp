@@ -31,11 +31,6 @@ Series::~Series()
 {
 }
 
-int Series::id() const
-{
-    return Qp::primaryKey(Qp::sharedFrom(this));
-}
-
 QString Series::title() const
 {
     return m_title;

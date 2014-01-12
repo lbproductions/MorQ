@@ -26,8 +26,6 @@ public:
     explicit DownloadPackage(QObject *parent = 0);
     ~DownloadPackage();
 
-    int id() const;
-
     QString name() const;
     void setName(const QString &name);
 

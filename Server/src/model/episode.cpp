@@ -25,11 +25,6 @@ Episode::~Episode()
 {
 }
 
-int Episode::id() const
-{
-    return Qp::primaryKey(Qp::sharedFrom(this));
-}
-
 int Episode::number() const
 {
     return m_number;

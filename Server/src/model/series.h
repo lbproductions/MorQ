@@ -37,9 +37,6 @@ public:
 
     explicit Series(QObject *parent = 0);
     ~Series();
-    
-    // General
-    int id() const;
 
     QList<QSharedPointer<Season> > seasons() const;
     QSharedPointer<Season> season(int number) const;

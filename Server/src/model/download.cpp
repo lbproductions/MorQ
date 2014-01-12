@@ -98,11 +98,6 @@ QSharedPointer<DownloadPackage> Download::package() const
     return m_package.resolve();
 }
 
-int Download::id() const
-{
-    return Qp::primaryKey(Qp::sharedFrom(this));
-}
-
 void Download::setPackage(QSharedPointer<DownloadPackage> package)
 {
     m_package.relate(package);

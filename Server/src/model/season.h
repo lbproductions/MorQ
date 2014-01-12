@@ -41,8 +41,6 @@ public:
     explicit Season(QObject *parent = 0);
     ~Season();
 
-    int id() const;
-
     int number() const;
     void setNumber(int number);
 
