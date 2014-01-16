@@ -61,6 +61,10 @@ void ExtractionController::extractPackage(QSharedPointer<DownloadPackage> packag
         dl->setDestinationFolder(Preferences::downloadFolder());
 
     QuunRar *rar = new QuunRar(dl->destinationFolder() + QDir::separator() + dl->fileName(), this);
+    QDir extractDir(package->extractFolder());
+    if(!extractDir.exists())
+        extractDir.mkpath(package->extractFolder());
+
     rar->setDestinationDir(package->extractFolder());
     rar->setPassword("serienjunkies.org");
     if (!rar->open()) {
